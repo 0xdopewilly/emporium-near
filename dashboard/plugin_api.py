@@ -39,6 +39,16 @@ def _settings() -> dict[str, Any]:
     return (((cfg.get("plugins") or {}).get("entries") or {}).get("emporium") or {}).get("settings") or {}
 
 
+def _profile() -> str:
+    """The active profile's name, from its home directory (``…/profiles/<name>``), else default."""
+    try:
+        from hermes_constants import get_hermes_home
+        home = Path(get_hermes_home())
+        return home.name if home.parent.name == "profiles" else "default"
+    except Exception:
+        return "default"
+
+
 def _money(shop_mod, d: Decimal) -> str:
     return shop_mod.usd(d) if d else "$0.00"
 
@@ -47,7 +57,7 @@ def _summary() -> dict[str, Any]:
     shop_mod, ledger_mod, buyer_mod = _lib()
     settings = _settings()
     get = lambda k, d=None: settings.get(k, d)  # noqa: E731
-    shop = shop_mod.load_shop(get)
+    shop = shop_mod.load_shop(get, _profile())
     books = ledger_mod.Ledger.open()
     s = books.sales_summary()
     policy = buyer_mod.Policy(get)
@@ -66,7 +76,8 @@ def _summary() -> dict[str, Any]:
     return {
         "shop": {"name": shop.name, "tagline": shop.tagline, "url": shop.base_url(), "network": shop.network_label,
                  "testnet": shop.testnet, "pay_to": shop.pay_to, "open": shop.open and books.is_open(),
-                 "ready": shop.ready, "problems": shop.problems},
+                 "ready": shop.ready, "problems": shop.problems, "profile": shop.profile or "default",
+                 "shared_profile": shop.shared_profile},
         "sales": {"earned_total": _money(shop_mod, s["earned_total"]), "earned_today": _money(shop_mod, s["earned_today"]),
                   "earned_total_raw": str(s["earned_total"]), "jobs_settled": s["jobs_settled"], "jobs_today": s["jobs_today"],
                   "buyers": s["buyers"], "not_charged": s["counts"].get("failed", 0) + s["counts"].get("unpaid", 0),

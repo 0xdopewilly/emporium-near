@@ -94,14 +94,16 @@
             h(Pill, { kind: shop.open ? "ok" : "bad" }, shop.open ? "● Open for business" : "● Closed"),
             h(Pill, null, "USDC on " + shop.network), shop.testnet ? h(Pill, { kind: "gold" }, "testnet") : null,
             h("a", { className: "emp-pill emp-link", href: shop.url, target: "_blank", rel: "noopener" }, shop.url.replace(/^https?:\/\//, "") + " ↗"),
-            h(Pill, null, "wallet " + short(shop.pay_to))))),
+            h(Pill, null, "wallet " + short(shop.pay_to)),
+            shop.shared_profile ? null : h(Pill, { kind: "ok" }, "own profile · " + shop.profile)))),
       h("div", { className: "emp-earn" },
         h("div", { className: "emp-lbl" }, "Earned"),
         h("div", { className: "emp-big" }, money(earned)),
         h("div", { className: "emp-sub" }, sales.earned_today + " today · " + sales.jobs_settled + (sales.jobs_settled === 1 ? " job · " : " jobs · ") + sales.buyers + (sales.buyers === 1 ? " buyer" : " buyers")),
         h("button", { className: "emp-btn", onClick: toggle }, shop.open ? "Close shop" : "Open shop")));
 
-    const problems = !shop.ready ? h("div", { className: "emp-card emp-warn" }, "Not ready: " + shop.problems.join("; ")) : null;
+    const problems = !shop.ready ? h("div", { className: "emp-card emp-warn" }, "Not ready: " + shop.problems.join("; "))
+      : shop.shared_profile ? h("div", { className: "emp-card emp-warn emp-soft-warn" }, "This shop runs on your main profile, so buyers' jobs load your memory and persona. Tools stay locked, but give the shop its own profile: hermes profile create shop --clone") : null;
 
     const live = h("div", { className: "emp-card emp-live" },
       h("div", { className: "emp-card-h" }, h("h2", null, "Live jobs"), h("span", { className: "emp-dot" })),

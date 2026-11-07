@@ -3,7 +3,7 @@
 .emp-card{border:1px solid var(--emp-line);border-radius:18px;padding:18px;background:var(--emp-soft)}
 .emp-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .emp-card-h h2{font-size:15px;font-weight:600;margin:0;letter-spacing:.01em}
-.emp-hero{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;border:1px solid var(--emp-line);border-radius:22px;padding:22px 24px;background:radial-gradient(120% 140% at 100% 0%,rgba(233,185,73,.14),transparent 55%),var(--emp-soft);transition:box-shadow .4s}
+.emp-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;border:1px solid var(--emp-line);border-radius:22px;padding:22px 24px;background:radial-gradient(120% 140% at 100% 0%,rgba(233,185,73,.14),transparent 55%),var(--emp-soft);transition:box-shadow .4s}
 .emp-flash{box-shadow:0 0 0 2px rgba(233,185,73,.7),0 0 40px rgba(233,185,73,.35)}
 .emp-id{display:flex;gap:16px;align-items:flex-start;min-width:0}
 .emp-mark{flex:none;width:52px;height:52px;border-radius:15px;background:radial-gradient(circle at 30% 30%,#ffd977,#c98a1c);display:grid;place-items:center;color:#1a1408;font:italic 30px Georgia,serif;box-shadow:0 10px 30px rgba(233,185,73,.25)}
@@ -21,7 +21,7 @@
 .emp-btn:hover{border-color:var(--emp-gold);color:var(--emp-gold)}
 .emp-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:16px}
 .emp-grid-2{grid-template-columns:1fr 1fr}
-@media (max-width:1000px){.emp-grid,.emp-grid-2{grid-template-columns:1fr}.emp-earn{align-items:flex-start;text-align:left}}
+@media (max-width:1000px){.emp-grid,.emp-grid-2,.emp-hero{grid-template-columns:1fr}.emp-earn{align-items:flex-start;text-align:left}}
 .emp-table{display:flex;flex-direction:column}
 .emp-row{display:grid;grid-template-columns:1.5fr .8fr .55fr 1.05fr .8fr;gap:10px;align-items:center;padding:10px 4px;border-top:1px solid var(--emp-line);font-size:13px}
 .emp-row:first-child{border-top:0}
@@ -58,3 +58,4 @@
 .emp-toast span{font-size:13px;color:#cfc6b4}
 @keyframes empToast{0%{opacity:0;transform:translateY(16px) scale(.96)}10%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0;transform:translateY(6px)}}
 .emp-stc{display:flex;align-items:center;gap:6px;white-space:nowrap}.emp-stc small{font-size:11px}
+.emp-soft-warn{border-color:rgba(233,185,73,.55);color:var(--emp-gold)}

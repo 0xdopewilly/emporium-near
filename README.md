@@ -29,16 +29,19 @@ A failed or timed-out job is never settled, so it costs the buyer nothing. A job
 
 ## Quick start (testnet, free)
 
+Give the shop a profile of its own, so buyers' jobs never load your memory or persona:
+
 ```bash
-hermes plugins install emporium          # or clone into ~/.hermes/plugins/emporium
-hermes plugins enable emporium           # installs x402[evm]
-hermes emporium init --pay-to 0xYourWallet --name "Ada's Emporium"
-hermes gateway run                       # the shop opens at http://127.0.0.1:9402
+hermes profile create shop --clone                 # its own memory, skills, sessions and .env
+hermes -p shop plugins install emporium            # or clone into ~/.hermes/profiles/shop/plugins/emporium
+hermes -p shop plugins enable emporium             # installs x402[evm]
+hermes -p shop emporium init --pay-to 0xYourWallet --name "Ada's Emporium"
+hermes gateway run                                 # the host gateway serves the shop profile: http://127.0.0.1:9402
 ```
 
 `init` writes a starter menu: English → Yoruba translation ($0.05), code review ($0.25) and a web research brief ($0.40, uses `web_search`). Payments default to **USDC on Base Sepolia** through the public `x402.org` facilitator, so you can try the whole flow with faucet USDC (faucet.circle.com).
 
-**Tip:** run the shop on its own profile (`hermes profile create shop`, then `hermes -p shop …`). That gives the shop a memory, skills and history that are separate from yours.
+A shop on your main profile still works and its tools stay locked, but `/shop`, the dashboard and the gateway log will tell you to move it.
 
 ### Hire a shop from another Hermes
 
@@ -83,10 +86,11 @@ plugins:
 ## Why a paying stranger can't rob you
 
 1. **Fenced input.** The buyer's text reaches the agent inside a job brief, marked as material to work on rather than instructions. Fence markers in the input are neutralised so it can't close the fence early.
-2. **Hard tool lock.** `pre_llm_call` binds each shop session to its job, and `pre_tool_call` refuses every tool the service doesn't sell. A shop session that isn't bound to a known job gets no tools at all. Your own sessions (CLI, Telegram…) are never affected. `emporium_hire` itself is never sellable, so a buyer can't make your shop spend your money.
-3. **Egress scrub.** Replies are swept for private keys, vendor tokens, bearer tokens and JWTs before they leave the machine.
-4. **Money last.** Payments are verified before work and settled after it. Bad input, a closed shop, a busy shop or a rate-limited wallet are refused before any payment is taken.
-5. **The buyer checks the shop too.** `emporium_hire` won't sign unless the 402 asks for the catalog's price, in USDC, to the shop's published wallet, on a network you allowed.
+2. **Its own profile.** Run on a `shop` profile, the agent that works jobs has a separate memory, persona, skills, history and `.env`. On your main profile, Emporium warns you.
+3. **Hard tool lock.** `pre_llm_call` binds each shop session to its job, and `pre_tool_call` refuses every tool the service doesn't sell. A shop session that isn't bound to a known job gets no tools at all. Your own sessions (CLI, Telegram…) are never affected. `emporium_hire` itself is never sellable, so a buyer can't make your shop spend your money.
+4. **Egress scrub.** Replies are swept for private keys, vendor tokens, bearer tokens and JWTs before they leave the machine.
+5. **Money last.** Payments are verified before work and settled after it. Bad input, a closed shop, a busy shop or a rate-limited wallet are refused before any payment is taken.
+6. **The buyer checks the shop too.** `emporium_hire` won't sign unless the 402 asks for the catalog's price, in USDC, to the shop's published wallet, on a network you allowed.
 
 ## Disclosures
 

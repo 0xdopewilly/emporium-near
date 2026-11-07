@@ -10,6 +10,9 @@ from . import ledger as books
 from .buyer import Policy
 from .shop import STARTER_SERVICES, load_shop, usd
 
+SHARED_NOTE = ("⚠ This shop runs on your main profile, so buyers' jobs run with your memory and persona loaded. "
+               "Tools stay locked, but give the shop its own profile: hermes profile create shop --clone")
+
 _HELP = ("/shop — status, earnings and the menu\n"
          "/shop jobs — the last jobs sold\n"
          "/shop buys — the last jobs this Hermes bought, and today's budget\n"
@@ -39,6 +42,8 @@ def status_text(get: Callable[[str, Any], Any], profile: str) -> str:
         lines.append("Run `hermes emporium init --pay-to 0xYourWallet` to set up a starter shop.")
         return "\n".join(lines)
     lines.append(f"{shop.base_url()} · paid in USDC on {shop.network_label} to {shop.pay_to}")
+    if shop.shared_profile:
+        lines.append(SHARED_NOTE)
     lines.append(f"Earned {_money(s['earned_total'])} ({_money(s['earned_today'])} today) · "
                  f"{s['jobs_settled']} jobs delivered · {s['buyers']} buyers")
     lines.append("")

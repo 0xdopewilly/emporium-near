@@ -115,9 +115,17 @@ class Shop:
     public_url: str
     services: list[Service]
     open: bool = True
+    profile: str = ""
     max_concurrent_jobs: int = 3
     jobs_per_payer_per_hour: int = 30
     problems: list[str] = field(default_factory=list)
+
+    @property
+    def shared_profile(self) -> bool:
+        """True when the shop runs on the owner's main profile, whose memory and persona every
+        gateway session loads. Tools stay locked either way; memory is only sealed on a profile
+        of its own (``hermes profile create shop``)."""
+        return self.profile in ("", "default")
 
     @property
     def network_label(self) -> str:
@@ -266,7 +274,7 @@ def load_shop(get: Callable[[str, Any], Any], profile: str = "") -> Shop:
         port = DEFAULT_PORT
     if not 0 <= port <= 65535:
         problems.append(f"port {port} is out of range")
-    default_name = f"{profile.capitalize()}'s Emporium" if profile and profile != "default" else "Hermes Emporium"
+    default_name = f"{profile.capitalize()}'s Emporium" if profile and profile not in ("default", "shop", "store") else "Hermes Emporium"
 
     def _int(key: str, default: int, lo: int, hi: int) -> int:
         try:
@@ -285,6 +293,7 @@ def load_shop(get: Callable[[str, Any], Any], profile: str = "") -> Shop:
         public_url=str(get("public_url", "") or "").strip(),
         services=services,
         open=bool(get("open", True)),
+        profile=profile or "",
         max_concurrent_jobs=_int("max_concurrent_jobs", 3, 1, 32),
         jobs_per_payer_per_hour=_int("jobs_per_payer_per_hour", 30, 1, 10000),
         problems=problems,

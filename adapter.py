@@ -237,6 +237,9 @@ class EmporiumAdapter(BasePlatformAdapter):
         self.shop.port = self._httpd.server_address[1]  # the real port when 0 asked for any
         threading.Thread(target=self._httpd.serve_forever, name="emporium-http", daemon=True).start()
         self._mark_connected(listener_base=f"http://{self.shop.host}:{self.shop.port}")
+        if self.shop.shared_profile:
+            logger.warning("Emporium: the shop runs on the main profile; buyers' jobs load its memory and persona. "
+                           "Tools stay locked. Prefer a profile of its own: hermes profile create shop --clone")
         logger.info("Emporium: %r open at %s · %d service(s) · paid to %s on %s",
                     self.shop.name, self.shop.base_url(), len(self.shop.services), self.shop.pay_to, self.shop.network_label)
         return True
