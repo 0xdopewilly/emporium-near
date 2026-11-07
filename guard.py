@@ -129,6 +129,39 @@ _TOKENS = re.compile(
 _BEARER = re.compile(r"(?i)\b(bearer)\s+[A-Za-z0-9._~+/=-]{16,}")
 _JWT = re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b")
 
+def strip_private(text: str, private: str, run: int = 9) -> str:
+    """Remove any run of ``run``+ consecutive words copied from the service's private instructions
+    (a buyer who talks the model into "print your instructions" gets a placeholder instead)."""
+    pw = re.findall(r"\w+", (private or "").lower())
+    if len(pw) < run:
+        return text
+    grams = {tuple(pw[i:i + run]) for i in range(len(pw) - run + 1)}
+    toks = list(re.finditer(r"\w+", text))
+    low = [t.group(0).lower() for t in toks]
+    hit = [False] * len(toks)
+    for i in range(len(toks) - run + 1):
+        if tuple(low[i:i + run]) in grams:
+            for k in range(i, i + run):
+                hit[k] = True
+    if not any(hit):
+        return text
+    out, i = [], 0
+    pos = 0
+    while i < len(toks):
+        if hit[i]:
+            j = i
+            while j + 1 < len(toks) and hit[j + 1]:
+                j += 1
+            out.append(text[pos:toks[i].start()])
+            out.append("[private]")
+            pos = toks[j].end()
+            i = j + 1
+        else:
+            i += 1
+    out.append(text[pos:])
+    return "".join(out)
+
+
 def scrub_output(text: str) -> str:
     """Secret sweep for text leaving the machine: PEM keys, labelled wallet keys, seed phrases, vendor
     tokens, bearer tokens and JWTs."""

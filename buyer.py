@@ -216,7 +216,7 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
         if receipt.get("tx") and explorer:
             receipt["explorer"] = explorer + receipt["tx"]
         return {"shop": cat.get("name"), "service": svc.get("title") or service_id, "output": data["output"],
-                "receipt": receipt, "charged_usd": str(charged)}
+                "receipt": receipt, "charged_usd": str(charged), "job": data.get("job", "")}
 
 
 def track_record(shop_url: str, cat: dict, sample: int = 6, rpc_url: str = "") -> dict:

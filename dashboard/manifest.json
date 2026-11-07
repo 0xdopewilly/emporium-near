@@ -3,7 +3,7 @@
   "label": "Emporium",
   "description": "Your shop: live jobs, earnings, the menu and what this Hermes bought.",
   "icon": "Zap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "tab": { "path": "/emporium", "position": "after:sessions" },
   "entry": "dist/index.js",
   "css": "dist/style.css",

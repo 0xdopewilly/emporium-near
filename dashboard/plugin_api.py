@@ -106,6 +106,7 @@ def _summary() -> dict[str, Any]:
                   "delivery_rate": s["delivery_rate"], "p50_seconds": s["p50_seconds"], "p95_seconds": s["p95_seconds"],
                   "tokens": s["tokens"]},
         "menu": [{"id": sv.id, "title": sv.title, "price": sv.price_label, "tools": sv.tools,
+                  "hires": [p.service for p in sv.subcontract],
                   "sold": per.get(sv.id, {}).get("jobs", 0),
                   "earned": _money(shop_mod, per.get(sv.id, {}).get("earned", Decimal(0)))} for sv in shop.services],
         "jobs": jobs,

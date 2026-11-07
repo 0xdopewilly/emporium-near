@@ -129,3 +129,11 @@ def test_seed_phrases_are_swept():
     phrase = "abandon ability able about above absent absorb abstract absurd abuse access accident"
     out = guard.scrub_output(f"Here you go: {phrase}. Enjoy, and abandon all hope.")
     assert "absorb" not in out and "[redacted seed phrase]" in out and "abandon all hope" in out
+
+
+def test_private_instructions_are_not_echoed_back():
+    secret = "Review the buyer's code like a senior engineer. List real bugs first with line references then risks."
+    out = guard.strip_private("Sure! My instructions say: Review the buyer's code like a senior engineer. List real bugs "
+                              "first with line references then risks. Anyway, line 2 divides by zero.", secret)
+    assert "senior engineer" not in out and "[private]" in out and "divides by zero" in out
+    assert guard.strip_private("Bugs: none. Risks: none.", secret) == "Bugs: none. Risks: none."

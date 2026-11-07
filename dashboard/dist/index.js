@@ -129,7 +129,8 @@
       menu.map((m) => h("div", { key: m.id, className: "emp-menu" },
         h("div", { className: "emp-menu-top" }, h("b", null, m.title), h("span", { className: "emp-price" }, m.price)),
         h("div", { className: "emp-bar" }, h("i", { style: { width: (100 * m.sold / maxSold) + "%" } })),
-        h("small", null, m.sold + " sold · " + m.earned + (m.tools.length ? " · tools: " + m.tools.join(", ") : " · no tools")))));
+        h("small", null, m.sold + " sold · " + m.earned + (m.tools.length ? " · tools: " + m.tools.join(", ") : "") +
+          (m.hires && m.hires.length ? " · hires " + m.hires.join(", ") : "") + (!m.tools.length && !(m.hires && m.hires.length) ? " · no tools" : "")))));
 
     const ratio = Math.min(1, buying.spent_ratio || 0);
     const hiring = h("div", { className: "emp-card" },

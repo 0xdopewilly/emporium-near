@@ -407,7 +407,7 @@ class EmporiumAdapter(BasePlatformAdapter):
                 code = 504 if text == "timeout" else 502
                 return h.json(code, {"job": jid, "error": f"the job did not complete ({text or 'empty reply'}); you were not charged",
                                      "charged": False})
-            output = guard.scrub_output(text)
+            output = guard.strip_private(guard.scrub_output(text), svc.instructions)
             digest = hashlib.sha256(output.encode("utf-8")).hexdigest()
             if client_gone(h):
                 self.books.update_job(jid, status=books.FAILED, error="the buyer disconnected before delivery",

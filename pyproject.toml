@@ -1,6 +1,6 @@
 [project]
 name = "hermes-emporium"
-version = "0.1.0"
+version = "0.2.0"
 description = "Hermes opens a shop: sell your agent's skills for USDC per job over x402, paid only on delivery."
 requires-python = ">=3.11"
 license = "MIT"
