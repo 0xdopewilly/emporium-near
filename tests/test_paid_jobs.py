@@ -63,12 +63,36 @@ def test_timed_out_job_is_never_charged(shop):
     assert shop.books.recent_jobs(1)[0]["status"] == books.FAILED
 
 
-def test_settlement_failure_withholds_the_result(shop):
+@pytest.fixture
+def no_backoff(monkeypatch):
+    from emporium import adapter
+    monkeypatch.setattr(adapter.time, "sleep", lambda s: None)
+    return adapter
+
+
+def test_settlement_failure_withholds_the_result(shop, no_backoff):
     shop.facilitator.fail_settle = True
     with pytest.raises(buyer.HireError) as e:
         hire(shop, text="secret sauce")
     assert "secret sauce" not in str(e.value)
     assert shop.books.recent_jobs(1)[0]["status"] == books.UNPAID
+    assert len(shop.facilitator.settled) == no_backoff.SETTLE_ATTEMPTS
+
+
+def test_flaky_settlement_is_retried_and_delivered(shop, no_backoff):
+    shop.facilitator.fail_settle = 1  # the public facilitator sometimes fails to land the transfer once
+    r = hire(shop, text="hello again")
+    assert r["receipt"]["tx"].startswith("0x")
+    assert len(shop.facilitator.settled) == 2
+    assert shop.books.recent_jobs(1)[0]["status"] == books.SETTLED
+
+
+def test_a_bad_authorization_is_not_retried(shop, no_backoff):
+    shop.facilitator.fail_settle = True
+    shop.facilitator.settle_reason = "invalid_exact_evm_insufficient_balance"
+    with pytest.raises(buyer.HireError):
+        hire(shop)
+    assert len(shop.facilitator.settled) == 1
 
 
 def test_invalid_payment_does_no_work(shop):

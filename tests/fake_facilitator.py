@@ -18,8 +18,10 @@ NETWORKS = ("eip155:84532", "eip155:8453")
 
 
 class FakeFacilitator:
-    def __init__(self, port: int = 0, fail_settle: bool = False, invalid: bool = False):
+    def __init__(self, port: int = 0, fail_settle: bool | int = False, invalid: bool = False):
+        # fail_settle: True fails every settlement; an int N fails only the first N (a flaky facilitator).
         self.fail_settle, self.invalid = fail_settle, invalid
+        self.settle_reason = "invalid_exact_evm_transaction_failed"
         self.verified: list[dict] = []
         self.settled: list[dict] = []
         outer = self
@@ -54,8 +56,9 @@ class FakeFacilitator:
                 if self.path.rstrip("/").endswith("/settle"):
                     outer.settled.append(body)
                     net = (payload.get("accepted") or {}).get("network", NETWORKS[0])
-                    if outer.fail_settle:
-                        return self._json(200, {"success": False, "errorReason": "unexpected_settle_error", "transaction": "",
+                    fail = outer.fail_settle
+                    if fail is True or (type(fail) is int and len(outer.settled) <= fail):
+                        return self._json(200, {"success": False, "errorReason": outer.settle_reason, "transaction": "",
                                                 "network": net, "payer": payer})
                     return self._json(200, {"success": True, "transaction": "0x" + secrets.token_hex(32), "network": net, "payer": payer})
                 self._json(404, {})

@@ -1,5 +1,7 @@
 # Hermes Emporium
 
+![Emporium: Hermes opens a shop](docs/banner.png)
+
 **Hermes opens a shop.** Sell your agent's skills to anyone (people, scripts, other agents) for USDC per job, over the open [x402](https://x402.org) standard. Buyers pay **only when the work is delivered**.
 
 Every payment plugin in the catalog teaches Hermes to *spend*. Emporium teaches it to **earn**.
@@ -89,7 +91,7 @@ plugins:
 2. **Its own profile.** Run on a `shop` profile, the agent that works jobs has a separate memory, persona, skills, history and `.env`. On your main profile, Emporium warns you.
 3. **Hard tool lock.** `pre_llm_call` binds each shop session to its job, and `pre_tool_call` refuses every tool the service doesn't sell. A shop session that isn't bound to a known job gets no tools at all. Your own sessions (CLI, Telegram…) are never affected. `emporium_hire` itself is never sellable, so a buyer can't make your shop spend your money.
 4. **Egress scrub.** Replies are swept for private keys, vendor tokens, bearer tokens and JWTs before they leave the machine.
-5. **Money last.** Payments are verified before work and settled after it. Bad input, a closed shop, a busy shop or a rate-limited wallet are refused before any payment is taken.
+5. **Money last.** Payments are verified before work and settled after it. A transient facilitator failure is retried (the authorization's one-time nonce means a retry can never charge twice); if it still doesn't settle, the result is withheld. Bad input, a closed shop, a busy shop or a rate-limited wallet are refused before any payment is taken.
 6. **The buyer checks the shop too.** `emporium_hire` won't sign unless the 402 asks for the catalog's price, in USDC, to the shop's published wallet, on a network you allowed.
 
 ## Disclosures
@@ -105,11 +107,11 @@ plugins:
 /path/to/hermes-agent/.venv/bin/python -m pytest tests
 ```
 
-There are 23 tests. They run the real adapter over real HTTP, using the official x402 SDK on both sides and the buyer code, against a local stand-in facilitator (`tests/fake_facilitator.py`). They cover:
+There are 25 tests. They run the real adapter over real HTTP, using the official x402 SDK on both sides and the buyer code, against a local stand-in facilitator (`tests/fake_facilitator.py`). They cover:
 
 - delivery and settlement;
 - failed and timed-out jobs (never charged);
-- settlement failure (deliverable withheld);
+- settlement failure (deliverable withheld), a flaky facilitator (retried) and a bad authorization (not retried);
 - refusals before payment;
 - per-job, daily-budget and network limits;
 - a shop whose 402 asks for more than its catalog price;

@@ -39,6 +39,10 @@ _MAX_BODY = 256 * 1024
 _ADDR = re.compile(r"^0x[0-9a-fA-F]{40}$")
 _TX = re.compile(r"^0x[0-9a-fA-F]{64}$")
 _EXPOSE = "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE"
+# Settlement failures that a retry can't fix: the authorization itself is bad, spent or unfunded.
+_SETTLE_FINAL = ("insufficient", "signature", "expired", "valid_before", "valid_after", "nonce", "used",
+                 "recipient", "amount", "scheme", "network_mismatch")
+SETTLE_ATTEMPTS = 3
 
 
 def _short(addr: str) -> str:
@@ -311,10 +315,7 @@ class EmporiumAdapter(BasePlatformAdapter):
                 return h.json(code, {"job": jid, "error": f"the job did not complete ({text or 'empty reply'}); you were not charged",
                                      "charged": False})
             output = guard.scrub_output(text)
-            settle = self._x402.process_settlement(
-                result.payment_payload, result.payment_requirements, context=ctx,
-                declared_extensions=result.declared_extensions, transport_context=HTTPTransportContext(request=ctx),
-                before_handler_settlement=result.before_handler_settlement)
+            settle = self._settle(result, ctx, jid)
             if not settle.success:
                 self.books.update_job(jid, status=books.UNPAID, error=str(settle.error_reason or "settle failed")[:300],
                                       output_chars=len(output), finished=time.time())
@@ -336,6 +337,23 @@ class EmporiumAdapter(BasePlatformAdapter):
             guard.SESSIONS.forget(jid)
             with self._lock:
                 self._pending.pop(chat_id, None)
+
+    def _settle(self, result: Any, ctx: Any, jid: str) -> Any:
+        """Settle a verified payment, retrying a transient facilitator failure (a public facilitator
+        occasionally fails to land the transfer). The EIP-3009 authorization carries a one-time
+        nonce, so a retry can never charge twice; failures of the authorization itself are final."""
+        from x402.http.types import HTTPTransportContext
+        for attempt in range(1, SETTLE_ATTEMPTS + 1):
+            settle = self._x402.process_settlement(
+                result.payment_payload, result.payment_requirements, context=ctx,
+                declared_extensions=result.declared_extensions, transport_context=HTTPTransportContext(request=ctx),
+                before_handler_settlement=result.before_handler_settlement)
+            reason = str(settle.error_reason or "").lower()
+            if settle.success or attempt == SETTLE_ATTEMPTS or any(k in reason for k in _SETTLE_FINAL):
+                return settle
+            logger.info("Emporium: settlement attempt %d for %s failed (%s), retrying", attempt, jid, reason[:120])
+            time.sleep(1.5 * attempt)
+        return settle
 
     def _run_job(self, jid: str, chat_id: str, svc: Any, payer: str, buyer_input: str) -> tuple[bool, str]:
         """Hand the job to the agent in its own session and wait for the final reply."""
