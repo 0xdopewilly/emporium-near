@@ -1,36 +1,36 @@
 {
- "stress_runs": 2,
- "paid_jobs": 228,
- "delivered": 219,
- "delivery_rate": 0.9605,
+ "stress_runs": 3,
+ "paid_jobs": 376,
+ "delivered": 367,
+ "delivery_rate": 0.9761,
  "buyer_wallets": 20,
- "usdc_charged": "24.66",
- "buyers_paid_on_chain": "24.66",
+ "usdc_charged": "37.46",
+ "buyers_paid_on_chain": "37.46",
  "reconciled_to_the_cent": true,
- "receipts_verified_on_chain": 219,
+ "receipts_verified_on_chain": 367,
  "duplicate_receipts": 0,
- "p50_seconds": 6.1,
- "p95_seconds": 24.8,
+ "p50_seconds": 6.2,
+ "p95_seconds": 23.1,
  "per_service": {
   "translate-yoruba": {
-   "jobs": 87,
-   "p50": 5.6,
-   "p95": 18.5
+   "jobs": 147,
+   "p50": 5.7,
+   "p95": 19.1
   },
   "translate-pidgin": {
-   "jobs": 69,
-   "p50": 4.9,
+   "jobs": 129,
+   "p50": 5.3,
    "p95": 19.3
   },
   "code-review": {
-   "jobs": 39,
-   "p50": 6.8,
+   "jobs": 59,
+   "p50": 6.1,
    "p95": 16.1
   },
   "launch-post": {
-   "jobs": 18,
-   "p50": 16.6,
-   "p95": 33.7
+   "jobs": 26,
+   "p50": 18.2,
+   "p95": 33.0
   },
   "web-brief": {
    "jobs": 6,

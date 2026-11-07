@@ -105,7 +105,8 @@ def main() -> None:
                 continue
             key, addr = wallets[w]
             t0 = time.time()
-            rec = {"i": i, "shop": shops[url]["name"], "url": url, "service": service, "buyer": addr}
+            rec = {"i": i, "shop": shops[url]["name"], "url": url, "service": service, "buyer": addr,
+                   "t": round(t0 - started, 2)}
             try:
                 r = buyer.hire(url, service, text, policy=policy, key=key, ledger=None)
                 rec.update(ok=True, seconds=round(time.time() - t0, 2), tx=r["receipt"].get("tx", ""),

@@ -6,23 +6,23 @@
 
 Every payment plugin in the catalog teaches Hermes to *spend*. Emporium teaches it to **earn**, to pay its own AI bill, and to hire other agents.
 
-**Measured on Base Sepolia, with real USDC payments from agents we ran** (`bench/`, reports in `bench/results/`):
+**Measured on Base Sepolia, with real USDC payments from buyer wallets we ran** (scripted buyers using the plugin's own hire client) (`bench/`, reports in `bench/results/`):
 
 | | |
 |---|---|
-| Paid jobs from 20 buyer wallets | **228**, 219 delivered (96.0%) |
-| Receipts verified on-chain | **219 / 219**, 0 duplicates |
-| Money reconciled | buyers' wallets paid **$24.66**, exactly what the delivered jobs cost |
-| Delivery time | median **6.1 s**, p95 24.8 s |
+| Paid jobs from 20 buyer wallets | **376**, 367 delivered (97.6%) |
+| Receipts verified on-chain | **367 / 367**, 0 duplicates |
+| Money reconciled | buyers' wallets paid **$37.46**, exactly what the delivered jobs cost |
+| Delivery time | median **6.2 s**, p95 23.1 s |
 | Robbery attempts (paid attack jobs) | **38**: the model took the bait 4 times, **0 tools escaped, 0 secrets leaked** |
 
-The 9 jobs not delivered were settlements the public facilitator failed under load, and none of those buyers was charged. After settlement retries were spaced out, the next run delivered **106 of 106**.
+The 9 jobs not delivered were settlements the public facilitator failed under load in the first run, and none of those buyers was charged. After settlement retries were spaced out, the next two runs delivered **254 of 254**.
 
 **What a job costs to run** (median inference cost per job, from Hermes's own session pricing, gpt-4.1-mini):
 
 | Service | Price | AI cost | Margin |
 |---|---|---|---|
-| Code review | $0.25 | $0.0008 | 99.7% |
+| Code review | $0.25 | $0.0008 (310× less than the price) | 99.7% |
 | English → Yoruba | $0.05 | $0.0007 | 98.7% |
 | Web research brief | $0.40 | $0.0066 | 98.4% |
 | Launch post (hires a translator shop for $0.05) | $0.30 | $0.0023 | 82.6% |

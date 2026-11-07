@@ -53,7 +53,7 @@ def main() -> None:
     }
     (RESULTS / "summary.json").write_text(json.dumps(summary, indent=1))
     print(json.dumps(summary, indent=1))
-    md = (f"**Measured on Base Sepolia, with real USDC payments from agents we ran** (`bench/`, reports in `bench/results/`):\n\n"
+    md = (f"**Measured on Base Sepolia, with real USDC payments from buyer wallets we ran** (scripted buyers using the plugin's own hire client) (`bench/`, reports in `bench/results/`):\n\n"
           f"| | |\n|---|---|\n"
           f"| Paid jobs from {len(buyers)} buyer wallets | **{jobs}**, {delivered} delivered ({summary['delivery_rate'] * 100:.1f}%) |\n"
           f"| Receipts verified on-chain | **{verified} / {delivered}**, {dupes} duplicates |\n"
