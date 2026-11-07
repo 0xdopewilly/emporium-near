@@ -23,11 +23,13 @@
     const [shown, setShown] = useState(target);
     const from = useRef(target);
     useEffect(() => {
-      const start = performance.now(), a = from.current, b = target;
+      const a = from.current, b = target;
       if (a === b) return;
-      let raf;
+      let raf, start;
+      // The clock starts at the first frame's own timestamp, so the ease can never run backwards.
       const step = (t) => {
-        const k = Math.min(1, (t - start) / 900), e = 1 - Math.pow(1 - k, 3);
+        if (start === undefined) start = t;
+        const k = Math.min(1, Math.max(0, (t - start) / 900)), e = 1 - Math.pow(1 - k, 3);
         setShown(a + (b - a) * e);
         if (k < 1) raf = requestAnimationFrame(step); else from.current = b;
       };
