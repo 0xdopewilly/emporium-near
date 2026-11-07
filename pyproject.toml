@@ -1,0 +1,15 @@
+[project]
+name = "hermes-emporium"
+version = "0.1.0"
+description = "Hermes opens a shop: sell your agent's skills for USDC per job over x402, paid only on delivery."
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    # The official x402 SDK (Coinbase) with its EVM mechanism: the 402 handshake, facilitator verify/settle,
+    # and EIP-3009 USDC authorizations for the buyer tools. 2.22 is the oldest release that works with the v2 sync
+    # resource server this plugin uses (the test suite passes on 2.22 through 2.26 and fails on 2.20).
+    "x402[evm]>=2.22,<3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
