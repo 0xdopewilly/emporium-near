@@ -201,3 +201,41 @@ def test_a_busy_shop_is_waited_out_not_charged(shop, monkeypatch):
                  ledger=None)
     shop._slots = real
     assert out["output"] == "ECHO: hello" and calls["n"] == 3 and len(shop.facilitator.settled) == 1
+
+
+def test_the_tool_search_bridge_cannot_lose_a_hire():
+    """Hermes's tool-search bridge puts plugin tools behind tool_call. Hermes unwraps a well-formed
+    call before pre_tool_call, so the lock judges the real tool; a bare tool_call it couldn't parse
+    is refused (its tool is unknown) with a message the model can retry from, and the read-only
+    lookups the model needs to find a tool's arguments run without using up the job's calls."""
+    pin = Subcontract(shop="http://127.0.0.1:9403", service="translate-yoruba", max_price=Decimal("0.05"))
+    s = guard.Sessions()
+    s.expect("job_eeeeeeeeeeee", [], pins=[pin], max_tool_calls=1)
+    s.on_llm_call("s1", "emporium", "[EMPORIUM JOB job_eeeeeeeeeeee · x]")
+    assert s.decide("s1", "tool_describe", {"name": "emporium_hire"})[1] == "lookup"
+    assert s.decide("s1", "tool_search", {"query": "translate"})[1] == "lookup"
+    bare = {"shop_url": "http://127.0.0.1:9403", "service": "translate-yoruba", "input": "hi"}
+    assert s.decide("s1", "tool_call", bare) == ("job_eeeeeeeeeeee", "block", "bridge")
+    assert s.decide("s1", "emporium_hire", bare)[1] == "allow", "lookups and refusals don't use up the cap"
+
+
+def test_the_job_brief_spells_out_the_hire():
+    svc = shopmod.Service(id="launch-post", title="Launch post", price=Decimal("0.30"), tools=[],
+                          subcontract=[Subcontract(shop="http://127.0.0.1:9403", service="translate-yoruba",
+                                                   max_price=Decimal("0.05"))])
+    brief = guard.frame_job("job_ffffffffffff", svc, "0x" + "ab" * 20, "a launch post for Emporium")
+    assert 'emporium_hire(shop_url="http://127.0.0.1:9403", service="translate-yoruba", input=' in brief
+
+
+def test_the_lock_tells_the_model_how_to_fix_a_bare_tool_call():
+    from test_register import Ctx
+    ctx = Ctx({})
+    emporium.register(ctx)
+    on_llm = ctx.hooks["pre_llm_call"][0]
+    on_tool = [h for h in ctx.hooks["pre_tool_call"] if h.__name__ == "on_tool"][0]
+    guard.SESSIONS.expect("job_abababababab", [])
+    on_llm(session_id="s7", platform="emporium", user_message="[EMPORIUM JOB job_abababababab · x]")
+    assert on_tool(tool_name="tool_describe", session_id="s7", args={"name": "emporium_hire"}) is None
+    msg = on_tool(tool_name="tool_call", session_id="s7", args={"service": "x"})
+    assert msg["action"] == "block" and '"calls"' in msg["message"]
+    guard.SESSIONS.forget("job_abababababab")

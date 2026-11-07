@@ -70,6 +70,8 @@ def register(ctx: Any) -> None:
         if decision is None:
             return None
         job_id, verdict, why = decision
+        if verdict == "lookup":
+            return None
         if verdict == "allow":
             try:
                 _books().bump_tool(job_id)
@@ -78,7 +80,7 @@ def register(ctx: Any) -> None:
             return None
         logger.info("Emporium: refused %s for %s (session %s): %s", tool_name, job_id or "an unbound shop session",
                     session_id, why)
-        if job_id and why != "cap":
+        if job_id and why not in ("cap", "bridge"):
             try:
                 _books().bump_blocked(job_id)
             except Exception:
@@ -86,6 +88,11 @@ def register(ctx: Any) -> None:
         if why == "cap":
             return {"action": "block", "message": "This job has used all the tool calls it's allowed. "
                                                   "Deliver the service now with what you have."}
+        if why == "bridge":
+            return {"action": "block", "message": (
+                "tool_call didn't name a tool. Call it as "
+                '{"calls": [{"name": "<tool name>", "arguments": {...}}]}, '
+                "with the argument names from that tool's schema.")}
         if tool_name == "emporium_hire" and why not in ("locked", "unbound"):
             return {"action": "block", "message": f"Not hiring: {why}."}
         return {"action": "block",

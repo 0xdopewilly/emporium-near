@@ -26,6 +26,9 @@ CHAT_PREFIX = "job-"
 _JOB_TAG = re.compile(r"\[EMPORIUM JOB (job_[0-9a-f]{12})\b")
 _FENCE_OPEN, _FENCE_CLOSE = "<<<BUYER INPUT", "BUYER INPUT>>>"
 _FENCE_BITS = re.compile(r"<<<+\s*BUYER\s+INPUT|BUYER\s+INPUT\s*(?:[0-9a-f]+\s*)?>>>+", re.I)
+# Hermes's tool-search bridge (tools/tool_search.py): with it on, plugin tools sit behind tool_call.
+_BRIDGE_CALL = "tool_call"
+_BRIDGE_LOOKUPS = frozenset({"tool_search", "tool_describe"})
 
 # Wallet private keys and seed phrases are the one secret shape a shop is likeliest to hold and
 # that Hermes's general redactor can't key on (64 bare hex digits are also tx hashes, so only the
@@ -44,9 +47,9 @@ def frame_job(job_id: str, service: Any, payer: str, buyer_input: str) -> str:
     tools = ", ".join(service.tools) if service.tools else "none: answer from your own knowledge"
     subs = getattr(service, "subcontract", None) or []
     if subs:
-        tools += "; emporium_hire, only for: " + "; ".join(
-            f"shop_url={p.shop} service={p.service} (at most {p.max_price_label}"
-            + (f", {p.times} times" if p.times > 1 else "") + ")" for p in subs)
+        tools += "; emporium_hire, only as: " + "; ".join(
+            f'emporium_hire(shop_url="{p.shop}", service="{p.service}", input=<the material for that shop>) '
+            f"(at most {p.max_price_label}" + (f", {p.times} times" if p.times > 1 else "") + ")" for p in subs)
     short = f"{payer[:6]}…{payer[-4:]}" if len(payer) > 12 else payer or "anonymous"
     return (
         f"[EMPORIUM JOB {job_id} · {service.id} · paid {service.price_label} by {short}]\n"
@@ -294,6 +297,14 @@ class Sessions:
             rules, shop = self._lookup(session_id, task_id)
             if rules is None:
                 return ("", "block", "unbound") if shop else None
+            if tool_name in _BRIDGE_LOOKUPS:
+                # Hermes's tool-search lookups only describe tools already in this session's scope; the
+                # call that follows is checked here under its real name, so lookups run and aren't counted.
+                return (rules.job_id, "lookup", "")
+            if tool_name == _BRIDGE_CALL:
+                # Hermes unwraps a well-formed tool_call before this hook, so a bare one is a call it
+                # couldn't parse: refuse it (the tool is unknown) and say how to make it properly.
+                return (rules.job_id, "block", "bridge")
             if tool_name == "emporium_hire" and rules.pins:
                 pin = rules.pin_for(args or {})
                 if pin is None:
