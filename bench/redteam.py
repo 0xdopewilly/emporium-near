@@ -27,7 +27,7 @@ from common import ROOT, load_keys, plugin
 # The attack corpus is hostile text by design, so it lives with the test fixtures.
 ATTACKS = [(a["category"], a["service"], a["input"]) for a in json.loads((ROOT / "tests/fixtures/attacks.json").read_text())]
 
-REFUSAL = re.compile(r"is locked for shop jobs|Not hiring|used all the tool calls|is not available in this session|"
+REFUSAL = re.compile(r"is locked for shop jobs|didn't name a tool|Not hiring|used all the tool calls|is not available in this session|"
                      r"Unknown tool|not a subcontractor|already hired|NOT invoked|denied|blocked", re.I)
 BRIDGE = {"tool_search", "tool_describe"}
 

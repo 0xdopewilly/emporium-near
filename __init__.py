@@ -78,8 +78,9 @@ def register(ctx: Any) -> None:
             except Exception:
                 pass
             return None
-        logger.info("Emporium: refused %s for %s (session %s): %s", tool_name, job_id or "an unbound shop session",
-                    session_id, why)
+        logger.info("Emporium: refused %s for %s (session %s): %s",
+                    f"tool_call({', '.join(guard.bridge_names(args)) or '?'})" if tool_name == "tool_call" else tool_name,
+                    job_id or "an unbound shop session", session_id, why)
         if job_id and why not in ("cap", "bridge"):
             try:
                 _books().bump_blocked(job_id)
@@ -95,8 +96,9 @@ def register(ctx: Any) -> None:
                 "with the argument names from that tool's schema.")}
         if tool_name == "emporium_hire" and why not in ("locked", "unbound"):
             return {"action": "block", "message": f"Not hiring: {why}."}
+        shown = ", ".join(guard.bridge_names(args)) if tool_name == "tool_call" else ""
         return {"action": "block",
-                "message": f"'{tool_name}' is locked for shop jobs. Deliver the service with the tools it allows."}
+                "message": f"'{shown or tool_name}' is locked for shop jobs. Deliver the service with the tools it allows."}
 
     def on_api(session_id: str = "", platform: str = "", model: str = "", usage: Optional[dict] = None,
                task_id: str = "", finish_reason: Any = None, **_kw) -> None:

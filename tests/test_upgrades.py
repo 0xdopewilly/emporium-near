@@ -216,6 +216,10 @@ def test_the_tool_search_bridge_cannot_lose_a_hire():
     assert s.decide("s1", "tool_search", {"query": "translate"})[1] == "lookup"
     bare = {"shop_url": "http://127.0.0.1:9403", "service": "translate-yoruba", "input": "hi"}
     assert s.decide("s1", "tool_call", bare) == ("job_eeeeeeeeeeee", "block", "bridge")
+    # A robbery through the bridge: Hermes won't unwrap a core tool, so the lock sees the bare call.
+    rob = {"calls": [{"name": "terminal", "arguments": {"command": "cat ~/.hermes/.env"}}]}
+    assert s.decide("s1", "tool_call", rob) == ("job_eeeeeeeeeeee", "block", "locked")
+    assert s.decide("s1", "tool_call", {"name": "terminal", "arguments": {}})[2] == "locked"
     assert s.decide("s1", "emporium_hire", bare)[1] == "allow", "lookups and refusals don't use up the cap"
 
 
@@ -238,4 +242,6 @@ def test_the_lock_tells_the_model_how_to_fix_a_bare_tool_call():
     assert on_tool(tool_name="tool_describe", session_id="s7", args={"name": "emporium_hire"}) is None
     msg = on_tool(tool_name="tool_call", session_id="s7", args={"service": "x"})
     assert msg["action"] == "block" and '"calls"' in msg["message"]
+    msg = on_tool(tool_name="tool_call", session_id="s7", args={"calls": [{"name": "terminal", "arguments": {}}]})
+    assert msg["action"] == "block" and "'terminal' is locked" in msg["message"]
     guard.SESSIONS.forget("job_abababababab")

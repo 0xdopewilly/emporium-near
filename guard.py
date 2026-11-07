@@ -69,6 +69,14 @@ def frame_job(job_id: str, service: Any, payer: str, buyer_input: str) -> str:
     )
 
 
+def bridge_names(args: Any) -> list[str]:
+    """The tool(s) a ``tool_call`` bridge invocation names: ``{"name": …}`` or ``{"calls": [{"name": …}]}``."""
+    if not isinstance(args, dict):
+        return []
+    calls = args.get("calls") if isinstance(args.get("calls"), list) else [args]
+    return [str(c["name"]) for c in calls if isinstance(c, dict) and isinstance(c.get("name"), str) and c["name"]]
+
+
 def job_id_from_message(message: str) -> Optional[str]:
     m = _JOB_TAG.search(message or "")
     return m.group(1) if m else None
@@ -302,8 +310,12 @@ class Sessions:
                 # call that follows is checked here under its real name, so lookups run and aren't counted.
                 return (rules.job_id, "lookup", "")
             if tool_name == _BRIDGE_CALL:
-                # Hermes unwraps a well-formed tool_call before this hook, so a bare one is a call it
-                # couldn't parse: refuse it (the tool is unknown) and say how to make it properly.
+                # Hermes unwraps a well-formed tool_call to an allowed tool before this hook, so a bare one
+                # either names a tool this job may not use (Hermes won't unwrap core tools such as
+                # terminal) or is one it couldn't parse. Both are refused; only the second is a slip.
+                named = bridge_names(args)
+                if named and any(n not in rules.tools and not (n == "emporium_hire" and rules.pins) for n in named):
+                    return (rules.job_id, "block", "locked")
                 return (rules.job_id, "block", "bridge")
             if tool_name == "emporium_hire" and rules.pins:
                 pin = rules.pin_for(args or {})
