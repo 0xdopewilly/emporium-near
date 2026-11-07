@@ -51,14 +51,35 @@ def paid_to(network: str, tx: str, pay_to: str, rpc_url: str = "") -> Decimal:
     return total
 
 
-def authorization_tx(network: str, authorizer: str, nonce: str, rpc_url: str = "", lookback: int = 900) -> Optional[str]:
-    """The transaction that used this EIP-3009 authorization, from USDC's AuthorizationUsed event
-    in recent blocks (Base makes a block every 2 s, so 900 blocks is half an hour)."""
+AUTHORIZATION_STATE = "0xe94a0102"  # authorizationState(address,bytes32)
+_LOG_SPAN = 200                      # public RPCs cap eth_getLogs ranges (Base's at 200 blocks)
+
+
+def authorization_used(network: str, authorizer: str, nonce: str, rpc_url: str = "") -> bool:
+    """Whether USDC has consumed this EIP-3009 authorization (or the buyer cancelled it)."""
+    rpc, usdc = rpc_url or RPC_URLS.get(network, ""), USDC.get(network, "")
+    n = str(nonce).lower().removeprefix("0x").rjust(64, "0")
+    data = AUTHORIZATION_STATE + authorizer.lower().removeprefix("0x").rjust(64, "0") + n
+    return int(_rpc(rpc, "eth_call", [{"to": usdc, "data": data}, "latest"]) or "0x0", 16) != 0
+
+
+def authorization_tx(network: str, authorizer: str, nonce: str, rpc_url: str = "", lookback: int = 1000) -> Optional[str]:
+    """The transaction that used this EIP-3009 authorization, from USDC's AuthorizationUsed event in
+    recent blocks (Base makes a block every 2 s, so 1000 blocks is about half an hour). Searched in
+    200-block windows, newest first, and only once the contract says the authorization was used."""
     rpc, usdc = rpc_url or RPC_URLS.get(network, ""), USDC.get(network, "")
     if not (rpc and usdc and authorizer and nonce):
         return None
+    if not authorization_used(network, authorizer, nonce, rpc_url):
+        return None
     latest = int(_rpc(rpc, "eth_blockNumber", []), 16)
     n = "0x" + str(nonce).lower().removeprefix("0x").rjust(64, "0")
-    logs = _rpc(rpc, "eth_getLogs", [{"address": usdc, "fromBlock": hex(max(0, latest - lookback)), "toBlock": "latest",
-                                      "topics": [AUTHORIZATION_USED, _topic_addr(authorizer), n]}]) or []
-    return str(logs[-1]["transactionHash"]) if logs else None
+    hi = latest
+    while hi > latest - lookback and hi >= 0:
+        lo = max(0, hi - _LOG_SPAN + 1)
+        logs = _rpc(rpc, "eth_getLogs", [{"address": usdc, "fromBlock": hex(lo), "toBlock": hex(hi),
+                                          "topics": [AUTHORIZATION_USED, _topic_addr(authorizer), n]}]) or []
+        if logs:
+            return str(logs[-1]["transactionHash"])
+        hi = lo - 1
+    return None

@@ -141,3 +141,13 @@ def no_backoff(monkeypatch):
     from emporium import adapter
     monkeypatch.setattr(adapter.time, "sleep", lambda s: None)
     return adapter
+
+
+@pytest.fixture(autouse=True)
+def offline_chain(monkeypatch):
+    """Tests never reach a real RPC: on-chain checks fail closed unless a test stubs them."""
+    from emporium import chain
+
+    def _no_rpc(*a, **k):
+        raise RuntimeError("no network in tests")
+    monkeypatch.setattr(chain, "_rpc", _no_rpc)

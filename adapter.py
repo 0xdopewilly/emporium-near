@@ -19,6 +19,7 @@ import contextlib
 import hashlib
 import json
 import logging
+import random
 import re
 import select
 import socket
@@ -45,7 +46,7 @@ _EXPOSE = "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE"
 # Settlement failures that a retry can't fix: the authorization itself is bad, spent or unfunded.
 _SETTLE_FINAL = ("insufficient", "signature", "expired", "valid_before", "valid_after", "nonce", "used",
                  "recipient", "amount", "scheme", "network_mismatch")
-SETTLE_ATTEMPTS = 3
+SETTLE_ATTEMPTS = 5
 SETTLE_MARGIN = 45   # seconds an authorization must outlive the job's timeout, so it can still settle
 MAX_CONNECTIONS = 64
 
@@ -464,9 +465,13 @@ class EmporiumAdapter(BasePlatformAdapter):
                     settle.success, settle.transaction, settle.error_reason = True, landed, None
                     return settle
             if attempt == SETTLE_ATTEMPTS or any(k in reason for k in _SETTLE_FINAL):
+                if not seen_tx and payer:  # last word goes to the chain: did any attempt land after all?
+                    landed = self._landed_on_chain(result.payment_payload, payer, "", jid, price)
+                    if landed:
+                        settle.success, settle.transaction, settle.error_reason = True, landed, None
                 return settle
             logger.info("Emporium: settlement attempt %d for %s failed (%s), retrying", attempt, jid, reason[:120])
-            time.sleep(1.5 * attempt)
+            time.sleep(2.0 * attempt + random.uniform(0, 1.5))  # spread retries out: a busy facilitator recovers
         return settle
 
     def _landed_on_chain(self, payload: Any, payer: str, seen_tx: str, jid: str, want: Any = None) -> str:
