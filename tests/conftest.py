@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import importlib.util
 import json
+import re
 import sys
 import threading
 from pathlib import Path
@@ -63,15 +64,31 @@ def settings_for(fac_url: str, **over):
 class AgentStub:
     """Stands in for the gateway: answers each job by calling adapter.send(..., notify=True)."""
 
-    def __init__(self, adapter, reply=lambda text: "ECHO: " + text.split("<<<BUYER INPUT\n", 1)[-1].split("\nBUYER INPUT>>>")[0],
-                 fail=False, silent=False):
-        self.adapter, self.reply, self.fail, self.silent = adapter, reply, fail, silent
+    def __init__(self, adapter, reply=None, fail=False, silent=False, turn_failed=False, no_model=False, delay=0.0):
+        self.adapter, self.fail, self.silent, self.delay = adapter, fail, silent, delay
+        self.reply = reply or (lambda text: "ECHO: " + re.split(r"<<<BUYER INPUT [0-9a-f]+\n", text, maxsplit=1)[-1]
+                               .rsplit("\nBUYER INPUT ", 1)[0])
+        self.turn_failed, self.no_model = turn_failed, no_model
         self.events = []
 
     async def __call__(self, event):
         self.events.append(event)
         from gateway.platforms.event import ProcessingOutcome
+        from emporium import guard
         if self.silent:
+            return
+        if self.delay:
+            await asyncio.sleep(self.delay)
+        # What Hermes's hooks report during a real turn: the turn starts (pre_llm_call), the model
+        # answers (post_api_request), and the turn ends (on_session_end).
+        sid = "sess-" + event.message_id
+        guard.SESSIONS.on_llm_call(sid, "emporium", event.text, task_id=sid)
+        if not self.no_model:
+            guard.SESSIONS.mark_llm_ok(sid, sid)
+        if self.turn_failed:
+            guard.SESSIONS.mark_turn_end(sid, sid, completed=False, failed=True, interrupted=False, reason="api_error")
+            await self.adapter.send(event.source.chat_id, "Sorry, I encountered an error. Please try again.",
+                                    metadata={"notify": True})
             return
         if self.fail:
             await self.adapter.on_processing_complete(event, ProcessingOutcome.FAILURE)
@@ -117,3 +134,10 @@ def as_settings(d: dict):
 
 def dump(obj) -> str:
     return json.dumps(obj, indent=1, default=str)
+
+
+@pytest.fixture
+def no_backoff(monkeypatch):
+    from emporium import adapter
+    monkeypatch.setattr(adapter.time, "sleep", lambda s: None)
+    return adapter

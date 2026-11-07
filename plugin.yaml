@@ -22,6 +22,8 @@ provides_tools:
 provides_hooks:
   - pre_llm_call
   - pre_tool_call
+  - post_api_request
+  - on_session_end
 config_schema:
   pay_to: {type: str, default: "", label: "Payout wallet", description: "0x… address that receives your earnings (USDC)", required: true}
   network: {type: str, choices: ["eip155:84532", "eip155:8453"], default: "eip155:84532", label: "Network", description: "Base Sepolia (testnet) or Base"}
@@ -32,6 +34,7 @@ config_schema:
   port: {type: int, default: 9402, label: "Port"}
   public_url: {type: str, default: "", label: "Public URL", description: "The URL buyers use, when the shop sits behind a tunnel or proxy"}
   facilitator_url: {type: str, default: "https://x402.org/facilitator", label: "x402 facilitator"}
+  rpc_url: {type: str, default: "", label: "RPC endpoint", description: "JSON-RPC URL for checking payments on-chain (default: the network's public endpoint)"}
   max_concurrent_jobs: {type: int, default: 3, label: "Jobs at once"}
   jobs_per_payer_per_hour: {type: int, default: 30, label: "Jobs per buyer per hour"}
   buyer_max_per_job: {type: str, default: "$0.50", label: "Hiring: max per job"}

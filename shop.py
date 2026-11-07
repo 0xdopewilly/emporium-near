@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from decimal import Decimal, InvalidOperation
 from typing import Any, Callable, Optional
 
@@ -19,10 +20,15 @@ NETWORKS: dict[str, tuple[str, str, bool]] = {
     "eip155:84532": ("Base Sepolia", "https://sepolia.basescan.org/tx/", True),
     "eip155:8453": ("Base", "https://basescan.org/tx/", False),
 }
+# Public JSON-RPC endpoints and the USDC contract per network, for checking receipts on-chain.
+RPC_URLS = {"eip155:84532": "https://sepolia.base.org", "eip155:8453": "https://mainnet.base.org"}
+USDC = {"eip155:84532": "0x036cbd53842c5426634e7929541ec2318f3dcf7e", "eip155:8453": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"}
 
-# A service may hand its job these tools, and only these. Everything else is refused for shop jobs
-# (see guard.py). Read-only web tools are the useful set; nothing here touches the owner's machine.
-SELLABLE_TOOLS = frozenset({"web_search", "web_extract", "vision_analyze", "image_generate"})
+# A service may hand its job these tools, and only these. Everything else is never loaded for a shop
+# job and is refused if called (see guard.py). Only the web tools are sellable: Hermes checks every URL
+# web_extract fetches against private and metadata addresses. vision_analyze and image_generate are not,
+# because they accept local file paths.
+SELLABLE_TOOLS = frozenset({"web_search", "web_extract"})
 
 _ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,47}$")
 _ADDRESS = re.compile(r"^0x[0-9a-fA-F]{40}$")
@@ -69,6 +75,19 @@ def from_atomic(value: Any, decimals: int = 6) -> Decimal:
 
 
 @dataclass
+class Subcontract:
+    """Another Emporium shop a service may hire during a job, pinned by the owner (never by the buyer)."""
+    shop: str            # normalised base URL
+    service: str
+    max_price: Decimal
+    times: int = 1
+
+    @property
+    def max_price_label(self) -> str:
+        return usd(self.max_price)
+
+
+@dataclass
 class Service:
     id: str
     title: str
@@ -79,6 +98,12 @@ class Service:
     example: str = ""
     max_input_chars: int = 8000
     timeout_seconds: int = 180
+    max_tool_calls: int = 8
+    subcontract: list[Subcontract] = field(default_factory=list)
+
+    @property
+    def subcontract_budget(self) -> Decimal:
+        return sum((p.max_price * p.times for p in self.subcontract), Decimal(0))
 
     @property
     def price_label(self) -> str:
@@ -100,6 +125,7 @@ class Service:
             "example": self.example,
             "tools": list(self.tools),
             "timeout_seconds": self.timeout_seconds,
+            "subcontracts": [{"shop": p.shop, "service": p.service} for p in self.subcontract],
         }
 
 
@@ -118,6 +144,7 @@ class Shop:
     profile: str = ""
     max_concurrent_jobs: int = 3
     jobs_per_payer_per_hour: int = 30
+    rpc_url: str = ""
     problems: list[str] = field(default_factory=list)
 
     @property
@@ -170,6 +197,31 @@ class Shop:
         }
 
 
+SEAL_HINT = "give the shop a fresh profile of its own: hermes profile create shop (without --clone, which copies your memory)"
+
+
+def profile_risks(profile: str) -> list[str]:
+    """Ways the profile serving the shop could expose its owner to buyers' jobs. Tools are locked
+    either way; these are what a job's prompt or Hermes's own memory machinery would still touch."""
+    risks: list[str] = []
+    if profile in ("", "default"):
+        risks.append("the shop runs on your main profile, so buyers' jobs load its persona")
+    try:
+        from hermes_constants import get_hermes_home
+        home = Path(get_hermes_home())
+        for name, what in (("MEMORY.md", "saved memories"), ("USER.md", "notes about you")):
+            f = home / "memories" / name
+            if f.is_file() and f.read_text(errors="ignore").strip():
+                risks.append(f"this profile holds {what} ({name}), and every job's prompt includes them")
+        from hermes_cli.config import load_config_readonly
+        provider = str(((load_config_readonly() or {}).get("memory") or {}).get("provider") or "").strip()
+        if provider:
+            risks.append(f"memory provider '{provider}' records every turn on this profile, buyers' jobs included")
+    except Exception:
+        pass
+    return risks
+
+
 # Starter shop written by `hermes emporium init`. Plain-language services that need no tools at all,
 # plus one that reads the web, so a new shop is useful the minute it opens.
 STARTER_SERVICES: list[dict[str, Any]] = [
@@ -220,6 +272,9 @@ def _service_from(raw: Any, index: int, problems: list[str]) -> Optional[Service
     if price is None:
         problems.append(f"service {sid}: price {raw.get('price')!r} is not a positive USD amount")
         return None
+    if price < Decimal("0.000001"):
+        problems.append(f"service {sid}: price {raw.get('price')!r} is below USDC's smallest unit ($0.000001)")
+        return None
     if price > _MAX_PRICE:
         problems.append(f"service {sid}: price {usd(price)} is above the {usd(_MAX_PRICE)} ceiling")
         return None
@@ -235,6 +290,33 @@ def _service_from(raw: Any, index: int, problems: list[str]) -> Optional[Service
         except (TypeError, ValueError):
             return default
 
+    pins: list[Subcontract] = []
+    for j, rawp in enumerate(raw.get("subcontract") or []):
+        if not isinstance(rawp, dict):
+            problems.append(f"service {sid}: subcontract[{j}] is not a mapping")
+            continue
+        from .buyer import HireError, norm_url
+        try:
+            url = norm_url(str(rawp.get("shop") or ""))
+        except HireError as e:
+            problems.append(f"service {sid}: subcontract[{j}]: {e}")
+            continue
+        psid = str(rawp.get("service") or "").strip().lower()
+        pmax = parse_usd(rawp.get("max_price"))
+        if not _ID.match(psid) or pmax is None:
+            problems.append(f"service {sid}: subcontract[{j}] needs a service id and a max_price")
+            continue
+        try:
+            times = max(1, min(5, int(rawp.get("times", 1))))
+        except (TypeError, ValueError):
+            times = 1
+        pins.append(Subcontract(shop=url, service=psid, max_price=pmax, times=times))
+    budget = sum((p.max_price * p.times for p in pins), Decimal(0))
+    if pins and budget >= price:
+        problems.append(f"service {sid}: subcontracts may cost up to {usd(budget)}, which must stay below its "
+                        f"{usd(price)} price so every job keeps a margin")
+        pins = []
+
     return Service(
         id=sid,
         title=str(raw.get("title") or sid).strip()[:80],
@@ -245,6 +327,8 @@ def _service_from(raw: Any, index: int, problems: list[str]) -> Optional[Service
         example=str(raw.get("example") or "").strip()[:600],
         max_input_chars=_int("max_input_chars", 8000, 100, 50000),
         timeout_seconds=_int("timeout_seconds", 180, 20, 900),
+        max_tool_calls=_int("max_tool_calls", 8, 0, 50),
+        subcontract=pins,
     )
 
 
@@ -254,6 +338,13 @@ def load_shop(get: Callable[[str, Any], Any], profile: str = "") -> Shop:
     pay_to = str(get("pay_to", "") or "").strip()
     if not _ADDRESS.match(pay_to):
         problems.append("pay_to must be the 0x… wallet address that receives your earnings")
+    elif pay_to != pay_to.lower() and pay_to[2:] != pay_to[2:].upper():
+        try:
+            from eth_utils import is_checksum_address
+            if not is_checksum_address(pay_to):
+                problems.append("pay_to has a checksum typo (its upper/lower case letters don't match); copy it again")
+        except ImportError:
+            pass
     network = str(get("network", "eip155:84532") or "eip155:84532").strip()
     if network not in NETWORKS:
         problems.append(f"network {network!r} is not supported (use one of {sorted(NETWORKS)})")
@@ -296,5 +387,6 @@ def load_shop(get: Callable[[str, Any], Any], profile: str = "") -> Shop:
         profile=profile or "",
         max_concurrent_jobs=_int("max_concurrent_jobs", 3, 1, 32),
         jobs_per_payer_per_hour=_int("jobs_per_payer_per_hour", 30, 1, 10000),
+        rpc_url=str(get("rpc_url", "") or "").strip(),
         problems=problems,
     )

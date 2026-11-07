@@ -20,7 +20,11 @@ from urllib.parse import urlparse
 import httpx
 
 from . import ledger as books
-from .shop import NETWORKS, from_atomic, parse_usd, to_atomic, usd
+from .shop import NETWORKS, RPC_URLS, USDC, from_atomic, parse_usd, to_atomic, usd
+
+SETTLE_WINDOW = 120  # the shop may take this long after the job to settle; wait for it
+
+_TRANSFER = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"  # ERC-20 Transfer(address,address,uint256)
 
 DEFAULTS = {"buyer_max_per_job": "$0.50", "buyer_daily_budget": "$2.00", "buyer_approve_over": "$0.10",
             "buyer_networks": ["eip155:84532"]}
@@ -115,8 +119,12 @@ def _signer(key: str):
 
 
 def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, key: Optional[str],
-         ledger: Optional[books.Ledger], max_price: Any = None) -> dict:
-    """Run one paid job end to end. Returns {output, receipt, ...}; raises HireError (never charged)."""
+         ledger: Optional[books.Ledger], max_price: Any = None, for_job: str = "",
+         job_budget: Optional[Decimal] = None) -> dict:
+    """Run one paid job end to end. Returns {output, receipt, ...}; raises HireError (never charged).
+
+    ``for_job``/``job_budget`` are set when one of this Hermes's own shop jobs subcontracts: the
+    purchase is tied to that job and all of its subcontracts together stay within ``job_budget``."""
     from x402 import x402ClientSync
     from x402.http.x402_http_client import x402HTTPClientSync
     from x402.mechanisms.evm.exact import register_exact_evm_client
@@ -127,14 +135,14 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
     cat, svc, price = listed(url, service_id)
     network = str(cat.get("network") or "")
     pay_to = str(cat.get("pay_to") or "").lower()
-    policy.check(price, network, ledger, max_price)
+    policy.check(price, network, None, max_price)  # the daily budget is checked and reserved atomically below
     if not key:
         raise HireError("no buyer wallet: set EMPORIUM_BUYER_KEY in this profile's .env (a dedicated wallet "
                         "holding a little USDC)")
     signer = _signer(key)
     endpoint = f"{url}/jobs/{service_id}"
     body = {"input": buyer_input}
-    timeout = float(svc.get("timeout_seconds") or 180) + 60
+    timeout = float(svc.get("timeout_seconds") or 180) + SETTLE_WINDOW + 30
 
     with httpx.Client(timeout=timeout, follow_redirects=False) as http:
         first = http.post(endpoint, json=body)
@@ -154,18 +162,31 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
         cap_atomic = to_atomic(min(price, policy.ceiling(max_price)))
         ok = [r for r in required.accepts
               if r.scheme == "exact" and r.network in policy.networks and str(r.pay_to).lower() == pay_to
-              and int(r.amount) <= cap_atomic]
+              and str(r.asset).lower() == USDC.get(r.network, "") and int(r.amount) <= cap_atomic]
         if not ok:
             asked = ", ".join(f"{usd(from_atomic(r.amount))} on {r.network} to {r.pay_to}" for r in required.accepts)
-            raise HireError(f"the shop's payment request ({asked}) doesn't match its listed {usd(price)} to {pay_to}; not paying")
+            raise HireError(f"the shop's payment request ({asked}) doesn't match its listed {usd(price)} in USDC to {pay_to}; "
+                            "not paying")
         required.accepts = ok[:1]
         charged = from_atomic(ok[0].amount)
-        pid = ledger.create_purchase(url, str(cat.get("name") or ""), service_id, charged, network, pay_to) if ledger else ""
+        pid = ""
+        if ledger:
+            try:
+                pid = ledger.reserve_purchase(url, str(cat.get("name") or ""), service_id, charged, network, pay_to,
+                                              policy.daily_budget, for_job=for_job, job_budget=job_budget)
+            except books.BudgetError as e:
+                raise HireError(f"the job costs {usd(charged)} but {e}") from e
         try:
             payload = hc.create_payment_payload(required)
             headers = hc.encode_payment_signature_header(payload)
             started = time.time()
             paid = http.post(endpoint, json=body, headers=headers)
+        except httpx.TimeoutException as e:
+            # The signed payment was sent; the shop may still settle it. Keep it counted against the budget.
+            if ledger and pid:
+                ledger.update_purchase(pid, status=books.UNKNOWN, error="no response from the shop", finished=time.time())
+            raise HireError("the shop didn't answer in time; the payment may still settle if it delivers "
+                            "(check your wallet before retrying)") from e
         except Exception as e:
             if ledger and pid:
                 ledger.update_purchase(pid, status=books.NOT_CHARGED, error=str(e)[:300], finished=time.time())
@@ -177,7 +198,9 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
         if paid.status_code != 200 or not isinstance(data, dict) or "output" not in data:
             if ledger and pid:
                 ledger.update_purchase(pid, status=books.NOT_CHARGED, error=str(data.get("error"))[:300], finished=time.time())
-            raise HireError(f"no delivery (HTTP {paid.status_code}): {data.get('error')}; you were not charged")
+            err = str(data.get("error"))
+            raise HireError(f"no delivery (HTTP {paid.status_code}): {err}"
+                            + ("" if "not charged" in err else "; you were not charged"))
         tx = ""
         try:
             settle = hc.get_payment_settle_response(lambda n: paid.headers.get(n))
@@ -193,18 +216,76 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
         if receipt.get("tx") and explorer:
             receipt["explorer"] = explorer + receipt["tx"]
         return {"shop": cat.get("name"), "service": svc.get("title") or service_id, "output": data["output"],
-                "receipt": receipt}
+                "receipt": receipt, "charged_usd": str(charged)}
 
 
-def browse(shop_url: str) -> dict:
+def track_record(shop_url: str, cat: dict, sample: int = 6, rpc_url: str = "") -> dict:
+    """Check the shop's own claims against the chain: for its most recent settled jobs, fetch each
+    receipt's transaction and confirm a USDC transfer of the listed price to the shop's wallet.
+    A shop can claim anything on its page; this counts only what the chain confirms."""
+    url = norm_url(shop_url)
+    network = str(cat.get("network") or "")
+    rpc = rpc_url or RPC_URLS.get(network, "")
+    usdc, pay_to = USDC.get(network, ""), str(cat.get("pay_to") or "").lower()
+    out: dict[str, Any] = {"network": NETWORKS.get(network, (network,))[0], "claimed_jobs": None, "checked": 0,
+                           "verified": 0, "verified_usd": "$0.00", "failed": []}
+    try:
+        feed = httpx.get(url + "/feed", timeout=15, follow_redirects=False).json()
+    except Exception:
+        out["note"] = "the shop publishes no job feed"
+        return out
+    out["claimed_jobs"] = feed.get("jobs_settled")
+    if not (rpc and usdc and pay_to):
+        out["note"] = "no RPC endpoint known for this network"
+        return out
+    jobs, seen = [], set()
+    for j in feed.get("jobs") or []:
+        tx = str(j.get("tx", "")).lower()
+        if j.get("status") == "settled" and tx.startswith("0x") and tx not in seen:  # one receipt counts once
+            seen.add(tx)
+            jobs.append(j)
+    total = Decimal(0)
+    with httpx.Client(timeout=15) as http:
+        for j in jobs[:sample]:
+            out["checked"] += 1
+            want = parse_usd(j.get("price"))
+            try:
+                r = http.post(rpc, json={"jsonrpc": "2.0", "id": 1, "method": "eth_getTransactionReceipt",
+                                         "params": [j["tx"]]}).json().get("result") or {}
+            except Exception:
+                out["failed"].append(j["tx"])
+                continue
+            paid = Decimal(0)
+            if str(r.get("status", "")).lower() == "0x1":
+                for log in r.get("logs") or []:
+                    topics = [str(t).lower() for t in log.get("topics") or []]
+                    if (str(log.get("address", "")).lower() == usdc and len(topics) == 3 and topics[0] == _TRANSFER
+                            and topics[2][-40:] == pay_to[2:]):
+                        paid += from_atomic(int(str(log.get("data") or "0x0"), 16))
+            if want is not None and paid >= want:
+                out["verified"] += 1
+                total += want
+            else:
+                out["failed"].append(j["tx"])
+    out["verified_usd"] = usd(total) if total else "$0.00"
+    return out
+
+
+def browse(shop_url: str, verify: bool = True) -> dict:
     cat = catalog(shop_url, fresh=True)
-    return {
+    result = {
         "shop": cat.get("name"), "tagline": cat.get("tagline"), "open": cat.get("open", True),
         "network": cat.get("network_label") or cat.get("network"), "pays_to": cat.get("pay_to"),
         "charged": cat.get("charged"),
         "services": [{"id": s.get("id"), "title": s.get("title"), "price": s.get("price"),
                       "description": s.get("description"), "example": s.get("example")} for s in cat["services"]],
     }
+    if verify:
+        try:
+            result["track_record"] = track_record(shop_url, cat)
+        except Exception as e:
+            result["track_record"] = {"note": f"couldn't check on-chain ({e.__class__.__name__})"}
+    return result
 
 
 def as_json(obj: Any) -> str:

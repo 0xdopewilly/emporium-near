@@ -2,6 +2,7 @@
 code, against a fake facilitator. The agent is stubbed; everything else is the shipped code."""
 
 import json
+import re
 from decimal import Decimal
 
 import httpx
@@ -42,7 +43,8 @@ def test_paid_job_is_delivered_and_settled(shop, tmp_path):
     assert led.recent_purchases(1)[0]["status"] == books.BOUGHT
     # the agent saw the job framed, in its own chat
     ev = shop.stub.events[0]
-    assert ev.source.chat_id == "job-" + job["id"] and "<<<BUYER INPUT\nping 123\nBUYER INPUT>>>" in ev.text
+    assert ev.source.chat_id == "job-" + job["id"]
+    assert re.search(r"<<<BUYER INPUT ([0-9a-f]{8})\nping 123\nBUYER INPUT \1>>>", ev.text)
 
 
 def test_failed_job_is_never_charged(shop):
@@ -61,13 +63,6 @@ def test_timed_out_job_is_never_charged(shop):
         hire(shop)
     assert shop.facilitator.settled == []
     assert shop.books.recent_jobs(1)[0]["status"] == books.FAILED
-
-
-@pytest.fixture
-def no_backoff(monkeypatch):
-    from emporium import adapter
-    monkeypatch.setattr(adapter.time, "sleep", lambda s: None)
-    return adapter
 
 
 def test_settlement_failure_withholds_the_result(shop, no_backoff):

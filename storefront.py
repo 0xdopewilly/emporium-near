@@ -36,7 +36,9 @@ def feed(shop: Shop, books: Any, limit: int = 12) -> dict[str, Any]:
         })
     return {"open": shop.open and books.is_open(), "earned_total": usd(s["earned_total"]) if s["earned_total"] else "$0.00",
             "earned_today": usd(s["earned_today"]) if s["earned_today"] else "$0.00", "jobs_settled": s["jobs_settled"],
-            "buyers": s["buyers"], "jobs": jobs}
+            "buyers": s["buyers"], "p50_seconds": s["p50_seconds"],
+            "delivery_rate": round(s["delivery_rate"], 4) if s["delivery_rate"] is not None else None,
+            "not_charged": s["not_charged"], "jobs": jobs}
 
 
 def render(shop: Shop, books: Any) -> str:
@@ -45,7 +47,9 @@ def render(shop: Shop, books: Any) -> str:
     cards = []
     for s in shop.services:
         tools = "".join(f'<span class="chip">{e(t.replace("_", " "))}</span>' for t in s.tools) or \
-            '<span class="chip quiet">no tools · pure skill</span>'
+            ('' if s.subcontract else '<span class="chip quiet">no tools · pure skill</span>')
+        tools += "".join(f'<span class="chip sub" title="this service hires {e(p.shop)} for part of the job">'
+                         f'+ {e(p.service)} from another shop</span>' for p in s.subcontract)
         cards.append(f"""
       <article class="svc">
         <header><h3>{e(s.title)}</h3><div class="price">{e(s.price_label)}<small>USDC / job</small></div></header>
@@ -72,7 +76,7 @@ h1{{font:400 46px/1.05 'Instrument Serif',Georgia,serif;margin:0;letter-spacing:
 .pills{{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}}
 .pill{{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--mute);background:#ffffff05}}
 .pill.open{{color:var(--ok);border-color:#45d99a55}}.pill.closed{{color:var(--bad);border-color:#ff7a6655}}.pill.test{{color:var(--gold);border-color:#e9b94955}}
-.stats{{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:12px;min-width:min(100%,430px)}}
+.stats{{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:12px;min-width:min(100%,520px)}}
 .stat{{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}}
 .stat b{{display:block;font:500 26px 'JetBrains Mono',monospace;letter-spacing:-.5px}}.stat span{{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.08em}}
 .stat.gold b{{color:var(--gold)}}
@@ -82,7 +86,7 @@ h2{{font:400 28px 'Instrument Serif',Georgia,serif;margin:44px 0 14px}}
 .svc header{{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}}
 .svc h3{{margin:0;font:600 17px Inter,sans-serif}}.svc p{{margin:0;color:var(--mute)}}
 .price{{font:500 24px 'JetBrains Mono',monospace;color:var(--gold);text-align:right;white-space:nowrap}}.price small{{display:block;font:11px Inter;color:var(--mute);letter-spacing:.06em}}
-.chips{{display:flex;gap:6px;flex-wrap:wrap}}.chip{{font-size:12px;border-radius:8px;padding:2px 8px;background:#9f97ff1a;color:#c9c4ff}}.chip.quiet{{background:#ffffff0a;color:var(--mute)}}
+.chips{{display:flex;gap:6px;flex-wrap:wrap}}.chip{{font-size:12px;border-radius:8px;padding:2px 8px;background:#9f97ff1a;color:#c9c4ff}}.chip.quiet{{background:#ffffff0a;color:var(--mute)}}.chip.sub{{background:#e9b9491a;color:var(--gold)}}
 .ep{{font:12px 'JetBrains Mono',monospace;color:#cfc6b4;background:#0b0a08;border:1px solid var(--line);border-radius:10px;padding:8px 10px;overflow-wrap:anywhere;margin-top:auto}}
 .how{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}}
 .step{{border:1px dashed var(--line);border-radius:16px;padding:14px 16px;color:var(--mute)}}.step b{{color:var(--ink);display:block;margin-bottom:4px}}
@@ -94,7 +98,7 @@ h2{{font:400 28px 'Instrument Serif',Georgia,serif;margin:44px 0 14px}}
 .row.new{{animation:pop 1.2s ease}}@keyframes pop{{0%{{background:#e9b94930}}100%{{background:transparent}}}}
 .empty{{padding:22px 18px;color:var(--mute)}}
 footer{{margin-top:40px;color:var(--mute);font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}}
-@media (max-width:640px){{h1{{font-size:36px}}.row{{grid-template-columns:1.4fr .8fr 1fr}}.row .hide{{display:none}}.stats{{grid-template-columns:repeat(3,1fr)}}}}
+@media (max-width:640px){{h1{{font-size:36px}}.row{{grid-template-columns:1.4fr .8fr 1fr}}.row .hide{{display:none}}.stats{{grid-template-columns:repeat(2,1fr)}}}}
 </style></head><body><div class="wrap">
 <div class="top">
   <div>
@@ -106,6 +110,7 @@ footer{{margin-top:40px;color:var(--mute);font-size:13px;display:flex;justify-co
     <div class="stat gold"><b id="earned">$0.00</b><span>earned</span></div>
     <div class="stat"><b id="jobs">0</b><span>jobs delivered</span></div>
     <div class="stat"><b id="buyers">0</b><span id="buyerslbl">buyers</span></div>
+    <div class="stat"><b id="p50">—</b><span>median delivery</span></div>
   </div>
 </div>
 <h2>On the menu</h2>
@@ -115,7 +120,7 @@ footer{{margin-top:40px;color:var(--mute);font-size:13px;display:flex;justify-co
   <div class="step"><b>1 · Ask</b>POST your input to a service. The shop answers 402 with the price.</div>
   <div class="step"><b>2 · Sign</b>Your wallet signs a USDC authorization. Nothing moves yet.</div>
   <div class="step"><b>3 · Work</b>This Hermes does the job in a sealed session: no access to its owner's files, memory or keys.</div>
-  <div class="step"><b>4 · Pay on delivery</b>The result comes back with the on-chain receipt. Failed jobs are never charged.</div>
+  <div class="step"><b>4 · Pay on delivery</b>The result comes back with the on-chain receipt and a SHA-256 of the deliverable. Failed jobs are never charged.</div>
 </div>
 <h2>Recently served</h2>
 <div class="feed" id="feed"><div class="empty">No jobs yet. Be the first.</div></div>
@@ -127,7 +132,7 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({{"&":"&amp;","<":"&lt;",">":"
 function ago(s){{return s<60?s+"s ago":s<3600?Math.floor(s/60)+"m ago":Math.floor(s/3600)+"h ago"}}
 async function tick(){{try{{const r=await fetch(CFG.feed,{{cache:"no-store"}});const d=await r.json();
  const p=document.getElementById("openpill");p.textContent=d.open?"● Open for business":"● Closed";p.className="pill "+(d.open?"open":"closed");
- document.getElementById("earned").textContent=d.earned_total;document.getElementById("jobs").textContent=d.jobs_settled;document.getElementById("buyers").textContent=d.buyers;document.getElementById("buyerslbl").textContent=d.buyers===1?"buyer":"buyers";
+ document.getElementById("earned").textContent=d.earned_total;document.getElementById("jobs").textContent=d.jobs_settled;document.getElementById("buyers").textContent=d.buyers;document.getElementById("buyerslbl").textContent=d.buyers===1?"buyer":"buyers";document.getElementById("p50").textContent=d.p50_seconds!=null?d.p50_seconds+"s":"—";
  const f=document.getElementById("feed");if(!d.jobs.length)return;
  let h='<div class="row head"><span>Job</span><span>Price</span><span>Status</span><span class="hide">Receipt</span><span class="hide">When</span></div>';
  for(const j of d.jobs){{const fresh=!first&&!seen.has(j.id+j.status);seen.add(j.id+j.status);

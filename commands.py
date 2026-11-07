@@ -6,12 +6,14 @@ import time
 from decimal import Decimal
 from typing import Any, Callable
 
-from . import ledger as books
+from . import ledger as books, meter
 from .buyer import Policy
 from .shop import STARTER_SERVICES, load_shop, usd
 
-SHARED_NOTE = ("⚠ This shop runs on your main profile, so buyers' jobs run with your memory and persona loaded. "
-               "Tools stay locked, but give the shop its own profile: hermes profile create shop --clone")
+def risk_lines(profile: str) -> list[str]:
+    from .shop import SEAL_HINT, profile_risks
+    risks = profile_risks(profile)
+    return [f"⚠ {r}." for r in risks] + ([f"  Tools stay locked. To seal it, {SEAL_HINT}."] if risks else [])
 
 _HELP = ("/shop — status, earnings and the menu\n"
          "/shop jobs — the last jobs sold\n"
@@ -34,6 +36,7 @@ def status_text(get: Callable[[str, Any], Any], profile: str) -> str:
         ledger = books.Ledger.open()
     except Exception as e:
         return f"Emporium: couldn't open the ledger ({e})"
+    meter.fill_costs(ledger)
     s = ledger.sales_summary()
     is_open = shop.open and ledger.is_open()
     lines = [f"🏛  {shop.name} — {'open for business' if is_open else 'closed'}"]
@@ -42,10 +45,23 @@ def status_text(get: Callable[[str, Any], Any], profile: str) -> str:
         lines.append("Run `hermes emporium init --pay-to 0xYourWallet` to set up a starter shop.")
         return "\n".join(lines)
     lines.append(f"{shop.base_url()} · paid in USDC on {shop.network_label} to {shop.pay_to}")
-    if shop.shared_profile:
-        lines.append(SHARED_NOTE)
+    lines.extend(risk_lines(shop.profile))
     lines.append(f"Earned {_money(s['earned_total'])} ({_money(s['earned_today'])} today) · "
                  f"{s['jobs_settled']} jobs delivered · {s['buyers']} buyers")
+    if s["margin"] is not None:
+        cost = s["inference_cost"]
+        cost_txt = f"${cost:.4f}" if cost < Decimal("0.01") else _money(cost)
+        subs = f" and {_money(s['subcontract_cost'])} paid to other shops" if s["subcontract_cost"] else ""
+        lines.append(f"Profit {_money(s['profit'])} after {cost_txt} of AI cost{subs} · {s['margin'] * 100:.1f}% margin")
+    quality = []
+    if s["delivery_rate"] is not None:
+        quality.append(f"{s['delivery_rate'] * 100:.0f}% delivered")
+    if s["p50_seconds"] is not None:
+        quality.append(f"median {s['p50_seconds']}s, p95 {s['p95_seconds']}s")
+    if s["tools_refused"]:
+        quality.append(f"{s['tools_refused']} tool calls refused by the lock")
+    if quality:
+        lines.append(" · ".join(quality))
     lines.append("")
     lines.append("Menu:")
     per = {p["service"]: p for p in s["per_service"]}
@@ -69,6 +85,8 @@ def jobs_text(limit: int = 10) -> str:
     for j in rows:
         tx = f" · tx {j['tx'][:12]}…" if j["tx"] else ""
         blocked = f" · {j['tools_blocked']} tool call(s) refused" if j["tools_blocked"] else ""
+        if j["cost_usd"] not in ("", "-"):
+            tx += f" · cost ${Decimal(j['cost_usd']):.4f}"
         out.append(f"  {j['id']}  {usd(Decimal(j['price_usd'])):>7}  {j['status']:<8} {j['title']} · "
                    f"{(j['payer'] or 'anon')[:10]}… · {_ago(j['created'])}{tx}{blocked}")
     return "\n".join(out)

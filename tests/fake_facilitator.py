@@ -22,6 +22,7 @@ class FakeFacilitator:
         # fail_settle: True fails every settlement; an int N fails only the first N (a flaky facilitator).
         self.fail_settle, self.invalid = fail_settle, invalid
         self.settle_reason = "invalid_exact_evm_transaction_failed"
+        self.settle_reason_fn = None  # optional callable: a different reason per attempt
         self.verified: list[dict] = []
         self.settled: list[dict] = []
         outer = self
@@ -58,7 +59,8 @@ class FakeFacilitator:
                     net = (payload.get("accepted") or {}).get("network", NETWORKS[0])
                     fail = outer.fail_settle
                     if fail is True or (type(fail) is int and len(outer.settled) <= fail):
-                        return self._json(200, {"success": False, "errorReason": outer.settle_reason, "transaction": "",
+                        reason = outer.settle_reason_fn() if outer.settle_reason_fn else outer.settle_reason
+                        return self._json(200, {"success": False, "errorReason": reason, "transaction": "",
                                                 "network": net, "payer": payer})
                     return self._json(200, {"success": True, "transaction": "0x" + secrets.token_hex(32), "network": net, "payer": payer})
                 self._json(404, {})

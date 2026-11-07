@@ -43,7 +43,6 @@ def register(ctx: Any) -> None:
 
     get = lambda k, d=None: ctx.get_config(k, default=d)  # noqa: E731
     profile = getattr(ctx, "profile_name", "") or ""
-    guard.set_redactor(getattr(ctx, "redact_text", None))  # use Hermes's egress redactor where offered
 
     # Buyer side: available in every session of this profile.
     try:
@@ -51,28 +50,75 @@ def register(ctx: Any) -> None:
     except Exception:
         logger.warning("Emporium: buyer tools failed to register", exc_info=True)
 
-    # Seller side: the tool lock for shop jobs.
-    def on_llm(session_id: str = "", platform: str = "", user_message: str = "", **_kw) -> None:
-        guard.SESSIONS.on_llm_call(session_id, platform, user_message)
-        return None
+    # Seller side: the tool lock for shop jobs, and metering of what each job costs to run.
+    def _books():
+        from .ledger import Ledger
+        return Ledger.open()
 
-    def on_tool(tool_name: str = "", session_id: str = "", **_kw) -> Optional[dict]:
-        decision = guard.SESSIONS.decide(session_id, tool_name)
-        if decision is None or decision[1] == "allow":
-            return None
-        job_id = decision[0]
-        logger.info("Emporium: refused %s for %s (session %s)", tool_name, job_id or "an unbound shop session", session_id)
+    def on_llm(session_id: str = "", platform: str = "", user_message: str = "", task_id: str = "", **_kw) -> None:
+        job_id = guard.SESSIONS.on_llm_call(session_id, platform, user_message, task_id or "")
         if job_id:
             try:
-                from .ledger import Ledger
-                Ledger.open().bump_blocked(job_id)
+                _books().update_job(job_id, session=session_id)
+            except Exception:
+                logger.debug("Emporium: couldn't record the session of %s", job_id, exc_info=True)
+        return None
+
+    def on_tool(tool_name: str = "", session_id: str = "", args: Optional[dict] = None, task_id: str = "",
+                **_kw) -> Optional[dict]:
+        decision = guard.SESSIONS.decide(session_id, tool_name, args if isinstance(args, dict) else {}, task_id or "")
+        if decision is None:
+            return None
+        job_id, verdict, why = decision
+        if verdict == "allow":
+            try:
+                _books().bump_tool(job_id)
             except Exception:
                 pass
+            return None
+        logger.info("Emporium: refused %s for %s (session %s): %s", tool_name, job_id or "an unbound shop session",
+                    session_id, why)
+        if job_id and why != "cap":
+            try:
+                _books().bump_blocked(job_id)
+            except Exception:
+                pass
+        if why == "cap":
+            return {"action": "block", "message": "This job has used all the tool calls it's allowed. "
+                                                  "Deliver the service now with what you have."}
+        if tool_name == "emporium_hire" and why not in ("locked", "unbound"):
+            return {"action": "block", "message": f"Not hiring: {why}."}
         return {"action": "block",
                 "message": f"'{tool_name}' is locked for shop jobs. Deliver the service with the tools it allows."}
 
+    def on_api(session_id: str = "", platform: str = "", model: str = "", usage: Optional[dict] = None,
+               task_id: str = "", finish_reason: Any = None, **_kw) -> None:
+        """Count the tokens each paid job uses (its dollar cost is read from Hermes's session pricing later)."""
+        if (platform or "").lower() != guard.PLATFORM:
+            return None
+        rules = guard.SESSIONS.mark_llm_ok(session_id, task_id or "") if finish_reason else \
+            guard.SESSIONS.job_for(session_id, task_id or "")
+        if rules is None or not isinstance(usage, dict):
+            return None
+        try:
+            tin = usage.get("prompt_tokens") or usage.get("input_tokens") or 0
+            _books().add_usage(rules.job_id, int(tin), int(usage.get("output_tokens") or 0), str(model or ""))
+        except Exception:
+            logger.debug("Emporium: usage metering failed", exc_info=True)
+        return None
+
+    def on_turn_end(session_id: str = "", task_id: str = "", platform: str = "", completed: bool = True,
+                    failed: bool = False, interrupted: bool = False, turn_exit_reason: str = "", **_kw) -> None:
+        """A job whose turn failed is not delivered (the gateway would otherwise send an apology as the reply)."""
+        if (platform or "").lower() == guard.PLATFORM:
+            guard.SESSIONS.mark_turn_end(session_id, task_id or "", bool(completed), bool(failed), bool(interrupted),
+                                         str(turn_exit_reason or ""))
+        return None
+
     ctx.register_hook("pre_llm_call", on_llm)
     ctx.register_hook("pre_tool_call", on_tool)
+    ctx.register_hook("post_api_request", on_api)
+    ctx.register_hook("on_session_end", on_turn_end)
 
     ctx.register_command("shop", commands.make_slash(ctx), description="Your Emporium: earnings, jobs, open/close",
                          args_hint="[jobs|buys|open|close]")

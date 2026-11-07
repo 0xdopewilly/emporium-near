@@ -40,7 +40,7 @@ def test_register_wires_everything():
     ctx = Ctx({"pay_to": SHOP_ADDR})
     emporium.register(ctx)
     assert set(ctx.tools) == {"emporium_browse", "emporium_hire"}
-    assert set(ctx.hooks) == {"pre_llm_call", "pre_tool_call"}
+    assert set(ctx.hooks) == {"pre_llm_call", "pre_tool_call", "post_api_request", "on_session_end"}
     assert "shop" in ctx.commands and "emporium" in ctx.cli
     (p,) = ctx.platforms
     assert p["name"] == "emporium" and callable(p["adapter_factory"])

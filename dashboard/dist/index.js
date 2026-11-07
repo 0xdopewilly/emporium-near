@@ -15,7 +15,8 @@
     const s = Math.max(0, Math.floor(Date.now() / 1000 - ts));
     return s < 60 ? s + "s ago" : s < 3600 ? Math.floor(s / 60) + "m ago" : s < 86400 ? Math.floor(s / 3600) + "h ago" : Math.floor(s / 86400) + "d ago";
   }
-  function money(n) { return "$" + n.toFixed(n < 10 ? 2 : 2); }
+  function money(n) { return "$" + n.toFixed(2); }
+  function pct(r) { return r == null ? "—" : (r * 100).toFixed(r > 0.995 && r < 1 ? 1 : 0) + "%"; }
 
   // Animated number: eases from the last shown value to the new one.
   function useCountUp(target) {
@@ -73,6 +74,7 @@
     useEffect(() => { load(); const t = setInterval(load, 2000); return () => clearInterval(t); }, []);
 
     const earned = useCountUp(data ? parseFloat(data.sales.earned_total_raw || "0") : 0);
+    const profit = useCountUp(data ? parseFloat(data.sales.profit_raw || "0") : 0);
 
     async function toggle() {
       if (!data) return;
@@ -95,15 +97,18 @@
             h(Pill, null, "USDC on " + shop.network), shop.testnet ? h(Pill, { kind: "gold" }, "testnet") : null,
             h("a", { className: "emp-pill emp-link", href: shop.url, target: "_blank", rel: "noopener" }, shop.url.replace(/^https?:\/\//, "") + " ↗"),
             h(Pill, null, "wallet " + short(shop.pay_to)),
-            shop.shared_profile ? null : h(Pill, { kind: "ok" }, "own profile · " + shop.profile)))),
+            (shop.risks && shop.risks.length) ? null : h(Pill, { kind: "ok" }, "sealed profile · " + shop.profile)))),
       h("div", { className: "emp-earn" },
         h("div", { className: "emp-lbl" }, "Earned"),
         h("div", { className: "emp-big" }, money(earned)),
         h("div", { className: "emp-sub" }, sales.earned_today + " today · " + sales.jobs_settled + (sales.jobs_settled === 1 ? " job · " : " jobs · ") + sales.buyers + (sales.buyers === 1 ? " buyer" : " buyers")),
+        sales.margin != null ? h("div", { className: "emp-profit" }, h("b", null, money(profit)), " profit · " + pct(sales.margin) + " margin") : null,
         h("button", { className: "emp-btn", onClick: toggle }, shop.open ? "Close shop" : "Open shop")));
 
     const problems = !shop.ready ? h("div", { className: "emp-card emp-warn" }, "Not ready: " + shop.problems.join("; "))
-      : shop.shared_profile ? h("div", { className: "emp-card emp-warn emp-soft-warn" }, "This shop runs on your main profile, so buyers' jobs load your memory and persona. Tools stay locked, but give the shop its own profile: hermes profile create shop --clone") : null;
+      : (shop.risks && shop.risks.length) ? h("div", { className: "emp-card emp-warn emp-soft-warn" },
+          shop.risks.map((r) => h("div", { key: r }, "⚠ " + r.charAt(0).toUpperCase() + r.slice(1) + ".")),
+          h("div", { className: "emp-hint" }, "Tools stay locked. To seal it, " + shop.seal_hint + ".")) : null;
 
     const live = h("div", { className: "emp-card emp-live" },
       h("div", { className: "emp-card-h" }, h("h2", null, "Live jobs"), h("span", { className: "emp-dot" })),
@@ -112,7 +117,8 @@
         jobs.slice(0, 12).map((j) => h("div", { key: j.id + j.status, className: "emp-row emp-in" },
           h("span", null, j.title, j.blocked ? h("em", { className: "emp-blocked", title: "tool calls refused by the shop lock" }, " · " + j.blocked + " refused") : null),
           h("span", { className: "emp-mono" }, short(j.payer)),
-          h("span", { className: "emp-mono" }, j.price),
+          h("span", { className: "emp-mono emp-pc" }, j.price, j.cost ? h("small", { title: "inference cost, from Hermes's own session pricing" }, "cost " + j.cost) : null,
+            j.sub ? h("small", { title: "paid to other shops for this job" }, "sub " + j.sub) : null),
           h("span", { className: "emp-stc" }, h(Status, { s: j.status }), j.seconds ? h("small", null, j.seconds + "s") : null),
           h("span", { className: "emp-mono" }, j.explorer ? h("a", { href: j.explorer, target: "_blank", rel: "noopener" }, j.tx.slice(0, 10) + "…") : h("small", null, ago(j.created))))))
         : h("div", { className: "emp-empty" }, "No jobs yet. Share " + shop.url + " with a buyer."));
@@ -132,8 +138,23 @@
         h("small", null, "max " + buying.max_per_job + " a job · asks you above " + buying.approve_over)),
       h("div", { className: "emp-bar emp-bar-budget" }, h("i", { style: { width: (100 * ratio) + "%" } })),
       buying.purchases.length ? buying.purchases.slice(0, 6).map((b) => h("div", { key: b.id, className: "emp-buy" },
-        h("span", null, b.service, h("small", null, " @ " + b.shop)), h("span", { className: "emp-mono" }, b.price), h(Status, { s: b.status })))
+        h("span", null, b.service, h("small", null, " @ " + b.shop), b.for_job ? h("em", { className: "emp-sc", title: "subcontracted by one of this shop's own paid jobs" }, "subcontract") : null),
+        h("span", { className: "emp-mono" }, b.explorer ? h("a", { href: b.explorer, target: "_blank", rel: "noopener" }, b.price) : b.price), h(Status, { s: b.status })))
         : h("div", { className: "emp-empty" }, "Nothing bought yet."));
+
+    const m = sales.margin;
+    const books = h("div", { className: "emp-card emp-books" },
+      h("div", { className: "emp-card-h" }, h("h2", null, "The books"), sales.covers ? h("span", { className: "emp-cover" }, "earns " + Math.floor(sales.covers) + "× its AI bill") : null),
+      h("div", { className: "emp-ledger" },
+        h("div", null, h("span", null, "Sales"), h("b", { className: "emp-mono" }, sales.earned_total)),
+        h("div", null, h("span", null, "AI cost", h("small", null, " · Hermes's own estimate")), h("b", { className: "emp-mono emp-neg" }, sales.inference_cost ? "−" + sales.inference_cost : "—")),
+        h("div", null, h("span", null, "Paid to other shops"), h("b", { className: "emp-mono emp-neg" }, sales.subcontract_cost === "$0.00" ? "$0.00" : "−" + sales.subcontract_cost)),
+        h("div", { className: "emp-total" }, h("span", null, "Profit"), h("b", { className: "emp-mono" }, sales.profit))),
+      h("div", { className: "emp-bar emp-bar-margin" }, h("i", { style: { width: (100 * Math.max(0, Math.min(1, m || 0))) + "%" } })),
+      h("small", { className: "emp-quality" }, (m == null ? "Margin appears after the first priced job" : pct(m) + " margin") +
+        (sales.delivery_rate != null ? " · " + pct(sales.delivery_rate) + " delivered" : "") +
+        (sales.p50_seconds != null ? " · median " + sales.p50_seconds + "s" : "") +
+        (sales.tokens ? " · " + (sales.tokens >= 1e6 ? (sales.tokens / 1e6).toFixed(1) + "M" : Math.round(sales.tokens / 1000) + "k") + " tokens" : "")));
 
     const safety = h("div", { className: "emp-card" },
       h("div", { className: "emp-card-h" }, h("h2", null, "Sealed jobs")),
@@ -145,7 +166,7 @@
 
     return h("div", { className: "emp" }, hero, problems,
       h("div", { className: "emp-grid" }, live, menuCard),
-      h("div", { className: "emp-grid emp-grid-2" }, hiring, safety),
+      h("div", { className: "emp-grid emp-grid-3" }, books, hiring, safety),
       toast ? h("div", { key: toast.key, className: "emp-toast" }, h("b", null, "+" + toast.amount), h("span", null, toast.title + " · paid on delivery")) : null);
   }
 

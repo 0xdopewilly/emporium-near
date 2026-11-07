@@ -21,7 +21,8 @@
 .emp-btn:hover{border-color:var(--emp-gold);color:var(--emp-gold)}
 .emp-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:16px}
 .emp-grid-2{grid-template-columns:1fr 1fr}
-@media (max-width:1000px){.emp-grid,.emp-grid-2,.emp-hero{grid-template-columns:1fr}.emp-earn{align-items:flex-start;text-align:left}}
+.emp-grid-3{grid-template-columns:1.15fr 1fr 1fr}
+@media (max-width:1000px){.emp-grid,.emp-grid-2,.emp-grid-3,.emp-hero{grid-template-columns:1fr}.emp-earn{align-items:flex-start;text-align:left}}
 .emp-table{display:flex;flex-direction:column}
 .emp-row{display:grid;grid-template-columns:1.5fr .8fr .55fr 1.05fr .8fr;gap:10px;align-items:center;padding:10px 4px;border-top:1px solid var(--emp-line);font-size:13px}
 .emp-row:first-child{border-top:0}
@@ -59,3 +60,15 @@
 @keyframes empToast{0%{opacity:0;transform:translateY(16px) scale(.96)}10%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0;transform:translateY(6px)}}
 .emp-stc{display:flex;align-items:center;gap:6px;white-space:nowrap}.emp-stc small{font-size:11px}
 .emp-soft-warn{border-color:rgba(233,185,73,.55);color:var(--emp-gold)}
+.emp-profit{font-size:13px;color:var(--emp-mute)}.emp-profit b{color:var(--emp-ok);font:600 15px ui-monospace,'JetBrains Mono',monospace}
+.emp-pc{display:flex;flex-direction:column;gap:1px}.emp-pc small{font-size:10.5px}
+.emp-sc{font-style:normal;font-size:11px;margin-left:6px;padding:1px 7px;border-radius:999px;background:rgba(233,185,73,.14);color:var(--emp-gold)}
+.emp-cover{font-size:11.5px;padding:2px 9px;border-radius:999px;background:rgba(60,207,142,.14);color:var(--emp-ok)}
+.emp-ledger{display:flex;flex-direction:column}
+.emp-ledger div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--emp-line);font-size:13.5px}
+.emp-ledger div:first-child{border-top:0}.emp-ledger small{color:var(--emp-mute);font-size:11px}
+.emp-neg{color:var(--emp-mute)}
+.emp-total{border-top:1px solid rgba(233,185,73,.45)!important}.emp-total b{color:var(--emp-ok);font-size:17px}
+.emp-bar-margin i{background:linear-gradient(90deg,#1f9e66,#5ee6a8)}
+.emp-quality{color:var(--emp-mute);font-size:12px}
+.emp-hint{margin-top:6px;color:var(--emp-mute);font-size:12px}
