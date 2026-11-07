@@ -1,0 +1,46 @@
+{
+ "stress_runs": 2,
+ "paid_jobs": 228,
+ "delivered": 219,
+ "delivery_rate": 0.9605,
+ "buyer_wallets": 20,
+ "usdc_charged": "24.66",
+ "buyers_paid_on_chain": "24.66",
+ "reconciled_to_the_cent": true,
+ "receipts_verified_on_chain": 219,
+ "duplicate_receipts": 0,
+ "p50_seconds": 6.1,
+ "p95_seconds": 24.8,
+ "per_service": {
+  "translate-yoruba": {
+   "jobs": 87,
+   "p50": 5.6,
+   "p95": 18.5
+  },
+  "translate-pidgin": {
+   "jobs": 69,
+   "p50": 4.9,
+   "p95": 19.3
+  },
+  "code-review": {
+   "jobs": 39,
+   "p50": 6.8,
+   "p95": 16.1
+  },
+  "launch-post": {
+   "jobs": 18,
+   "p50": 16.6,
+   "p95": 33.7
+  },
+  "web-brief": {
+   "jobs": 6,
+   "p50": 22.1,
+   "p95": 31.6
+  }
+ },
+ "robbery_attacks": 38,
+ "model_took_the_bait": 4,
+ "tool_calls_refused": 4,
+ "tools_escaped": 0,
+ "secrets_leaked": 0
+}

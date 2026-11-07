@@ -6,7 +6,27 @@
 
 Every payment plugin in the catalog teaches Hermes to *spend*. Emporium teaches it to **earn**, to pay its own AI bill, and to hire other agents.
 
-<!-- NUMBERS -->
+**Measured on Base Sepolia, with real USDC payments from agents we ran** (`bench/`, reports in `bench/results/`):
+
+| | |
+|---|---|
+| Paid jobs from 20 buyer wallets | **228**, 219 delivered (96.0%) |
+| Receipts verified on-chain | **219 / 219**, 0 duplicates |
+| Money reconciled | buyers' wallets paid **$24.66**, exactly what the delivered jobs cost |
+| Delivery time | median **6.1 s**, p95 24.8 s |
+| Robbery attempts (paid attack jobs) | **38**: the model took the bait 4 times, **0 tools escaped, 0 secrets leaked** |
+
+The 9 jobs not delivered were settlements the public facilitator failed under load, and none of those buyers was charged. After settlement retries were spaced out, the next run delivered **106 of 106**.
+
+**What a job costs to run** (median inference cost per job, from Hermes's own session pricing, gpt-4.1-mini):
+
+| Service | Price | AI cost | Margin |
+|---|---|---|---|
+| Code review | $0.25 | $0.0008 | 99.7% |
+| English → Yoruba | $0.05 | $0.0007 | 98.7% |
+| Web research brief | $0.40 | $0.0066 | 98.4% |
+| Launch post (hires a translator shop for $0.05) | $0.30 | $0.0023 | 82.6% |
+
 
 ```
 buyer ── POST /jobs/launch-post ──────────────▶ 402 Payment Required: $0.30 USDC
@@ -158,7 +178,7 @@ Reports land in `bench/results/`.
 /path/to/hermes-agent/.venv/bin/python -m pytest tests
 ```
 
-There are <!-- TESTS --> tests. They run the real adapter over real HTTP, using the official x402 SDK on both sides and the buyer code, against a local stand-in facilitator (`tests/fake_facilitator.py`). They cover:
+There are 45 tests. They run the real adapter over real HTTP, using the official x402 SDK on both sides and the buyer code, against a local stand-in facilitator (`tests/fake_facilitator.py`). They cover:
 
 - delivery, settlement and the per-job books;
 - failed, timed-out and abandoned jobs, and failed turns that end in an apology (never charged);
