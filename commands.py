@@ -8,7 +8,7 @@ from typing import Any, Callable
 
 from . import ledger as books, meter
 from .buyer import Policy
-from .shop import STARTER_SERVICES, load_shop, usd
+from .shop import STARTER_SERVICES, load_shop, money, usd
 
 def risk_lines(profile: str) -> list[str]:
     from .shop import SEAL_HINT, profile_risks
@@ -27,7 +27,7 @@ def _ago(ts: float) -> str:
 
 
 def _money(d: Decimal) -> str:
-    return usd(d) if d else "$0.00"
+    return money(d)
 
 
 def status_text(get: Callable[[str, Any], Any], profile: str) -> str:
@@ -49,8 +49,7 @@ def status_text(get: Callable[[str, Any], Any], profile: str) -> str:
     lines.append(f"Earned {_money(s['earned_total'])} ({_money(s['earned_today'])} today) · "
                  f"{s['jobs_settled']} jobs delivered · {s['buyers']} buyers")
     if s["margin"] is not None:
-        cost = s["inference_cost"]
-        cost_txt = f"${cost:.4f}" if cost < Decimal("0.01") else _money(cost)
+        cost_txt = _money(s["inference_cost"])
         subs = f" and {_money(s['subcontract_cost'])} paid to other shops" if s["subcontract_cost"] else ""
         lines.append(f"Profit {_money(s['profit'])} after {cost_txt} of AI cost{subs} · {s['margin'] * 100:.1f}% margin")
     quality = []

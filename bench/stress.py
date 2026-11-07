@@ -71,8 +71,20 @@ def main() -> None:
         todo.put((i, *j, 0))
     results, lock = [], threading.Lock()
     wallet_cycle = itertools.cycle(range(len(wallets)))
-    wallet_locks = [threading.Lock() for _ in wallets]
+    busy = [False] * len(wallets)
+    left = [before_buyers[a] for _, a in wallets]   # what each wallet can still spend, reserved per job
+    skipped = []
     started = time.time()
+
+    def take_wallet(price: Decimal):
+        """A free wallet that can afford the job (reserving the price), or None if no wallet can."""
+        for _ in range(len(wallets)):
+            w = next(wallet_cycle)
+            if not busy[w] and left[w] >= price:
+                busy[w] = True
+                left[w] -= price
+                return w
+        return None if not any(l >= price for l in left) else -1
 
     def worker() -> None:
         while True:
@@ -80,29 +92,40 @@ def main() -> None:
                 i, url, service, text, tries = todo.get_nowait()
             except queue.Empty:
                 return
+            price = shops[url]["prices"][service]
             with lock:
-                w = next(wallet_cycle)
+                w = take_wallet(price)
+            if w is None:  # the fleet ran out of test funds: not a shop failure, reported apart
+                with lock:
+                    skipped.append(i)
+                continue
+            if w == -1:    # every wallet that could pay is mid-job: wait for one
+                time.sleep(0.5)
+                todo.put((i, url, service, text, tries))
+                continue
             key, addr = wallets[w]
             t0 = time.time()
             rec = {"i": i, "shop": shops[url]["name"], "url": url, "service": service, "buyer": addr}
             try:
-                with wallet_locks[w]:  # one job per wallet at a time, like a real client
-                    r = buyer.hire(url, service, text, policy=policy, key=key, ledger=None)
+                r = buyer.hire(url, service, text, policy=policy, key=key, ledger=None)
                 rec.update(ok=True, seconds=round(time.time() - t0, 2), tx=r["receipt"].get("tx", ""),
                            charged=r["charged_usd"], job=r.get("job", ""), output_chars=len(r["output"]))
+                with lock:
+                    busy[w] = False
             except buyer.HireError as e:
                 msg = str(e)
+                with lock:
+                    busy[w] = False
+                    left[w] += price  # not charged
                 if any(b in msg for b in BUSY) and tries < 8:
                     time.sleep(2 + tries)
                     todo.put((i, url, service, text, tries + 1))
-                    with lock:
-                        rec["busy_retry"] = True
                     continue
                 rec.update(ok=False, seconds=round(time.time() - t0, 2), error=msg[:240])
             with lock:
                 results.append(rec)
                 done = len(results)
-                if done % 10 == 0 or done == len(jobs):
+                if done % 10 == 0 or done + len(skipped) == len(jobs):
                     ok = sum(1 for r in results if r.get("ok"))
                     print(f"  {done}/{len(jobs)} · {ok} delivered · {time.time() - started:.0f}s", flush=True)
 
@@ -144,7 +167,7 @@ def main() -> None:
         "delivered": len(delivered), "not_delivered": len(results) - len(delivered),
         "delivery_rate": round(len(delivered) / max(1, len(results)), 4),
         "failures": dict(failures),
-        "busy_retries": sum(1 for r in results if r.get("busy_retry")),
+        "skipped_out_of_test_funds": len(skipped),
         "receipts_verified_on_chain": verified, "receipts_not_verified": bad,
         "duplicate_receipts": len(txs) - len(set(txs)),
         "charged_for_delivered": str(charged),

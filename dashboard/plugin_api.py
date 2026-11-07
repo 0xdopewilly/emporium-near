@@ -50,7 +50,7 @@ def _profile() -> str:
 
 
 def _money(shop_mod, d: Decimal) -> str:
-    return shop_mod.usd(d) if d else "$0.00"
+    return shop_mod.money(d)
 
 
 def _cost(v: str):

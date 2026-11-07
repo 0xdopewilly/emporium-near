@@ -62,6 +62,18 @@ def usd(amount: Decimal) -> str:
     return "$" + text
 
 
+def money(amount: Decimal) -> str:
+    """For display: cents, or four decimals under a cent (AI costs are often a fraction of one)."""
+    d = Decimal(amount or 0)
+    if d == 0:
+        return "$0.00"
+    sign = "−" if d < 0 else ""
+    d = abs(d)
+    if d >= Decimal("0.01"):
+        return f"{sign}${d.quantize(Decimal('0.01')):,}"
+    return f"{sign}${d.quantize(Decimal('0.0001'))}"
+
+
 def to_atomic(amount: Decimal, decimals: int = 6) -> int:
     """USD amount -> USDC base units (6 decimals)."""
     return int((amount * (Decimal(10) ** decimals)).to_integral_value())

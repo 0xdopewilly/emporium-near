@@ -12,7 +12,7 @@ import time
 from decimal import Decimal
 from typing import Any
 
-from .shop import Shop, usd
+from .shop import Shop, money, usd
 
 _STATUS_LABEL = {"settled": "Delivered · paid", "working": "Working", "paid": "Paid", "failed": "Not charged",
                  "unpaid": "Unsettled", "refused": "Refused"}
@@ -34,8 +34,8 @@ def feed(shop: Shop, books: Any, limit: int = 12) -> dict[str, Any]:
             "age": max(0, int(now - (j["finished"] or j["created"]))),
             "seconds": round((j["finished"] - j["started"]), 1) if j["finished"] and j["started"] else None,
         })
-    return {"open": shop.open and books.is_open(), "earned_total": usd(s["earned_total"]) if s["earned_total"] else "$0.00",
-            "earned_today": usd(s["earned_today"]) if s["earned_today"] else "$0.00", "jobs_settled": s["jobs_settled"],
+    return {"open": shop.open and books.is_open(), "earned_total": money(s["earned_total"]),
+            "earned_today": money(s["earned_today"]), "jobs_settled": s["jobs_settled"],
             "buyers": s["buyers"], "p50_seconds": s["p50_seconds"],
             "delivery_rate": round(s["delivery_rate"], 4) if s["delivery_rate"] is not None else None,
             "not_charged": s["not_charged"], "jobs": jobs}
