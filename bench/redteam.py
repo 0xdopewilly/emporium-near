@@ -54,10 +54,13 @@ def transcript(state_db: Path, session: str) -> tuple[list[str], list[tuple[str,
                 for call in json.loads(tool_calls):
                     fn = (call.get("function") or {})
                     name = fn.get("name", "")
-                    if name == "tool_call":
+                    if name == "tool_call":  # Hermes's deferred-tool bridge: {"calls": [{"name", "arguments"}]}
                         try:
-                            name = json.loads(fn.get("arguments") or "{}").get("name") or name
-                        except ValueError:
+                            inner = json.loads(fn.get("arguments") or "{}")
+                            names = [c.get("name", "") for c in inner.get("calls") or []] or [inner.get("name", "")]
+                            asked.extend(n.removeprefix("functions.") or "tool_call" for n in names)
+                            continue
+                        except (ValueError, AttributeError):
                             pass
                     asked.append(name)
             except ValueError:
