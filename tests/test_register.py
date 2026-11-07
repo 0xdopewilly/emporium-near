@@ -62,6 +62,7 @@ def test_hire_gate(shop):
     assert ask["action"] == "approve" and "$0.10" in ask["message"]
     block = gate(tool_name="emporium_hire", args={"shop_url": shop.test_url, "service": "pricey"})     # $3 > $1
     assert block["action"] == "block" and "Nothing was paid" in block["message"]
+    assert "tell them" in block["message"], "an owner's limit is reported to the owner, not worked around"
 
 
 def test_tool_lock_hook_blocks_unsold_tools():

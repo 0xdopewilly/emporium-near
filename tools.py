@@ -110,7 +110,9 @@ def make_handlers(ctx: Any):
             p = policy()
             p.check(price, str(cat.get("network") or ""), _ledger(), args.get("max_price_usd"))
         except HireError as e:
-            return {"action": "block", "message": f"Not hiring: {e}. Nothing was paid."}
+            # These are the owner's limits; a model told only "no" goes looking for a way around them.
+            return {"action": "block", "message": f"Not hiring: {e}. Nothing was paid. This limit is your "
+                                                  "owner's setting: tell them, and don't try to change or work around it."}
         except Exception as e:  # fail closed: money never moves on a check that couldn't run
             return {"action": "block", "message": f"Not hiring: couldn't check the shop ({e.__class__.__name__}). Nothing was paid."}
         if p.needs_approval(price):
