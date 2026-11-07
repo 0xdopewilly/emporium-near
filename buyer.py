@@ -23,6 +23,7 @@ from . import ledger as books
 from .shop import NETWORKS, RPC_URLS, USDC, from_atomic, parse_usd, to_atomic, usd
 
 SETTLE_WINDOW = 120  # the shop may take this long after the job to settle; wait for it
+BUSY_RETRIES = 4     # a shop answering 503 (all hands busy) is retried this many times, over ~30 s
 
 _TRANSFER = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"  # ERC-20 Transfer(address,address,uint256)
 
@@ -144,8 +145,18 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
     body = {"input": buyer_input}
     timeout = float(svc.get("timeout_seconds") or 180) + SETTLE_WINDOW + 30
 
+    def post(http: httpx.Client, headers: Optional[dict] = None) -> httpx.Response:
+        """POST, waiting out a busy shop: a 503 is answered before any payment is claimed, so the same
+        signed authorization can simply be sent again."""
+        for attempt in range(BUSY_RETRIES + 1):
+            r = http.post(endpoint, json=body, headers=headers)
+            if r.status_code != 503 or attempt == BUSY_RETRIES:
+                return r
+            time.sleep(2.0 + 2.0 * attempt)
+        return r
+
     with httpx.Client(timeout=timeout, follow_redirects=False) as http:
-        first = http.post(endpoint, json=body)
+        first = post(http)
         if first.status_code != 402:
             try:
                 err = first.json().get("error")
@@ -180,7 +191,7 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
             payload = hc.create_payment_payload(required)
             headers = hc.encode_payment_signature_header(payload)
             started = time.time()
-            paid = http.post(endpoint, json=body, headers=headers)
+            paid = post(http, headers)
         except httpx.TimeoutException as e:
             # The signed payment was sent; the shop may still settle it. Keep it counted against the budget.
             if ledger and pid:

@@ -178,3 +178,26 @@ def test_jobs_are_metered_and_priced_from_hermes_sessions(tmp_path, monkeypatch)
     assert s["inference_cost"] == Decimal("0.0042") and s["profit"] == Decimal("0.2458")
     assert round(s["margin"], 4) == round(0.2458 / 0.25, 4)
     guard.SESSIONS.forget(jid)
+
+
+def test_a_busy_shop_is_waited_out_not_charged(shop, monkeypatch):
+    """Every slot taken: the buyer waits and retries with the same signed payment; nothing is charged twice."""
+    from emporium import buyer as b
+    monkeypatch.setattr(b.time, "sleep", lambda s: None)
+    real = shop._slots
+    calls = {"n": 0}
+
+    class Flaky:
+        def acquire(self, blocking=False):
+            calls["n"] += 1
+            return calls["n"] > 2 and real.acquire(blocking=False)
+
+        def release(self):
+            real.release()
+
+    shop._slots = Flaky()
+    b._catalog_cache.clear()
+    out = b.hire(shop.test_url, "echo", "hello", policy=b.Policy(as_settings({"buyer_max_per_job": "$1"})), key=BUYER_KEY,
+                 ledger=None)
+    shop._slots = real
+    assert out["output"] == "ECHO: hello" and calls["n"] == 3 and len(shop.facilitator.settled) == 1
