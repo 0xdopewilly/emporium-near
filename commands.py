@@ -10,10 +10,27 @@ from . import ledger as books, meter
 from .buyer import Policy
 from .shop import STARTER_SERVICES, load_shop, money, usd
 
-def risk_lines(profile: str) -> list[str]:
-    from .shop import SEAL_HINT, profile_risks
+def risk_lines(profile: str, allow_unsealed: bool = False) -> list[str]:
+    from .shop import SEAL_HINT, UNSEALED_SETTING, profile_risks
     risks = profile_risks(profile)
-    return [f"⚠ {r}." for r in risks] + ([f"  Tools stay locked. To seal it, {SEAL_HINT}."] if risks else [])
+    if not risks:
+        return []
+    head = (f"⚠ Open on an unsealed profile ({UNSEALED_SETTING} is on):" if allow_unsealed
+            else "⛔ The shop won't open on this profile:")
+    return [head] + [f"  · {r}." for r in risks] + [f"  To seal it, {SEAL_HINT}."]
+
+def seal_memory() -> str:
+    """Turn built-in memory off in this profile's config.yaml (the shop's own profile only; init never
+    calls it on the main profile). Returns what it turned off."""
+    from hermes_cli.config import load_config, save_config
+    cfg = load_config()
+    mem = cfg.get("memory") if isinstance(cfg.get("memory"), dict) else {}
+    changed = [k for k in ("memory_enabled", "user_profile_enabled") if mem.get(k) is not False]
+    if changed:
+        cfg["memory"] = {**mem, **{k: False for k in changed}}
+        save_config(cfg)
+    return " and ".join(f"memory.{k}" for k in changed)
+
 
 _HELP = ("/shop — status, earnings and the menu\n"
          "/shop jobs — the last jobs sold\n"
@@ -38,14 +55,17 @@ def status_text(get: Callable[[str, Any], Any], profile: str) -> str:
         return f"Emporium: couldn't open the ledger ({e})"
     meter.fill_costs(ledger)
     s = ledger.sales_summary()
+    risks = risk_lines(shop.profile, shop.allow_unsealed) if not shop.problems else []
     is_open = shop.open and ledger.is_open()
-    lines = [f"🏛  {shop.name} — {'open for business' if is_open else 'closed'}"]
+    state = ("closed: this profile isn't sealed" if risks and not shop.allow_unsealed
+             else "open for business" if is_open else "closed")
+    lines = [f"🏛  {shop.name} — {state}"]
     if shop.problems:
         lines.append("Not ready yet: " + "; ".join(shop.problems))
         lines.append("Run `hermes emporium init --pay-to 0xYourWallet` to set up a starter shop.")
         return "\n".join(lines)
     lines.append(f"{shop.base_url()} · paid in USDC on {shop.network_label} to {shop.pay_to}")
-    lines.extend(risk_lines(shop.profile))
+    lines.extend(risks)
     lines.append(f"Earned {_money(s['earned_total'])} ({_money(s['earned_today'])} today) · "
                  f"{s['jobs_settled']} jobs delivered · {s['buyers']} buyers")
     if s["margin"] is not None:
@@ -159,7 +179,17 @@ def make_cli(ctx: Any):
                 ctx.set_config("port", int(args.port))
             if not get("services", None):
                 ctx.set_config("services", STARTER_SERVICES)
-            shop = load_shop(get, getattr(ctx, "profile_name", ""))
+            profile = getattr(ctx, "profile_name", "")
+            if profile in ("", "default"):
+                print("This is your main profile: the shop won't open here, because buyers' jobs would load its memory "
+                      "and persona. Give the shop a profile of its own: hermes profile create shop, then "
+                      "hermes -p shop emporium init.\n")
+            else:
+                sealed = seal_memory()
+                if sealed:
+                    print(f"Sealed this profile for the shop: turned off {sealed}, so buyers' jobs carry no memory "
+                          "and none of their text is saved.\n")
+            shop = load_shop(get, profile)
             print(status_text(get, getattr(ctx, "profile_name", "")))
             if shop.ready:
                 print("\nNext: run `hermes gateway` in this profile. The shop opens at " + shop.base_url())

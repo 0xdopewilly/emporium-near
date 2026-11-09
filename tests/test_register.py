@@ -54,6 +54,10 @@ def test_hire_gate(shop):
     gate = [h for h in ctx.hooks["pre_tool_call"] if h.__name__ == "gate"][0]
     buyer._catalog_cache.clear()
     assert gate(tool_name="terminal", args={}) is None
+    # a shop on loopback is hired only once the owner lists it
+    local = gate(tool_name="emporium_hire", args={"shop_url": shop.test_url, "service": "echo"})
+    assert local["action"] == "block" and "buyer_allow_hosts" in local["message"]
+    ctx.settings["buyer_allow_hosts"] = ["127.0.0.1"]
     assert gate(tool_name="emporium_hire", args={"shop_url": shop.test_url, "service": "echo"}) is None  # $0.05
     ask = gate(tool_name="emporium_hire", args={"shop_url": shop.test_url, "service": "search"})       # $0.10 → not above
     assert ask is None

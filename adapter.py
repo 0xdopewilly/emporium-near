@@ -303,6 +303,16 @@ class EmporiumAdapter(BasePlatformAdapter):
             logger.error("Emporium: %s", msg)
             self._set_fatal_error("not_configured", msg, retryable=False)
             return False
+        # Paid jobs run on this profile: its memory, persona and context files would reach every buyer's
+        # prompt, and its memory machinery would record buyers' turns. Don't open until it's sealed.
+        from .shop import SEAL_HINT, UNSEALED_SETTING, profile_risks
+        risks = await asyncio.to_thread(profile_risks, self.shop.profile)
+        if risks and not self.shop.allow_unsealed:
+            msg = (f"shop not opened: {'; '.join(risks)}. To seal it, {SEAL_HINT}. "
+                   f"(To open on this profile anyway, set {UNSEALED_SETTING}: true.)")
+            logger.error("Emporium: %s", msg)
+            self._set_fatal_error("profile_not_sealed", msg, retryable=False)
+            return False
         try:
             self.books = await asyncio.to_thread(books.Ledger.open)
             stale = await asyncio.to_thread(self.books.fail_stale_jobs)
@@ -325,9 +335,9 @@ class EmporiumAdapter(BasePlatformAdapter):
         self.shop.port = self._httpd.server_address[1]  # the real port when 0 asked for any
         threading.Thread(target=self._httpd.serve_forever, name="emporium-http", daemon=True).start()
         self._mark_connected(listener_base=f"http://{self.shop.host}:{self.shop.port}")
-        from .shop import SEAL_HINT, profile_risks
-        for risk in profile_risks(self.shop.profile):
-            logger.warning("Emporium: %s. Tools stay locked; to seal it, %s", risk, SEAL_HINT)
+        for risk in risks:
+            logger.warning("Emporium: open on an unsealed profile (%s is on): %s. To seal it, %s",
+                           UNSEALED_SETTING, risk, SEAL_HINT)
         logger.info("Emporium: %r open at %s · %d service(s) · paid to %s on %s",
                     self.shop.name, self.shop.base_url(), len(self.shop.services), self.shop.pay_to, self.shop.network_label)
         return True

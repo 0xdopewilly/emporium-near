@@ -41,4 +41,6 @@ config_schema:
   buyer_daily_budget: {type: str, default: "$2.00", label: "Hiring: daily budget"}
   buyer_approve_over: {type: str, default: "$0.10", label: "Hiring: ask me above"}
   buyer_networks: {type: list, default: ["eip155:84532"], label: "Hiring: networks I pay on"}
+  buyer_allow_hosts: {type: list, default: [], label: "Hiring: private shops I trust", description: "host or host:port of shops on loopback or a private network this Hermes may browse and hire, e.g. 127.0.0.1:9402. Public shops need no entry; link-local and cloud-metadata addresses are always refused."}
+  allow_unsealed_profile: {type: bool, default: false, label: "Open on an unsealed profile", description: "Open the shop even though this profile's memory, persona or project context files would reach buyers' jobs. Off by default: give the shop a fresh profile instead."}
   buyer_key: {type: secret, env: EMPORIUM_BUYER_KEY, label: "Hiring wallet key", description: "Private key of a dedicated wallet holding a little USDC. Only needed to hire other shops."}

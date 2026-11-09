@@ -32,10 +32,18 @@ BUYER_KEY = "0x" + "11" * 32
 SHOP_ADDR = "0x" + "ab" * 20
 
 
+SEALED_CONFIG = "memory:\n  memory_enabled: false\n  user_profile_enabled: false\n"
+
+
 @pytest.fixture(autouse=True)
 def hermes_home(tmp_path, monkeypatch):
+    """A sealed shop profile (built-in memory off), in a temp dir; the working directory has no context files."""
     monkeypatch.setenv("HERMES_HOME", str(tmp_path / "home"))
+    monkeypatch.delenv("TERMINAL_CWD", raising=False)
     (tmp_path / "home").mkdir()
+    (tmp_path / "home" / "config.yaml").write_text(SEALED_CONFIG)
+    (tmp_path / "work").mkdir()
+    monkeypatch.chdir(tmp_path / "work")
     return tmp_path / "home"
 
 

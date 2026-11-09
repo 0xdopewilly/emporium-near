@@ -110,7 +110,8 @@
     const problems = !shop.ready ? h("div", { className: "emp-card emp-warn" }, "Not ready: " + shop.problems.join("; "))
       : (shop.risks && shop.risks.length) ? h("div", { className: "emp-card emp-warn emp-soft-warn" },
           shop.risks.map((r) => h("div", { key: r }, "⚠ " + r.charAt(0).toUpperCase() + r.slice(1) + ".")),
-          h("div", { className: "emp-hint" }, "Tools stay locked. To seal it, " + shop.seal_hint + ".")) : null;
+          h("div", { className: "emp-hint" }, (shop.allow_unsealed ? "Open anyway: allow_unsealed_profile is on. "
+            : "The shop won't open until this is fixed. ") + "To seal it, " + shop.seal_hint + ".")) : null;
 
     const live = h("div", { className: "emp-card emp-live" },
       h("div", { className: "emp-card-h" }, h("h2", null, "Live jobs"), h("span", { className: "emp-dot" })),

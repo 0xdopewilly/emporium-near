@@ -157,13 +157,13 @@ class Shop:
     max_concurrent_jobs: int = 3
     jobs_per_payer_per_hour: int = 30
     rpc_url: str = ""
+    allow_unsealed: bool = False
     problems: list[str] = field(default_factory=list)
 
     @property
     def shared_profile(self) -> bool:
         """True when the shop runs on the owner's main profile, whose memory and persona every
-        gateway session loads. Tools stay locked either way; memory is only sealed on a profile
-        of its own (``hermes profile create shop``)."""
+        gateway session loads. The shop won't open there unless the owner sets allow_unsealed_profile."""
         return self.profile in ("", "default")
 
     @property
@@ -209,28 +209,106 @@ class Shop:
         }
 
 
-SEAL_HINT = "give the shop a fresh profile of its own: hermes profile create shop (without --clone, which copies your memory)"
+SEAL_HINT = ("give the shop a fresh profile of its own (hermes profile create shop, without --clone, which copies "
+             "your memory and persona), then run hermes -p shop emporium init there: it turns that profile's memory off")
+UNSEALED_SETTING = "allow_unsealed_profile"
+# Project context files Hermes loads into the system prompt from the agent's working directory (its
+# documented discovery: .hermes.md up to the git root, the AGENTS.md chain from the git root down, and
+# CLAUDE.md, .cursorrules and .cursor/rules/*.mdc in the directory itself).
+_CONTEXT_WALKED = (".hermes.md", "HERMES.md", "AGENTS.override.md", "AGENTS.md", "agents.md")
+_CONTEXT_HERE = ("CLAUDE.md", "claude.md", ".cursorrules")
+_TRUTHY = {"1", "true", "yes", "on"}
+
+
+def _nonempty(f: Path) -> bool:
+    try:
+        return f.is_file() and bool(f.read_text(errors="ignore").strip())
+    except OSError:
+        return True  # unreadable: assume it holds something
+
+
+def _on(value: Any, default: bool = True) -> bool:
+    """A config flag read the way Hermes reads it: unset is the default, strings must be truthy."""
+    if value is None:
+        return default
+    return value.strip().lower() in _TRUTHY if isinstance(value, str) else bool(value)
+
+
+def _soul(text: str) -> str:
+    return " ".join(text.split())
+
+
+def _copied_persona(home: Path) -> bool:
+    """True when this profile's SOUL.md is the owner's main-profile persona (what --clone copies), rather
+    than Hermes's stock persona or one written for the shop."""
+    from hermes_constants import get_default_hermes_root
+    root = Path(get_default_hermes_root())
+    if root.resolve() == home.resolve():
+        return False  # this is the main home itself; the main-profile check covers it
+    mine, main = home / "SOUL.md", root / "SOUL.md"
+    if not (_nonempty(mine) and _nonempty(main)):
+        return False
+    text = main.read_text(errors="ignore")
+    if _soul(mine.read_text(errors="ignore")) != _soul(text):
+        return False
+    try:
+        from hermes_cli.config import DEFAULT_SOUL_MD, is_legacy_template_soul
+    except ImportError:
+        return True  # can't tell the stock persona apart: count it
+    return _soul(text) != _soul(DEFAULT_SOUL_MD) and not is_legacy_template_soul(text)
+
+
+def _context_files(cfg: dict) -> tuple[Path, list[str]]:
+    """Project context files Hermes would load into every job's prompt from the gateway's working directory."""
+    term = cfg.get("terminal") if isinstance(cfg.get("terminal"), dict) else {}
+    raw = str(term.get("cwd") or "").strip()
+    if raw and raw != "." and Path(raw).expanduser().is_dir():
+        cwd = Path(raw).expanduser()  # the profile's terminal.cwd, which the gateway runs jobs in
+    else:
+        from agent.runtime_cwd import resolve_agent_cwd  # TERMINAL_CWD in the gateway, else the launch dir
+        cwd = resolve_agent_cwd()
+    cwd = cwd.resolve()
+    git = next((d for d in (cwd, *cwd.parents) if (d / ".git").exists()), None)
+    chain = [d for d in (cwd, *cwd.parents) if d == git or (git is not None and git in d.parents)] or [cwd]
+    found = [n for n in _CONTEXT_HERE if _nonempty(cwd / n)]
+    rules = cwd / ".cursor" / "rules"
+    if rules.is_dir() and any(_nonempty(f) for f in rules.glob("*.mdc")):
+        found.append(".cursor/rules")
+    found += [n if d == cwd else str(d / n) for d in chain for n in _CONTEXT_WALKED if _nonempty(d / n)]
+    return cwd, found
 
 
 def profile_risks(profile: str) -> list[str]:
-    """Ways the profile serving the shop could expose its owner to buyers' jobs. Tools are locked
-    either way; these are what a job's prompt or Hermes's own memory machinery would still touch."""
+    """What the profile serving the shop would put in front of a paying stranger, or let them write into.
+    Tools are locked either way; these are the prompt and memory paths the lock can't see. The adapter
+    refuses to open the shop while any of them applies, unless the owner sets allow_unsealed_profile."""
     risks: list[str] = []
     if profile in ("", "default"):
-        risks.append("the shop runs on your main profile, so buyers' jobs load its persona")
+        risks.append("the shop runs on your main profile, so buyers' jobs load its persona and memory")
     try:
         from hermes_constants import get_hermes_home
-        home = Path(get_hermes_home())
-        for name, what in (("MEMORY.md", "saved memories"), ("USER.md", "notes about you")):
-            f = home / "memories" / name
-            if f.is_file() and f.read_text(errors="ignore").strip():
-                risks.append(f"this profile holds {what} ({name}), and every job's prompt includes them")
         from hermes_cli.config import load_config_readonly
-        provider = str(((load_config_readonly() or {}).get("memory") or {}).get("provider") or "").strip()
+        home = Path(get_hermes_home())
+        cfg = load_config_readonly() or {}
+        mem = cfg.get("memory") if isinstance(cfg.get("memory"), dict) else {}
+        mem_on, user_on = _on(mem.get("memory_enabled")), _on(mem.get("user_profile_enabled"))
+        if mem_on or user_on:
+            held = [n for n, on in (("MEMORY.md", mem_on), ("USER.md", user_on)) if on and _nonempty(home / "memories" / n)]
+            keys = " and ".join(k for k, on in (("memory.memory_enabled", mem_on), ("memory.user_profile_enabled", user_on)) if on)
+            risks.append(f"built-in memory is on ({keys}): every job's prompt would carry this profile's memory"
+                         + (f" ({', '.join(held)} hold notes now)" if held else "")
+                         + ", and Hermes's background review could save a buyer's text into it")
+        provider = str(mem.get("provider") or "").strip()
         if provider:
-            risks.append(f"memory provider '{provider}' records every turn on this profile, buyers' jobs included")
-    except Exception:
-        pass
+            risks.append(f"memory provider '{provider}' would record every turn on this profile, buyers' jobs included")
+        if profile not in ("", "default") and _copied_persona(home):
+            risks.append("this profile's SOUL.md is your main profile's persona (copied by --clone), and every job's prompt would include it")
+        cwd, files = _context_files(cfg)
+        if files:
+            risks.append(f"the gateway's working directory {cwd} has project context files ({', '.join(files)}) "
+                         "that would load into every job's prompt; point terminal.cwd at an empty folder")
+    except Exception as e:  # a check that can't run counts as a risk: the shop stays closed
+        risks.append(f"couldn't check this profile's memory settings ({e.__class__.__name__})")
     return risks
 
 
@@ -400,5 +478,6 @@ def load_shop(get: Callable[[str, Any], Any], profile: str = "") -> Shop:
         max_concurrent_jobs=_int("max_concurrent_jobs", 3, 1, 32),
         jobs_per_payer_per_hour=_int("jobs_per_payer_per_hour", 30, 1, 10000),
         rpc_url=str(get("rpc_url", "") or "").strip(),
+        allow_unsealed=get(UNSEALED_SETTING, False) is True or str(get(UNSEALED_SETTING, "")).strip().lower() == "true",
         problems=problems,
     )

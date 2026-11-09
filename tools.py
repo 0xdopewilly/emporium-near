@@ -61,7 +61,7 @@ def make_handlers(ctx: Any):
 
     def browse(args: dict, **_kw) -> str:
         try:
-            return as_json(buyer.browse(str(args.get("shop_url", ""))))
+            return as_json(buyer.browse(buyer.check_host(str(args.get("shop_url", "")), policy().allow_hosts)))
         except HireError as e:
             return as_json({"error": str(e)})
 
@@ -90,8 +90,10 @@ def make_handlers(ctx: Any):
             ledger = _ledger()
             if ledger is None:
                 raise HireError("the books aren't available, so the daily budget can't be enforced; nothing was paid")
-            result = buyer.hire(str(args.get("shop_url", "")), str(args.get("service", "")), args.get("input", ""),
-                                policy=policy(), key=key, ledger=ledger, max_price=args.get("max_price_usd"))
+            p = policy()
+            url = buyer.check_host(str(args.get("shop_url", "")), p.allow_hosts)
+            result = buyer.hire(url, str(args.get("service", "")), args.get("input", ""),
+                                policy=p, key=key, ledger=ledger, max_price=args.get("max_price_usd"))
             return as_json(result)
         except HireError as e:
             return as_json({"error": str(e), "charged": False})
@@ -106,8 +108,9 @@ def make_handlers(ctx: Any):
             return None
         args = args or {}
         try:
-            cat, svc, price = buyer.listed(str(args.get("shop_url", "")), str(args.get("service", "")))
             p = policy()
+            url = buyer.check_host(str(args.get("shop_url", "")), p.allow_hosts)  # before anything is fetched
+            cat, svc, price = buyer.listed(url, str(args.get("service", "")))
             p.check(price, str(cat.get("network") or ""), _ledger(), args.get("max_price_usd"))
         except HireError as e:
             # These are the owner's limits; a model told only "no" goes looking for a way around them.

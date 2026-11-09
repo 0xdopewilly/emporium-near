@@ -58,24 +58,37 @@ A failed, timed-out or abandoned job is never settled, so it costs the buyer not
 
 ## Quick start (testnet, free)
 
-Give the shop a fresh profile of its own, so buyers' jobs never load your memory, persona or keys:
+Give the shop a fresh profile of its own, so buyers' jobs never load your memory, persona or keys (the shop won't open on one that would):
 
 ```bash
 hermes profile create shop                         # fresh: no memory, no skills, no .env (don't use --clone)
 hermes -p shop model                               # pick the model the shop works with
 hermes -p shop plugins install emporium            # or clone into ~/.hermes/profiles/shop/plugins/emporium
 hermes -p shop plugins enable emporium             # installs x402[evm]
-hermes -p shop emporium init --pay-to 0xYourWallet --name "Ada's Emporium"
+hermes -p shop emporium init --pay-to 0xYourWallet --name "Ada's Emporium"   # also turns this profile's memory off
 hermes gateway run                                 # the host gateway serves the shop profile: http://127.0.0.1:9402
 ```
 
 `init` writes a starter menu: English → Yoruba translation ($0.05), code review ($0.25) and a web research brief ($0.40, uses `web_search`). Payments default to **USDC on Base Sepolia** through the public `x402.org` facilitator, so you can try the whole flow with faucet USDC (faucet.circle.com).
 
-If the shop's profile holds saved memories, notes about you or an external memory provider, or is your main profile, `/shop`, the dashboard and the gateway log will say so. Tools stay locked either way.
+**The shop only opens on a sealed profile.** Paid jobs run on the shop's profile, so the gateway refuses to open the shop while any of these would reach a buyer's job:
+- it's your main profile;
+- built-in memory is on (`memory.memory_enabled` / `memory.user_profile_enabled`): every job's prompt would carry `MEMORY.md` and `USER.md`, and Hermes's background review could save a buyer's text into them. `init` turns both off on the shop's profile, and never touches your main profile;
+- a memory provider (`memory.provider`) would record buyers' turns;
+- its `SOUL.md` is your main profile's persona (what `--clone` copies). Hermes's stock persona, or one you wrote for the shop, is fine;
+- the gateway's working directory has project context files (`AGENTS.md`, `.hermes.md`, `CLAUDE.md`, `.cursorrules`) that Hermes would load into every job. Point the profile's `terminal.cwd` at an empty folder.
+
+`/shop`, `hermes emporium status`, the dashboard and the gateway log say which one applies and how to fix it. Setting `allow_unsealed_profile: true` opens the shop anyway; it's off by default, and the log keeps warning while it's on.
 
 ### Hire a shop from another Hermes
 
-Put a dedicated wallet's key in that profile's `.env` as `EMPORIUM_BUYER_KEY`, then just ask:
+Put a dedicated wallet's key in that profile's `.env` as `EMPORIUM_BUYER_KEY`. To hire a shop on your own machine or network, list it in `buyer_allow_hosts` (public shops need no entry):
+
+```bash
+hermes config set plugins.entries.emporium.settings.buyer_allow_hosts '["127.0.0.1:9402"]'
+```
+
+Then just ask:
 
 > There's an agent shop at http://127.0.0.1:9402. Have it review this function and tell me what it found.
 
@@ -126,6 +139,8 @@ A service that subcontracts pays from this profile's `EMPORIUM_BUYER_KEY`, which
 | `jobs_per_payer_per_hour` | 30 | Per-wallet rate limit. |
 | `buyer_max_per_job` / `buyer_daily_budget` / `buyer_approve_over` | $0.50 / $2.00 / $0.10 | Limits for hiring other shops (subcontracts count too). |
 | `buyer_networks` | `[eip155:84532]` | Networks your Hermes is allowed to pay on. |
+| `buyer_allow_hosts` | `[]` | Shops on loopback or a private network (`host` or `host:port`) your Hermes may browse and hire. Public shops need no entry. Link-local and cloud-metadata addresses are always refused. |
+| `allow_unsealed_profile` | `false` | Open the shop even though the profile's memory, persona or context files would reach buyers' jobs. Not recommended. |
 
 ## Why a paying stranger can't rob you
 
@@ -141,7 +156,8 @@ A service that subcontracts pays from this profile's `EMPORIUM_BUYER_KEY`, which
    - A buyer who hangs up before delivery is not charged.
    - A transient facilitator failure is retried. If a retry says the nonce was already used, the chain decides whether the money landed, not the error message.
    - Bad input, a closed or busy shop, and a rate-limited wallet are refused before any payment is taken.
-6. **The buyer checks the shop too.** `emporium_hire` won't sign unless the 402 asks for the catalog's price, in USDC (checked by contract address), to the shop's published wallet, on a network you allowed. `emporium_browse` verifies the shop's recent receipts on-chain.
+6. **A sealed profile.** The shop won't open on a profile whose memory, persona or project context files would reach a buyer's job, or whose memory would record one (see Quick start).
+7. **The buyer checks the shop too.** `emporium_hire` won't sign unless the 402 asks for the catalog's price, in USDC (checked by contract address), to the shop's published wallet, on a network you allowed. `emporium_browse` verifies the shop's recent receipts on-chain. A shop URL the model supplies must resolve to a public address: link-local and cloud-metadata addresses are always refused, and loopback or private ones unless you list them in `buyer_allow_hosts`.
 
 ## Disclosures
 
@@ -149,11 +165,12 @@ A service that subcontracts pays from this profile's `EMPORIUM_BUYER_KEY`, which
   - The shop listens on `host:port` (localhost by default).
   - It calls the configured x402 facilitator (default `x402.org`) to verify and settle payments.
   - It calls a JSON-RPC endpoint (default: the network's public one) to check a payment on-chain when a settlement retry reports the authorization as used.
-  - The buyer tools call the shop URLs the agent is given (catalog, feed and job), and the network's RPC to check receipts.
+  - The buyer tools call the shop URLs the agent is given (catalog, feed and job), and the network's RPC to check receipts. A model-supplied shop URL must resolve to a public address unless the owner lists it in `buyer_allow_hosts`; link-local and cloud-metadata addresses are always refused.
 - **Credentials:** `EMPORIUM_BUYER_KEY` (optional, for hiring and subcontracts) is read through Hermes's secret scope and used only to sign USDC transfer authorizations in-process. Use a dedicated low-balance wallet. The shop itself needs no key, only your payout address.
 - **Data:**
   - A SQLite ledger in `plugin-data/emporium/` holds job and purchase metadata: service, price, status, payer address, tx hash, sizes, token counts, cost, and the output's SHA-256. It never stores job inputs or outputs.
   - Like any conversation, each job is a session in the shop profile's own Hermes history (`state.db`), so the owner can audit what was asked and answered. Delete them with `hermes -p shop sessions` as usual.
+- **Config writes:** `hermes emporium init` writes the plugin's own settings and, on the shop's own profile only (never the main one), sets `memory.memory_enabled` and `memory.user_profile_enabled` to `false` in that profile's `config.yaml`.
 - **Background:** one HTTP server thread while the gateway runs, and a short timer after each job to read its cost. No shell commands, no telemetry, no self-updates.
 
 ## Bench

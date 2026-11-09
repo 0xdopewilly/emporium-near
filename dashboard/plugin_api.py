@@ -95,7 +95,7 @@ def _summary() -> dict[str, Any]:
                  "testnet": shop.testnet, "pay_to": shop.pay_to, "open": shop.open and books.is_open(),
                  "ready": shop.ready, "problems": shop.problems, "profile": shop.profile or "default",
                  "shared_profile": shop.shared_profile, "risks": shop_mod.profile_risks(shop.profile),
-                 "seal_hint": shop_mod.SEAL_HINT},
+                 "seal_hint": shop_mod.SEAL_HINT, "allow_unsealed": shop.allow_unsealed},
         "sales": {"earned_total": _money(shop_mod, s["earned_total"]), "earned_today": _money(shop_mod, s["earned_today"]),
                   "earned_total_raw": str(s["earned_total"]), "jobs_settled": s["jobs_settled"], "jobs_today": s["jobs_today"],
                   "buyers": s["buyers"], "not_charged": s["not_charged"], "refused_tools": s["tools_refused"],

@@ -5,13 +5,17 @@ Money rules, all checked before anything is signed:
 - a daily budget across all hires (buyer_daily_budget), counting jobs still in flight;
 - only networks the owner allowed (testnet by default);
 - the 402 must ask for the catalog's price, in USDC, to the shop's published wallet;
-- above buyer_approve_over, Hermes's own approval gate asks the owner first (see __init__.py).
+- above buyer_approve_over, Hermes's own approval gate asks the owner first (see __init__.py);
+- a shop URL the model supplies must be a public host: link-local and cloud-metadata addresses are always
+  refused, loopback and private ones unless the owner lists them in buyer_allow_hosts (check_host).
 The wallet key comes from Hermes's secret scope (EMPORIUM_BUYER_KEY) and never leaves this process.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import json
+import socket
 import time
 from decimal import Decimal
 from typing import Any, Callable, Optional
@@ -28,7 +32,7 @@ BUSY_RETRIES = 4     # a shop answering 503 (all hands busy) is retried this man
 _TRANSFER = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"  # ERC-20 Transfer(address,address,uint256)
 
 DEFAULTS = {"buyer_max_per_job": "$0.50", "buyer_daily_budget": "$2.00", "buyer_approve_over": "$0.10",
-            "buyer_networks": ["eip155:84532"]}
+            "buyer_networks": ["eip155:84532"], "buyer_allow_hosts": []}
 _CATALOG_TTL = 60.0
 _catalog_cache: dict[str, tuple[float, dict]] = {}
 
@@ -47,6 +51,69 @@ def norm_url(url: str) -> str:
     if p.scheme not in ("http", "https") or not p.netloc:
         raise HireError(f"{url!r} is not an http(s) URL")
     return f"{p.scheme}://{p.netloc}{p.path.rstrip('/')}"
+
+
+# Cloud metadata endpoints. The IPv4 ones are link-local (refused anyway); these are the ones that aren't,
+# or that a resolver may answer for by name.
+_METADATA_HOSTS = {"metadata.google.internal", "metadata.goog", "metadata", "instance-data", "instance-data.ec2.internal"}
+_METADATA_IPS = {ipaddress.ip_address(a) for a in ("169.254.169.254", "169.254.170.2", "fd00:ec2::254", "100.100.100.200")}
+_SHARED = ipaddress.ip_network("100.64.0.0/10")  # carrier-grade NAT: private in practice
+
+
+def _allowed(entries: Any) -> set[str]:
+    out: set[str] = set()
+    for e in entries if isinstance(entries, (list, tuple)) else [entries] if entries else []:
+        e = str(e).strip().lower()
+        if "://" in e:
+            e = urlparse(e).netloc
+        if e:
+            out.add(e.rstrip("/"))
+    return out
+
+
+def check_host(shop_url: str, allow: Any = ()) -> str:
+    """The URL of a shop the model asked to browse or hire, once its host is safe to call. Every address
+    the name resolves to is checked: link-local and cloud-metadata ones are always refused; loopback,
+    private and carrier-grade-NAT ones only pass when the owner listed the host (or host:port) in
+    buyer_allow_hosts. Owner-pinned subcontract shops come from the owner's config and skip this."""
+    url = norm_url(shop_url)
+    p = urlparse(url)
+    host = (p.hostname or "").lower().rstrip(".")
+    try:
+        port = p.port or (443 if p.scheme == "https" else 80)
+    except ValueError as e:
+        raise HireError(f"{url!r} has an invalid port") from e
+    if not host:
+        raise HireError(f"{url!r} has no host")
+    if "@" in p.netloc or "\\" in shop_url:
+        raise HireError("a shop URL carries no user name, password or backslashes")
+    if host in _METADATA_HOSTS:
+        raise HireError(f"{host} is a cloud metadata address; shops are never hired there")
+    try:
+        addrs = {ipaddress.ip_address(i[4][0].split("%", 1)[0])
+                 for i in socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)}
+    except (socket.gaierror, UnicodeError, ValueError) as e:
+        raise HireError(f"couldn't resolve {host}") from e
+    allowed = _allowed(allow)
+    listed = bool({host, f"{host}:{port}", p.netloc.lower()} & allowed)
+    for a in addrs:
+        if isinstance(a, ipaddress.IPv6Address) and a.ipv4_mapped:
+            a = a.ipv4_mapped
+        private = a.is_loopback or a.is_private or a in _SHARED
+        if (a in _METADATA_IPS or a.is_link_local or a.is_multicast or a.is_unspecified
+                or (a.is_reserved and not private)):  # IPv6 files ::1 under reserved too
+            raise HireError(f"{host} resolves to {a}, a link-local, metadata or reserved address; shops are never hired there")
+        if private and not listed:
+            raise HireError(f"{host} resolves to {a}, a private address. Only shops your owner trusts are hired on "
+                            f"loopback or private networks: they'd add {p.netloc} to buyer_allow_hosts")
+    if not listed:
+        try:  # and Hermes's own SSRF guard agrees (authority parsing, metadata names, its blocklists)
+            from tools.url_safety import is_safe_url
+        except ImportError:
+            is_safe_url = None
+        if is_safe_url is not None and not is_safe_url(url):
+            raise HireError(f"Hermes's URL safety check refused {p.netloc}")
+    return url
 
 
 def catalog(shop_url: str, fresh: bool = False) -> dict:
@@ -89,6 +156,7 @@ class Policy:
         self.approve_over = parse_usd(get("buyer_approve_over", DEFAULTS["buyer_approve_over"]))  # None = never ask
         nets = get("buyer_networks", DEFAULTS["buyer_networks"]) or DEFAULTS["buyer_networks"]
         self.networks = [n for n in (nets if isinstance(nets, list) else [nets]) if n in NETWORKS]
+        self.allow_hosts = get("buyer_allow_hosts", DEFAULTS["buyer_allow_hosts"]) or []
 
     def ceiling(self, max_price: Any) -> Decimal:
         asked = parse_usd(max_price) if max_price not in (None, "") else None
