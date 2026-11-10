@@ -62,7 +62,8 @@ def status_text(get: Callable[[str, Any], Any], profile: str) -> str:
     lines = [f"🏛  {shop.name} — {state}"]
     if shop.problems:
         lines.append("Not ready yet: " + "; ".join(shop.problems))
-        lines.append("Run `hermes emporium init --pay-to 0xYourWallet` to set up a starter shop.")
+        lines.append("Run `hermes emporium init --pay-to you.testnet --relayer you-relay.testnet` to set up a starter shop "
+                     "(and put the relayer's key in EMPORIUM_NEAR_RELAYER_KEY).")
         return "\n".join(lines)
     lines.append(f"{shop.base_url()} · paid in USDC on {shop.network_label} to {shop.pay_to}")
     lines.extend(risks)
@@ -155,9 +156,11 @@ def make_cli(ctx: Any):
     def setup(sub):
         cmds = sub.add_subparsers(dest="emporium_command")
         init = cmds.add_parser("init", help="Set up a starter shop (3 services) for this profile")
-        init.add_argument("--pay-to", required=False, help="Wallet address (0x…) that receives your USDC")
+        init.add_argument("--pay-to", required=False, help="NEAR account (you.testnet) or 0x address that receives your USDC")
         init.add_argument("--name", required=False, help="Shop name")
-        init.add_argument("--network", default=None, help="eip155:84532 (Base Sepolia, default) or eip155:8453 (Base)")
+        init.add_argument("--network", default=None, help="near:testnet (default), near:mainnet, eip155:84532 (Base Sepolia) or eip155:8453 (Base)")
+        init.add_argument("--relayer", required=False, help="NEAR only: the account that submits buyers' payments and pays the gas "
+                          "(its key goes in EMPORIUM_NEAR_RELAYER_KEY)")
         init.add_argument("--port", type=int, default=None, help="Port for the shop (default 9402)")
         cmds.add_parser("status", help="Status, earnings and the menu")
         cmds.add_parser("jobs", help="Recent jobs sold")
@@ -175,6 +178,8 @@ def make_cli(ctx: Any):
                 ctx.set_config("shop_name", args.name.strip())
             if args.network:
                 ctx.set_config("network", args.network.strip())
+            if getattr(args, "relayer", None):
+                ctx.set_config("near_relayer_account", args.relayer.strip())
             if args.port:
                 ctx.set_config("port", int(args.port))
             if not get("services", None):

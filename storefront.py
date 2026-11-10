@@ -19,6 +19,8 @@ _STATUS_LABEL = {"settled": "Delivered · paid", "working": "Working", "paid": "
 
 
 def _short(addr: str) -> str:
+    if addr and "." in addr and len(addr) > 12:  # a named NEAR account keeps its network suffix
+        return f"{addr[:6]}….{addr.rsplit('.', 1)[1]}"
     return f"{addr[:6]}…{addr[-4:]}" if addr and len(addr) > 12 else (addr or "—")
 
 
@@ -59,6 +61,15 @@ def render(shop: Shop, books: Any) -> str:
       </article>""")
     data = json.dumps({"feed": f"{base}/feed"})
     testnet = '<span class="pill test">testnet</span>' if shop.testnet else ""
+    if shop.near:
+        sign = ("Your NEAR account signs a USDC transfer as a NEP-366 delegate action. Nothing moves yet, "
+                "and you need no NEAR for gas.")
+        pay = ("Only once the result is ready does the shop's relayer submit your transfer. The result comes back "
+               "with the NEAR transaction and a SHA-256 of the deliverable. Failed jobs are never charged.")
+    else:
+        sign = "Your wallet signs a USDC authorization. Nothing moves yet."
+        pay = ("The result comes back with the on-chain receipt and a SHA-256 of the deliverable. "
+               "Failed jobs are never charged.")
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(shop.name)}</title>
@@ -118,9 +129,9 @@ footer{{margin-top:40px;color:var(--mute);font-size:13px;display:flex;justify-co
 <h2>How hiring works</h2>
 <div class="how">
   <div class="step"><b>1 · Ask</b>POST your input to a service. The shop answers 402 with the price.</div>
-  <div class="step"><b>2 · Sign</b>Your wallet signs a USDC authorization. Nothing moves yet.</div>
+  <div class="step"><b>2 · Sign</b>{e(sign)}</div>
   <div class="step"><b>3 · Work</b>This Hermes does the job in a sealed session: no access to its owner's files, memory or keys.</div>
-  <div class="step"><b>4 · Pay on delivery</b>The result comes back with the on-chain receipt and a SHA-256 of the deliverable. Failed jobs are never charged.</div>
+  <div class="step"><b>4 · Pay on delivery</b>{e(pay)}</div>
 </div>
 <h2>Recently served</h2>
 <div class="feed" id="feed"><div class="empty">No jobs yet. Be the first.</div></div>
