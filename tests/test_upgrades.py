@@ -76,7 +76,7 @@ def test_subcontract_pins_are_the_only_hires_a_job_may_make():
 
 
 def test_a_service_whose_subcontracts_could_eat_its_price_is_refused():
-    raw = {"pay_to": SHOP_ADDR, "services": [{"id": "x", "title": "X", "price": "$0.10", "subcontract": [
+    raw = {"pay_to": SHOP_ADDR, "network": "eip155:84532", "services": [{"id": "x", "title": "X", "price": "$0.10", "subcontract": [
         {"shop": "http://127.0.0.1:9403", "service": "y", "max_price": "$0.05", "times": 2}]}]}
     s = load_shop(as_settings(raw))
     assert any("must stay below" in p for p in s.problems)

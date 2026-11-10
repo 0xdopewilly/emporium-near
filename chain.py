@@ -5,7 +5,9 @@ Two uses:
   earlier attempt did land on-chain, the buyer has paid and must get the result;
 - the buyer, checking a shop's published receipts before trusting it.
 
-Plain JSON-RPC over httpx against the network's public endpoint (or ``rpc_url`` in settings).
+Plain JSON-RPC over httpx against the network's public endpoint (or ``rpc_url`` in settings). On NEAR
+a transaction is looked up by its hash and the account that signed it (the shop's relayer), and the
+payment is the token contract's NEP-141 ``ft_transfer`` event (near_paid).
 """
 
 from __future__ import annotations
@@ -49,6 +51,29 @@ def paid_to(network: str, tx: str, pay_to: str, rpc_url: str = "") -> Decimal:
                 and topics[2][-40:] == want):
             total += from_atomic(int(str(log.get("data") or "0x0"), 16))
     return total
+
+
+def near_paid(network: str, tx: str, signer: str, payer: str, pay_to: str, rpc_url: str = "") -> Decimal:
+    """USDC a NEAR transaction moved to ``pay_to`` (from ``payer``, or from anyone when it's empty);
+    0 if any part of it failed, it isn't found, or it paid someone else."""
+    from .near import Rpc, RpcError, failures, ft_transfers
+    rpc, usdc = rpc_url or RPC_URLS.get(network, ""), USDC.get(network, "")
+    if not (rpc and usdc and tx and signer):
+        return Decimal(0)
+    try:
+        outcome = Rpc(rpc).tx_status(tx, signer, wait_until="FINAL")
+    except RpcError:
+        return Decimal(0)
+    if failures(outcome):
+        return Decimal(0)
+    total = 0
+    for t in ft_transfers(outcome, usdc):
+        if t.get("new_owner_id") == pay_to and (not payer or t.get("old_owner_id") == payer):
+            try:
+                total += int(str(t.get("amount")))
+            except ValueError:
+                continue
+    return from_atomic(total)
 
 
 AUTHORIZATION_STATE = "0xe94a0102"  # authorizationState(address,bytes32)

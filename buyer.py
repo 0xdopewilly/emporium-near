@@ -8,13 +8,17 @@ Money rules, all checked before anything is signed:
 - above buyer_approve_over, Hermes's own approval gate asks the owner first (see __init__.py);
 - a shop URL the model supplies must be a public host: link-local and cloud-metadata addresses are always
   refused, loopback and private ones unless the owner lists them in buyer_allow_hosts (check_host).
-The wallet key comes from Hermes's secret scope (EMPORIUM_BUYER_KEY) and never leaves this process.
+The wallet keys come from Hermes's secret scope (EMPORIUM_BUYER_KEY for Base, EMPORIUM_NEAR_BUYER_KEY for
+the NEAR account in buyer_near_account) and never leave this process. On NEAR the buyer signs a NEP-366
+delegate (one USDC ft_transfer) and the shop's relayer pays the gas, so the account needs no NEAR.
 """
 
 from __future__ import annotations
 
+import contextlib
 import ipaddress
 import json
+import re
 import socket
 import time
 from decimal import Decimal
@@ -24,15 +28,16 @@ from urllib.parse import urlparse
 import httpx
 
 from . import ledger as books
-from .shop import NETWORKS, RPC_URLS, USDC, from_atomic, parse_usd, to_atomic, usd
+from .shop import NETWORKS, RPC_URLS, USDC, from_atomic, is_near, parse_usd, to_atomic, usd
 
 SETTLE_WINDOW = 120  # the shop may take this long after the job to settle; wait for it
 BUSY_RETRIES = 4     # a shop answering 503 (all hands busy) is retried this many times, over ~30 s
 
 _TRANSFER = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"  # ERC-20 Transfer(address,address,uint256)
+_TX = re.compile(r"^(0x[0-9a-fA-F]{64}|[1-9A-HJ-NP-Za-km-z]{43,44})$")
 
 DEFAULTS = {"buyer_max_per_job": "$0.50", "buyer_daily_budget": "$2.00", "buyer_approve_over": "$0.10",
-            "buyer_networks": ["eip155:84532"], "buyer_allow_hosts": []}
+            "buyer_networks": ["near:testnet", "eip155:84532"], "buyer_allow_hosts": []}
 _CATALOG_TTL = 60.0
 _catalog_cache: dict[str, tuple[float, dict]] = {}
 
@@ -187,16 +192,26 @@ def _signer(key: str):
         raise HireError("EMPORIUM_BUYER_KEY is not a valid EVM private key") from e
 
 
+def _near_signer(account: str, key: str):
+    from .near import KeyPair, is_account_id
+    if not is_account_id(account):
+        raise HireError("buyer_near_account is not a NEAR account id (e.g. mybuyer.testnet)")
+    try:
+        return KeyPair(key)
+    except Exception as e:
+        raise HireError("EMPORIUM_NEAR_BUYER_KEY is not a NEAR ed25519 secret key (ed25519:…)") from e
+
+
 def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, key: Optional[str],
          ledger: Optional[books.Ledger], max_price: Any = None, for_job: str = "",
-         job_budget: Optional[Decimal] = None) -> dict:
+         job_budget: Optional[Decimal] = None, near_account: str = "", near_key: Optional[str] = None) -> dict:
     """Run one paid job end to end. Returns {output, receipt, ...}; raises HireError (never charged).
 
     ``for_job``/``job_budget`` are set when one of this Hermes's own shop jobs subcontracts: the
-    purchase is tied to that job and all of its subcontracts together stay within ``job_budget``."""
+    purchase is tied to that job and all of its subcontracts together stay within ``job_budget``.
+    ``key`` pays on Base; ``near_account``/``near_key`` pay on NEAR."""
     from x402 import x402ClientSync
     from x402.http.x402_http_client import x402HTTPClientSync
-    from x402.mechanisms.evm.exact import register_exact_evm_client
 
     url = norm_url(shop_url)
     if not isinstance(buyer_input, str) or not buyer_input.strip():
@@ -205,10 +220,17 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
     network = str(cat.get("network") or "")
     pay_to = str(cat.get("pay_to") or "").lower()
     policy.check(price, network, None, max_price)  # the daily budget is checked and reserved atomically below
-    if not key:
-        raise HireError("no buyer wallet: set EMPORIUM_BUYER_KEY in this profile's .env (a dedicated wallet "
-                        "holding a little USDC)")
-    signer = _signer(key)
+    on_near = is_near(network)
+    if on_near:
+        if not (near_account and near_key):
+            raise HireError("no NEAR buyer wallet: set buyer_near_account in this profile's settings and "
+                            "EMPORIUM_NEAR_BUYER_KEY in its .env (a dedicated NEAR account holding a little USDC)")
+        signer = _near_signer(near_account, near_key)
+    else:
+        if not key:
+            raise HireError("no buyer wallet: set EMPORIUM_BUYER_KEY in this profile's .env (a dedicated wallet "
+                            "holding a little USDC)")
+        signer = _signer(key)
     endpoint = f"{url}/jobs/{service_id}"
     body = {"input": buyer_input}
     timeout = float(svc.get("timeout_seconds") or 180) + SETTLE_WINDOW + 30
@@ -232,7 +254,12 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
                 err = first.text[:200]
             raise HireError(f"the shop refused before payment (HTTP {first.status_code}): {err}")
         client = x402ClientSync()
-        register_exact_evm_client(client, signer, policy.networks)
+        if on_near:
+            from .near_x402 import register_exact_near_client
+            register_exact_near_client(client, near_account, signer, [n for n in policy.networks if is_near(n)])
+        else:
+            from x402.mechanisms.evm.exact import register_exact_evm_client
+            register_exact_evm_client(client, signer, [n for n in policy.networks if not is_near(n)])
         hc = x402HTTPClientSync(client)
         try:
             required = hc.get_payment_required_response(lambda n: first.headers.get(n), first.json())
@@ -255,11 +282,18 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
                                               policy.daily_budget, for_job=for_job, job_budget=job_budget)
             except books.BudgetError as e:
                 raise HireError(f"the job costs {usd(charged)} but {e}") from e
+        # A NEAR key's nonces must land in order, so this key pays for one job at a time (the shop
+        # settles before it answers, so the lock is held until this payment has landed or failed).
+        one_at_a_time = contextlib.nullcontext()
+        if on_near:
+            from .near_x402 import key_lock
+            one_at_a_time = key_lock(near_account, signer.public_key)
         try:
-            payload = hc.create_payment_payload(required)
-            headers = hc.encode_payment_signature_header(payload)
-            started = time.time()
-            paid = post(http, headers)
+            with one_at_a_time:
+                payload = hc.create_payment_payload(required)
+                headers = hc.encode_payment_signature_header(payload)
+                started = time.time()
+                paid = post(http, headers)
         except httpx.TimeoutException as e:
             # The signed payment was sent; the shop may still settle it. Keep it counted against the budget.
             if ledger and pid:
@@ -306,6 +340,7 @@ def track_record(shop_url: str, cat: dict, sample: int = 6, rpc_url: str = "") -
     network = str(cat.get("network") or "")
     rpc = rpc_url or RPC_URLS.get(network, "")
     usdc, pay_to = USDC.get(network, ""), str(cat.get("pay_to") or "").lower()
+    relayer = str(cat.get("relayer") or "")
     out: dict[str, Any] = {"network": NETWORKS.get(network, (network,))[0], "claimed_jobs": None, "checked": 0,
                            "verified": 0, "verified_usd": "$0.00", "failed": []}
     try:
@@ -314,34 +349,44 @@ def track_record(shop_url: str, cat: dict, sample: int = 6, rpc_url: str = "") -
         out["note"] = "the shop publishes no job feed"
         return out
     out["claimed_jobs"] = feed.get("jobs_settled")
-    if not (rpc and usdc and pay_to):
+    if not (rpc and usdc and pay_to) or (is_near(network) and not relayer):
         out["note"] = "no RPC endpoint known for this network"
         return out
     jobs, seen = [], set()
     for j in feed.get("jobs") or []:
-        tx = str(j.get("tx", "")).lower()
-        if j.get("status") == "settled" and tx.startswith("0x") and tx not in seen:  # one receipt counts once
+        tx = str(j.get("tx", ""))
+        if not is_near(network):
+            tx = tx.lower()
+        if j.get("status") == "settled" and _TX.match(tx) and tx not in seen:  # one receipt counts once
             seen.add(tx)
             jobs.append(j)
+
+    def paid_by(http: httpx.Client, tx: str) -> Decimal:
+        if is_near(network):  # the token's ft_transfer event to the shop, in the relayer's transaction
+            from .chain import near_paid
+            return near_paid(network, tx, relayer, "", pay_to, rpc)
+        r = http.post(rpc, json={"jsonrpc": "2.0", "id": 1, "method": "eth_getTransactionReceipt",
+                                 "params": [tx]}).json().get("result") or {}
+        got = Decimal(0)
+        if str(r.get("status", "")).lower() == "0x1":
+            for log in r.get("logs") or []:
+                topics = [str(t).lower() for t in log.get("topics") or []]
+                if (str(log.get("address", "")).lower() == usdc and len(topics) == 3 and topics[0] == _TRANSFER
+                        and topics[2][-40:] == pay_to[2:]):
+                    got += from_atomic(int(str(log.get("data") or "0x0"), 16))
+        return got
+
     total = Decimal(0)
     with httpx.Client(timeout=15) as http:
         for j in jobs[:sample]:
             out["checked"] += 1
             want = parse_usd(j.get("price"))
             try:
-                r = http.post(rpc, json={"jsonrpc": "2.0", "id": 1, "method": "eth_getTransactionReceipt",
-                                         "params": [j["tx"]]}).json().get("result") or {}
+                got = paid_by(http, j["tx"])
             except Exception:
                 out["failed"].append(j["tx"])
                 continue
-            paid = Decimal(0)
-            if str(r.get("status", "")).lower() == "0x1":
-                for log in r.get("logs") or []:
-                    topics = [str(t).lower() for t in log.get("topics") or []]
-                    if (str(log.get("address", "")).lower() == usdc and len(topics) == 3 and topics[0] == _TRANSFER
-                            and topics[2][-40:] == pay_to[2:]):
-                        paid += from_atomic(int(str(log.get("data") or "0x0"), 16))
-            if want is not None and paid >= want:
+            if want is not None and got >= want:
                 out["verified"] += 1
                 total += want
             else:

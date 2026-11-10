@@ -23,7 +23,7 @@ def test_prices_parse_and_print():
 
 
 def test_starter_shop_is_ready():
-    shop = load_shop(as_settings({"pay_to": SHOP_ADDR, "services": STARTER_SERVICES}), "ada")
+    shop = load_shop(as_settings({"pay_to": SHOP_ADDR, "network": "eip155:84532", "services": STARTER_SERVICES}), "ada")
     assert shop.ready, shop.problems
     assert shop.name == "Ada's Emporium"
     assert [s.id for s in shop.services] == ["translate-yoruba", "code-review", "web-brief"]
@@ -31,7 +31,7 @@ def test_starter_shop_is_ready():
 
 
 def test_bad_menus_are_reported():
-    shop = load_shop(as_settings({"pay_to": "0x123", "services": [
+    shop = load_shop(as_settings({"pay_to": "0x123", "network": "eip155:84532", "services": [
         {"id": "Bad Id", "price": "$1"},
         {"id": "ok", "price": "zero"},
         {"id": "shell", "price": "$1", "tools": ["terminal", "web_search"]},

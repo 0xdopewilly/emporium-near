@@ -69,6 +69,9 @@ def make_handlers(ctx: Any):
         try:
             from agent.secret_scope import get_secret
             key = get_secret("EMPORIUM_BUYER_KEY")
+            # A NEAR shop is paid from a NEAR account: its id is a setting, its key a secret.
+            wallets = {"near_account": str(ctx.get_config("buyer_near_account", default="") or "").strip(),
+                       "near_key": get_secret("EMPORIUM_NEAR_BUYER_KEY")}
             rules = guard.SESSIONS.job_for(session_id, task_id) if (session_id or task_id) else None
             if rules is None and guard.SESSIONS.is_shop_session(session_id, task_id):
                 raise HireError("shop sessions can't hire")
@@ -83,7 +86,7 @@ def make_handlers(ctx: Any):
                     raise HireError("the books aren't available, so nothing is spent")
                 result = buyer.hire(pin.shop, pin.service, args.get("input", ""), policy=policy(), key=key,
                                     ledger=ledger, max_price=pin.max_price, for_job=rules.job_id,
-                                    job_budget=sum((p.max_price * p.times for p in rules.pins), Decimal(0)))
+                                    job_budget=sum((p.max_price * p.times for p in rules.pins), Decimal(0)), **wallets)
                 if ledger is not None:
                     ledger.add_sub(rules.job_id, Decimal(result.get("charged_usd") or "0"))
                 return as_json(result)
@@ -93,7 +96,7 @@ def make_handlers(ctx: Any):
             p = policy()
             url = buyer.check_host(str(args.get("shop_url", "")), p.allow_hosts)
             result = buyer.hire(url, str(args.get("service", "")), args.get("input", ""),
-                                policy=p, key=key, ledger=ledger, max_price=args.get("max_price_usd"))
+                                policy=p, key=key, ledger=ledger, max_price=args.get("max_price_usd"), **wallets)
             return as_json(result)
         except HireError as e:
             return as_json({"error": str(e), "charged": False})

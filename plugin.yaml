@@ -5,16 +5,16 @@ version: 0.2.0
 manifest_version: 2
 api_version: 1
 description: >
-  Hermes opens a shop. Sell this agent's skills to anyone (people, scripts or other agents) for USDC
-  per job over x402, paid only on delivery: the payment is verified before the job starts and settled
-  on-chain only when the result is ready. Each job runs in its own sealed, tool-locked session, so a
+  Hermes opens a shop on NEAR. Sell this agent's skills to anyone (people, scripts or other agents) for
+  USDC per job over x402, paid only on delivery: the buyer's signed NEAR transfer is verified before the
+  job starts and submitted on-chain only when the result is ready, with the shop's relayer paying the gas. Each job runs in its own sealed, tool-locked session, so a
   paying stranger never reaches your files, memory or keys. Hermes can also hire other shops with
   spending limits and your approval. Includes /shop, `hermes emporium`, a public storefront page and
   a dashboard tab with live earnings.
 author: 0xdopewilly
 license: MIT
-homepage: https://github.com/0xdopewilly/hermes-emporium
-tags: [payments, x402, usdc, agents, gateway, marketplace]
+homepage: https://github.com/0xdopewilly/emporium-near
+tags: [payments, x402, usdc, near, agents, gateway, marketplace]
 requires_hermes: ">=0.23.0"
 provides_tools:
   - emporium_browse
@@ -25,22 +25,26 @@ provides_hooks:
   - post_api_request
   - on_session_end
 config_schema:
-  pay_to: {type: str, default: "", label: "Payout wallet", description: "0x… address that receives your earnings (USDC)", required: true}
-  network: {type: str, choices: ["eip155:84532", "eip155:8453"], default: "eip155:84532", label: "Network", description: "Base Sepolia (testnet) or Base"}
+  pay_to: {type: str, default: "", label: "Payout account", description: "The NEAR account (or, on Base, the 0x… address) that receives your earnings in USDC", required: true}
+  network: {type: str, choices: ["near:testnet", "near:mainnet", "eip155:84532", "eip155:8453"], default: "near:testnet", label: "Network", description: "NEAR testnet, NEAR, Base Sepolia (testnet) or Base"}
+  near_relayer_account: {type: str, default: "", label: "NEAR relayer account", description: "NEAR only: the account that submits buyers' signed transfers and pays their gas. Keep only a little NEAR in it, and use a different account from pay_to."}
+  near_relayer_key: {type: secret, env: EMPORIUM_NEAR_RELAYER_KEY, label: "NEAR relayer key", description: "Full-access key (ed25519:…) of the relayer account. Submitting a buyer's NEP-366 transfer needs one."}
   shop_name: {type: str, default: "", label: "Shop name"}
   tagline: {type: str, default: "", label: "Tagline"}
   services: {type: list, default: [], label: "Menu", description: "Services for sale: id, title, price, description, instructions, tools, example, timeout_seconds"}
   host: {type: str, default: "127.0.0.1", label: "Bind host", description: "127.0.0.1 keeps the shop local; put it behind your own tunnel or proxy to sell publicly"}
   port: {type: int, default: 9402, label: "Port"}
   public_url: {type: str, default: "", label: "Public URL", description: "The URL buyers use, when the shop sits behind a tunnel or proxy"}
-  facilitator_url: {type: str, default: "https://x402.org/facilitator", label: "x402 facilitator"}
+  facilitator_url: {type: str, default: "https://x402.org/facilitator", label: "x402 facilitator", description: "Base only. On NEAR the shop is its own facilitator."}
   rpc_url: {type: str, default: "", label: "RPC endpoint", description: "JSON-RPC URL for checking payments on-chain (default: the network's public endpoint)"}
   max_concurrent_jobs: {type: int, default: 3, label: "Jobs at once"}
   jobs_per_payer_per_hour: {type: int, default: 30, label: "Jobs per buyer per hour"}
   buyer_max_per_job: {type: str, default: "$0.50", label: "Hiring: max per job"}
   buyer_daily_budget: {type: str, default: "$2.00", label: "Hiring: daily budget"}
   buyer_approve_over: {type: str, default: "$0.10", label: "Hiring: ask me above"}
-  buyer_networks: {type: list, default: ["eip155:84532"], label: "Hiring: networks I pay on"}
+  buyer_networks: {type: list, default: ["near:testnet", "eip155:84532"], label: "Hiring: networks I pay on"}
+  buyer_near_account: {type: str, default: "", label: "Hiring: NEAR account", description: "The NEAR account this Hermes pays NEAR shops from (it needs USDC, no NEAR)"}
+  buyer_near_key: {type: secret, env: EMPORIUM_NEAR_BUYER_KEY, label: "Hiring: NEAR key", description: "Full-access key (ed25519:…) of the hiring account; a NEP-141 transfer attaches 1 yoctoNEAR, which only a full-access key can sign. Only needed to hire NEAR shops."}
   buyer_allow_hosts: {type: list, default: [], label: "Hiring: private shops I trust", description: "host or host:port of shops on loopback or a private network this Hermes may browse and hire, e.g. 127.0.0.1:9402. Public shops need no entry; link-local and cloud-metadata addresses are always refused."}
   allow_unsealed_profile: {type: bool, default: false, label: "Open on an unsealed profile", description: "Open the shop even though this profile's memory, persona or project context files would reach buyers' jobs. Off by default: give the shop a fresh profile instead."}
-  buyer_key: {type: secret, env: EMPORIUM_BUYER_KEY, label: "Hiring wallet key", description: "Private key of a dedicated wallet holding a little USDC. Only needed to hire other shops."}
+  buyer_key: {type: secret, env: EMPORIUM_BUYER_KEY, label: "Hiring wallet key (Base)", description: "Private key of a dedicated Base wallet holding a little USDC. Only needed to hire shops on Base."}

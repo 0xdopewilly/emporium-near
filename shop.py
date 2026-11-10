@@ -17,12 +17,23 @@ DEFAULT_PORT = 9402
 
 # CAIP-2 network id -> (label, explorer tx url prefix, is_testnet)
 NETWORKS: dict[str, tuple[str, str, bool]] = {
+    "near:testnet": ("NEAR testnet", "https://testnet.nearblocks.io/txns/", True),
+    "near:mainnet": ("NEAR", "https://nearblocks.io/txns/", False),
     "eip155:84532": ("Base Sepolia", "https://sepolia.basescan.org/tx/", True),
     "eip155:8453": ("Base", "https://basescan.org/tx/", False),
 }
+DEFAULT_NETWORK = "near:testnet"
 # Public JSON-RPC endpoints and the USDC contract per network, for checking receipts on-chain.
-RPC_URLS = {"eip155:84532": "https://sepolia.base.org", "eip155:8453": "https://mainnet.base.org"}
-USDC = {"eip155:84532": "0x036cbd53842c5426634e7929541ec2318f3dcf7e", "eip155:8453": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"}
+# On NEAR, USDC is Circle's native NEP-141 token (6 decimals), at an implicit account id.
+RPC_URLS = {"near:testnet": "https://test.rpc.fastnear.com", "near:mainnet": "https://free.rpc.fastnear.com",
+            "eip155:84532": "https://sepolia.base.org", "eip155:8453": "https://mainnet.base.org"}
+USDC = {"near:testnet": "3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af",
+        "near:mainnet": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+        "eip155:84532": "0x036cbd53842c5426634e7929541ec2318f3dcf7e", "eip155:8453": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"}
+
+
+def is_near(network: Any) -> bool:
+    return str(network or "").startswith("near:")
 
 # A service may hand its job these tools, and only these. Everything else is never loaded for a shop
 # job and is refused if called (see guard.py). Only the web tools are sellable: Hermes checks every URL
@@ -32,6 +43,8 @@ SELLABLE_TOOLS = frozenset({"web_search", "web_extract"})
 
 _ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,47}$")
 _ADDRESS = re.compile(r"^0x[0-9a-fA-F]{40}$")
+# A NEAR account id: named (ada.testnet) or implicit (64 hex). Same rule as near.ACCOUNT_ID.
+_NEAR_ACCOUNT = re.compile(r"^(?=.{2,64}$)(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$")
 _MAX_PRICE = Decimal("100")  # a sanity ceiling per job, in USD
 
 
@@ -158,7 +171,12 @@ class Shop:
     jobs_per_payer_per_hour: int = 30
     rpc_url: str = ""
     allow_unsealed: bool = False
+    near_relayer: str = ""   # NEAR only: the account whose key submits buyers' signed transfers and pays the gas
     problems: list[str] = field(default_factory=list)
+
+    @property
+    def near(self) -> bool:
+        return is_near(self.network)
 
     @property
     def shared_profile(self) -> bool:
@@ -193,7 +211,7 @@ class Shop:
 
     def catalog(self) -> dict[str, Any]:
         base = self.base_url()
-        return {
+        cat = {
             "emporium": "1",
             "name": self.name,
             "tagline": self.tagline,
@@ -202,11 +220,17 @@ class Shop:
             "network": self.network,
             "network_label": self.network_label,
             "asset": "USDC",
+            "asset_contract": USDC.get(self.network, ""),
             "protocol": "x402",
             "x402_version": 2,
             "charged": "only on delivery: the payment is verified before work starts and settled after the result is ready",
             "services": [s.public(base, self.network) for s in self.services],
         }
+        if self.near:
+            # A NEAR transaction is looked up by its hash and its signer, so receipts name the relayer.
+            cat["relayer"] = self.near_relayer
+            cat["gas"] = "paid by the shop's relayer: a buyer signs a USDC transfer (NEP-366) and needs no NEAR"
+        return cat
 
 
 SEAL_HINT = ("give the shop a fresh profile of its own (hermes profile create shop, without --clone, which copies "
@@ -425,8 +449,19 @@ def _service_from(raw: Any, index: int, problems: list[str]) -> Optional[Service
 def load_shop(get: Callable[[str, Any], Any], profile: str = "") -> Shop:
     """Build the Shop from settings. ``get(key, default)`` is ``ctx.get_config`` (or a dict lookup in tests)."""
     problems: list[str] = []
+    network = str(get("network", DEFAULT_NETWORK) or DEFAULT_NETWORK).strip()
+    if network not in NETWORKS:
+        problems.append(f"network {network!r} is not supported (use one of {sorted(NETWORKS)})")
     pay_to = str(get("pay_to", "") or "").strip()
-    if not _ADDRESS.match(pay_to):
+    near_relayer = ""
+    if is_near(network):
+        if not _NEAR_ACCOUNT.match(pay_to):
+            problems.append("pay_to must be the NEAR account that receives your earnings, e.g. myshop.testnet")
+        near_relayer = str(get("near_relayer_account", "") or "").strip()
+        if not _NEAR_ACCOUNT.match(near_relayer):
+            problems.append("near_relayer_account must be the NEAR account that submits buyers' payments and pays "
+                            "their gas (its key goes in EMPORIUM_NEAR_RELAYER_KEY)")
+    elif not _ADDRESS.match(pay_to):
         problems.append("pay_to must be the 0x… wallet address that receives your earnings")
     elif pay_to != pay_to.lower() and pay_to[2:] != pay_to[2:].upper():
         try:
@@ -435,9 +470,6 @@ def load_shop(get: Callable[[str, Any], Any], profile: str = "") -> Shop:
                 problems.append("pay_to has a checksum typo (its upper/lower case letters don't match); copy it again")
         except ImportError:
             pass
-    network = str(get("network", "eip155:84532") or "eip155:84532").strip()
-    if network not in NETWORKS:
-        problems.append(f"network {network!r} is not supported (use one of {sorted(NETWORKS)})")
     raw_services = get("services", None)
     if raw_services is None:
         raw_services = []
@@ -479,5 +511,6 @@ def load_shop(get: Callable[[str, Any], Any], profile: str = "") -> Shop:
         jobs_per_payer_per_hour=_int("jobs_per_payer_per_hour", 30, 1, 10000),
         rpc_url=str(get("rpc_url", "") or "").strip(),
         allow_unsealed=get(UNSEALED_SETTING, False) is True or str(get(UNSEALED_SETTING, "")).strip().lower() == "true",
+        near_relayer=near_relayer,
         problems=problems,
     )

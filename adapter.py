@@ -10,6 +10,10 @@ The buyer is charged only when the work is delivered: a failed or timed-out job 
 and a job whose settlement fails gets no deliverable. Transport is stdlib ``http.server`` on a
 daemon thread (the same shape as Hermes's bundled A2A adapter); x402 runs in its sync flavour on
 that thread, and only the hand-off to the agent crosses into the gateway's event loop.
+
+On NEAR the "signed USDC authorization" is a NEP-366 delegate holding one ft_transfer, and the shop
+is its own facilitator (near_x402.py): it verifies the delegate against the chain, and after the job
+its relayer account submits it and pays the gas. On Base an x402 facilitator does both.
 """
 
 from __future__ import annotations
@@ -35,13 +39,14 @@ from gateway.platforms.base import BasePlatformAdapter, SendResult
 from gateway.platforms.event import MessageEvent, MessageType, ProcessingOutcome
 
 from . import guard, ledger as books, meter, storefront
-from .shop import Shop, load_shop
+from .shop import RPC_URLS, USDC, Shop, load_shop
 
 logger = logging.getLogger(__name__)
 
 _MAX_BODY = 256 * 1024
 _ADDR = re.compile(r"^0x[0-9a-fA-F]{40}$")
-_TX = re.compile(r"^0x[0-9a-fA-F]{64}$")
+_TX = re.compile(r"^(0x[0-9a-fA-F]{64}|[1-9A-HJ-NP-Za-km-z]{43,44})$")  # an EVM tx hash, or a NEAR one (base58)
+NEAR_RELAYER_SECRET = "EMPORIUM_NEAR_RELAYER_KEY"
 _EXPOSE = "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE"
 # Settlement failures that a retry can't fix: the authorization itself is bad, spent or unfunded.
 _SETTLE_FINAL = ("insufficient", "signature", "expired", "valid_before", "valid_after", "nonce", "used",
@@ -55,8 +60,17 @@ def _short(addr: str) -> str:
     return f"{addr[:6]}…{addr[-4:]}" if addr and len(addr) > 12 else (addr or "anonymous")
 
 
+def _near_payload(payload: Any) -> bool:
+    body = getattr(payload, "payload", None)
+    return isinstance(body, dict) and "signedDelegateAction" in body
+
+
 def nonce_of(payload: Any) -> str:
-    """The authorization's one-time nonce (EIP-3009 or Permit2): one signed payment buys one job."""
+    """The authorization's one-time nonce (EIP-3009, Permit2, or a NEAR delegate's key nonce): one signed
+    payment buys one job."""
+    if _near_payload(payload):
+        from . import near_x402
+        return near_x402.nonce_of(payload)
     try:
         body = getattr(payload, "payload", None) or {}
         for key in ("authorization", "permit2Authorization"):
@@ -97,7 +111,11 @@ def client_gone(handler: BaseHTTPRequestHandler) -> bool:
 
 
 def payer_of(payload: Any) -> str:
-    """The paying wallet, from an exact-scheme payload (EIP-3009 or Permit2 authorization)."""
+    """The paying wallet, from an exact-scheme payload (EIP-3009 or Permit2 authorization, or the NEAR
+    account that signed the delegate)."""
+    if _near_payload(payload):
+        from . import near_x402
+        return near_x402.payer_of(payload)
     try:
         body = getattr(payload, "payload", None) or {}
         for key in ("authorization", "permit2Authorization"):
@@ -275,19 +293,43 @@ class EmporiumAdapter(BasePlatformAdapter):
         return True
 
     # ---- lifecycle -------------------------------------------------------------------------
+    def _near_rpc(self) -> Any:
+        from .near import Rpc
+        return Rpc(self.shop.rpc_url or RPC_URLS.get(self.shop.network, ""))
+
     def _build_x402(self, shop: Shop) -> Any:
         from x402 import x402ResourceServerSync
         from x402.http import FacilitatorConfig, HTTPFacilitatorClientSync
         from x402.http.types import PaymentOption, RouteConfig
         from x402.http.x402_http_server import x402HTTPResourceServerSync
-        from x402.mechanisms.evm.exact import register_exact_evm_server
 
-        server = x402ResourceServerSync(HTTPFacilitatorClientSync(FacilitatorConfig(url=shop.facilitator_url)))
-        register_exact_evm_server(server, shop.network)
+        if shop.near:
+            # The shop is its own NEAR facilitator: its relayer key submits buyers' signed transfers after delivery.
+            from . import near_x402
+            from .near import KeyPair
+            try:
+                from agent.secret_scope import get_secret
+                secret = get_secret(NEAR_RELAYER_SECRET)
+            except ImportError:
+                secret = None
+            if not secret:
+                raise RuntimeError(f"set {NEAR_RELAYER_SECRET} in this profile's .env: the full-access key of "
+                                   f"{shop.near_relayer}, the account that pays buyers' gas")
+            rpc_urls = {shop.network: shop.rpc_url} if shop.rpc_url else None
+            server = x402ResourceServerSync(near_x402.near_facilitator(shop.near_relayer, KeyPair(secret), [shop.network],
+                                                                       rpc_urls))
+            near_x402.register_exact_near_server(server, [shop.network])
+            rpc = self._near_rpc()
+            window = {s.id: near_x402.window_for(s.timeout_seconds + SETTLE_MARGIN + 60, rpc) for s in shop.services}
+        else:
+            from x402.mechanisms.evm.exact import register_exact_evm_server
+            server = x402ResourceServerSync(HTTPFacilitatorClientSync(FacilitatorConfig(url=shop.facilitator_url)))
+            register_exact_evm_server(server, shop.network)
+            window = {s.id: s.timeout_seconds + 120 for s in shop.services}
         routes = {
             f"POST /jobs/{s.id}": RouteConfig(
                 accepts=PaymentOption(scheme="exact", pay_to=shop.pay_to, price=s.price_label, network=shop.network,
-                                      max_timeout_seconds=s.timeout_seconds + 120),
+                                      max_timeout_seconds=window[s.id]),
                 description=f"{shop.name}: {s.title}", mime_type="application/json", service_name=shop.name)
             for s in shop.services
         }
@@ -393,6 +435,10 @@ class EmporiumAdapter(BasePlatformAdapter):
             return h.json(500, {"error": "unexpected payment state", "charged": False})
 
         expires = valid_before_of(result.payment_payload)
+        if shop.near:  # a NEAR delegate expires at a block height; turn it into seconds at the chain's pace
+            from . import near_x402
+            left = near_x402.expires_in(result.payment_payload, self._near_rpc())
+            expires = None if left is None else time.time() + left
         if expires is not None and expires < time.time() + svc.timeout_seconds + SETTLE_MARGIN:
             return h.json(402, {"error": f"the payment authorization expires too soon; it must stay valid for at least "
                                          f"{svc.timeout_seconds + SETTLE_MARGIN}s so the job can finish and settle",
@@ -435,12 +481,13 @@ class EmporiumAdapter(BasePlatformAdapter):
             tx = settle.transaction if _TX.match(str(settle.transaction or "")) else ""
             self.books.update_job(jid, status=books.SETTLED, tx=tx, output_chars=len(output), finished=time.time(),
                                   payer=(settle.payer or payer or ""), output_sha256=digest)
-            return h.json(200, {
-                "job": jid, "service": svc.id, "title": svc.title, "output": output,
-                "receipt": {"amount": svc.price_label, "asset": "USDC", "network": shop.network,
-                            "network_label": shop.network_label, "payer": settle.payer or payer, "pay_to": shop.pay_to,
-                            "tx": tx, "explorer": shop.explorer(tx), "shop": shop.name, "output_sha256": digest},
-            }, settle.headers)
+            receipt = {"amount": svc.price_label, "asset": "USDC", "network": shop.network,
+                       "network_label": shop.network_label, "payer": settle.payer or payer, "pay_to": shop.pay_to,
+                       "tx": tx, "explorer": shop.explorer(tx), "shop": shop.name, "output_sha256": digest}
+            if shop.near:  # what a buyer needs to look the transfer up on NEAR (a tx is found by hash + signer)
+                receipt.update({"asset_contract": USDC.get(shop.network, ""), "settled_by": shop.near_relayer})
+            return h.json(200, {"job": jid, "service": svc.id, "title": svc.title, "output": output,
+                                "receipt": receipt}, settle.headers)
         finally:
             self._slots.release()
             guard.SESSIONS.forget(jid)
@@ -489,6 +536,12 @@ class EmporiumAdapter(BasePlatformAdapter):
         from . import chain
         shop = self.shop
         try:
+            if shop.near:  # the relayer's own transaction, if one was sent, is the only way it could have landed
+                got = chain.near_paid(shop.network, seen_tx, shop.near_relayer, payer, shop.pay_to, shop.rpc_url) if seen_tx else 0
+                if got > 0 and (want is None or got >= want):
+                    logger.warning("Emporium: settlement for %s reported a failure but landed on-chain in %s", jid, seen_tx)
+                    return seen_tx
+                return ""
             candidates = [seen_tx] if seen_tx else []
             if payer:
                 found = chain.authorization_tx(shop.network, payer, nonce_of(payload), shop.rpc_url)
