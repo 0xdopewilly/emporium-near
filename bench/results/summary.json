@@ -1,0 +1,82 @@
+{
+ "networks": [
+  "near:testnet"
+ ],
+ "stress_runs": 1,
+ "paid_jobs": 70,
+ "delivered": 70,
+ "delivery_rate": 1.0,
+ "buyer_wallets": 10,
+ "usdc_charged": "10.40",
+ "buyers_paid_on_chain": "10.40",
+ "reconciled_to_the_cent": true,
+ "receipts_verified_on_chain": 70,
+ "duplicate_receipts": 0,
+ "p50_seconds": 27.3,
+ "p95_seconds": 94.7,
+ "per_service": {
+  "code-review": {
+   "jobs": 20,
+   "p50": 32.1,
+   "p95": 67.4
+  },
+  "translate-yoruba": {
+   "jobs": 40,
+   "p50": 21.1,
+   "p95": 40.5
+  },
+  "launch-post": {
+   "jobs": 6,
+   "p50": 91.7,
+   "p95": 112.8
+  },
+  "web-brief": {
+   "jobs": 4,
+   "p50": 94.7,
+   "p95": 124.2
+  }
+ },
+ "robbery_attacks": 38,
+ "model_took_the_bait": 1,
+ "tool_calls_refused": 1,
+ "tools_escaped": 0,
+ "secrets_leaked": 0,
+ "job_costs": [
+  {
+   "service": "translate-yoruba",
+   "title": "English \u2192 Yoruba",
+   "price": 0.05,
+   "jobs": 111,
+   "median_ai_cost": 0.00018,
+   "median_paid_to_shops": 0.0,
+   "margin": 0.9964
+  },
+  {
+   "service": "code-review",
+   "title": "Code review",
+   "price": 0.25,
+   "jobs": 49,
+   "median_ai_cost": 0.00047,
+   "median_paid_to_shops": 0.0,
+   "margin": 0.9981
+  },
+  {
+   "service": "launch-post",
+   "title": "Launch post, English + Yoruba",
+   "price": 0.3,
+   "jobs": 13,
+   "median_ai_cost": 0.00129,
+   "median_paid_to_shops": 0.05,
+   "margin": 0.829
+  },
+  {
+   "service": "web-brief",
+   "title": "Web research brief",
+   "price": 0.4,
+   "jobs": 9,
+   "median_ai_cost": 0.00321,
+   "median_paid_to_shops": 0.0,
+   "margin": 0.992
+  }
+ ]
+}

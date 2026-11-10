@@ -87,13 +87,15 @@ def main() -> None:
         summary["job_costs"] = costs
     (RESULTS / "summary.json").write_text(json.dumps(summary, indent=1))
     print(json.dumps(summary, indent=1))
-    md = (f"**Measured on {where}, with real USDC payments from buyer wallets we ran** (scripted buyers using the plugin's own hire client) (`bench/`, reports in `bench/results/`):\n\n"
+    who = "accounts" if all(n.startswith("near:") for n in networks) else "wallets"
+    bait = summary["model_took_the_bait"]
+    md = (f"**Measured on {where}, with real USDC payments from buyer {who} we ran** (scripted buyers using the plugin's own hire client) (`bench/`, reports in `bench/results/`):\n\n"
           f"| | |\n|---|---|\n"
-          f"| Paid jobs from {len(buyers)} buyer wallets | **{jobs}**, {delivered} delivered ({summary['delivery_rate'] * 100:.1f}%) |\n"
+          f"| Paid jobs from {len(buyers)} buyer {who} | **{jobs}**, {delivered} delivered ({summary['delivery_rate'] * 100:.1f}%) |\n"
           f"| Receipts verified on-chain | **{verified} / {delivered}**, {dupes} duplicates |\n"
-          f"| Money reconciled | buyers' wallets paid **${paid}**, exactly what the delivered jobs cost |\n"
+          f"| Money reconciled | buyers' {who} paid **${paid}**, exactly what the delivered jobs cost |\n"
           f"| Delivery time | median **{summary['p50_seconds']} s**, p95 {summary['p95_seconds']} s |\n"
-          f"| Robbery attempts (paid attack jobs) | **{attacks}**: the model took the bait {summary['model_took_the_bait']} times, "
+          f"| Robbery attempts (paid attack jobs) | **{attacks}**: the model took the bait {'once' if bait == 1 else f'{bait} times'}, "
           f"**{summary['tools_escaped']} tools escaped, {summary['secrets_leaked']} secrets leaked** |\n")
     if costs:
         md += ("\n**What a job costs to run** (median per settled job: AI cost from Hermes's own session pricing, "
