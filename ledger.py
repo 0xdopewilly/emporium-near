@@ -106,6 +106,11 @@ def _start_of_day(now: Optional[float] = None) -> float:
     return time.mktime((t.tm_year, t.tm_mon, t.tm_mday, 0, 0, 0, 0, 0, -1))
 
 
+def _nonce_key(nonce: str) -> str:
+    """Hex nonces (EVM) compare case-insensitively; a NEAR one names a base58 key, which is case-sensitive."""
+    return nonce if nonce.startswith("near:") else nonce.lower()
+
+
 class Ledger:
     """Thread-safe wrapper over one connection. Open with ``Ledger.open()`` (the profile's
     plugin-data) or ``Ledger(path)`` in tests."""
@@ -210,12 +215,20 @@ class Ledger:
             return True
         with self._lock:
             try:
-                self._conn.execute("INSERT INTO nonces(nonce, job, created) VALUES(?,?,?)", (nonce.lower(), jid, time.time()))
+                self._conn.execute("INSERT INTO nonces(nonce, job, created) VALUES(?,?,?)", (_nonce_key(nonce), jid, time.time()))
                 self._conn.commit()
                 return True
             except sqlite3.IntegrityError:
                 self._conn.rollback()
                 return False
+
+    def release_nonce(self, nonce: str, jid: str) -> None:
+        """Free a nonce this job claimed but never got paid for (the job failed or didn't settle)."""
+        if not nonce:
+            return
+        with self._lock:
+            self._conn.execute("DELETE FROM nonces WHERE nonce = ? AND job = ?", (_nonce_key(nonce), jid))
+            self._conn.commit()
 
     def fail_stale_jobs(self) -> int:
         """Jobs left mid-flight by a restart: their buyers got no response, and nothing was settled."""

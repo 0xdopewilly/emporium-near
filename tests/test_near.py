@@ -371,6 +371,19 @@ def test_a_failed_near_job_is_never_charged(near_shop):
     assert near_shop.books.recent_jobs(1)[0]["status"] == books.FAILED
 
 
+def test_a_near_buyer_pays_again_after_an_undelivered_job(near_shop):
+    """After a job that failed, nothing was submitted, so the buyer's next payment signs the same key
+    nonce. The shop takes it (only one of the two could ever land), and the buyer is charged once."""
+    near_shop.stub.fail = True
+    with pytest.raises(buyer.HireError, match="not charged"):
+        hire(near_shop)
+    near_shop.stub.fail = False
+    out = hire(near_shop, text="second try")
+    assert out["output"] == "ECHO: second try"
+    net = near_shop.chain
+    assert len(net.included) == 1 and net.usdc("buyer.testnet") == 1_950_000 and net.usdc("shop.testnet") == 50_000
+
+
 def _signed_header(shop, mutate=None):
     """Do the 402 dance by hand: returns (headers, payload) for one signed payment."""
     from x402 import x402ClientSync

@@ -451,13 +451,15 @@ class EmporiumAdapter(BasePlatformAdapter):
         if not self._slots.acquire(blocking=False):
             return h.json(503, {"error": "all hands busy, try again in a minute", "charged": False})
         jid = books.new_id("job")
-        if not self.books.claim_nonce(nonce_of(result.payment_payload), jid):
+        nonce = nonce_of(result.payment_payload)
+        if not self.books.claim_nonce(nonce, jid):
             self._slots.release()
             return h.json(409, {"error": "this payment authorization was already used for a job; sign a new one",
                                 "charged": False})
         jid = self.books.create_job(svc.id, svc.title, svc.price, shop.network, payer, status=books.WORKING,
                                     input_chars=len(buyer_input), job_id=jid)
         chat_id = guard.CHAT_PREFIX + jid
+        settled = False
         try:
             self.books.update_job(jid, started=time.time())
             ok, text = self._run_job(jid, chat_id, svc, payer, buyer_input)
@@ -480,6 +482,7 @@ class EmporiumAdapter(BasePlatformAdapter):
                 return h.json(resp.status if resp else 402,
                               {"job": jid, "error": f"payment did not settle ({settle.error_reason}); the result is withheld",
                                "charged": False}, resp.headers if resp else None)
+            settled = True
             tx = settle.transaction if _TX.match(str(settle.transaction or "")) else ""
             self.books.update_job(jid, status=books.SETTLED, tx=tx, output_chars=len(output), finished=time.time(),
                                   payer=(settle.payer or payer or ""), output_sha256=digest)
@@ -491,6 +494,11 @@ class EmporiumAdapter(BasePlatformAdapter):
             return h.json(200, {"job": jid, "service": svc.id, "title": svc.title, "output": output,
                                 "receipt": receipt}, settle.headers)
         finally:
+            if not settled:
+                # Nothing was taken, so the payment's nonce is free again. On NEAR a buyer's next payment
+                # signs the same key nonce after an undelivered job (the chain spends each nonce at most
+                # once, so only one of the two could ever be paid).
+                self.books.release_nonce(nonce, jid)
             self._slots.release()
             guard.SESSIONS.forget(jid)
             with self._lock:
