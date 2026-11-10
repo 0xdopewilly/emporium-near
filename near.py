@@ -362,13 +362,16 @@ class RpcError(Exception):
 
 
 _RATE_LIMITED = re.compile(r"rate.?limit|too many requests", re.I)
+# A provider's own plan limits (dRPC's "Request timeout on the free plan, please upgrade"): the request may
+# have been worked on, so only reads move on to the next endpoint.
+_PLAN_LIMIT = re.compile(r"free plan|free tier|upgrade to (?:a )?paid|quota exceeded", re.I)
 
 
 class Rpc:
     """NEAR JSON-RPC over httpx: the handful of calls a payment needs.
 
     ``url`` may name several endpoints, comma-separated. A call an endpoint refuses for its rate limit, or
-    that can't reach it, goes to the next one; when every endpoint has refused, it waits a moment (longer
+    that can't reach it or answers with its plan's limits, goes to the next one; when every endpoint has refused, it waits a moment (longer
     each round) and goes round again. A transaction sent to an endpoint that didn't answer is not sent
     again here: it may already be on its way, and the relayer's settle looks it up instead."""
 
@@ -396,6 +399,8 @@ class Rpc:
             text = str(err.get("data") or err.get("message") or "")
             if _RATE_LIMITED.search(text) or _RATE_LIMITED.search(name):
                 raise RpcError("RATE_LIMITED", text, err)
+            if _PLAN_LIMIT.search(text):
+                raise RpcError("PROVIDER_LIMIT", text, err)
             raise RpcError(name, text, err)
         result = body.get("result")
         if isinstance(result, dict) and isinstance(result.get("error"), str):  # older nodes report view errors here
@@ -412,7 +417,7 @@ class Rpc:
                 try:
                     return self._post(url, payload, timeout or self.timeout)
                 except RpcError as e:
-                    if e.name == "RATE_LIMITED" or (e.name == "RPC_UNREACHABLE" and method != "send_tx"):
+                    if e.name == "RATE_LIMITED" or (e.name in ("RPC_UNREACHABLE", "PROVIDER_LIMIT") and method != "send_tx"):
                         last = e
                         continue
                     raise

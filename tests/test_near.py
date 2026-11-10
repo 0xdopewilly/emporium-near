@@ -563,3 +563,16 @@ def test_the_egress_sweep_redacts_near_secret_keys_but_not_public_ones():
                              f"public_key: {pub}\nPUBLIC_KEY={pub}")
     assert secret[8:] not in out and seed[8:] not in out and out.count("[redacted private key]") == 3
     assert out.count(pub) == 2
+
+
+def test_a_providers_plan_limit_moves_a_read_on_but_never_resends_a_transaction(monkeypatch, no_sleep):
+    plan = (200, {"jsonrpc": "2.0", "id": 1, "error": {"name": "RPC_ERROR",
+                                                       "message": "Request timeout on the free plan, please upgrade to paid plan"}})
+    ep = _Endpoints(first=[plan], second=[_OK])
+    monkeypatch.setattr(near.httpx, "post", ep)
+    assert near.Rpc("https://first.example,https://second.example").final_block()["height"] == 7
+    ep = _Endpoints(first=[plan], second=[_OK])
+    monkeypatch.setattr(near.httpx, "post", ep)
+    with pytest.raises(near.RpcError) as e:
+        near.Rpc("https://first.example,https://second.example").send_tx("AAAA")
+    assert e.value.name == "PROVIDER_LIMIT" and len(ep.calls) == 1

@@ -222,6 +222,9 @@ class ExactNearFacilitator:
         self._lock = threading.Lock()          # one relayer transaction at a time: its nonces land in order
         self._nonce: dict[str, int] = {}       # network -> last nonce this relayer key used
         self._sent: dict[str, list[tuple[str, float]]] = {}  # sha256(signed delegate) -> [(tx hash, sent at)]
+        # Facts about the token that don't change between payments, once the chain has confirmed them:
+        # (rpc, asset) is a contract; (rpc, asset, pay_to) is registered with it. Fewer reads per payment.
+        self._known: set[tuple[str, ...]] = set()
 
     def get_extra(self, network: Any) -> Optional[dict]:
         return None
@@ -284,13 +287,17 @@ class ExactNearFacilitator:
             raise _Invalid("gas_above_policy", f"gas must be at most {self.max_gas // near.TGAS} TGas", payer)
 
         # What the chain says, read at once; the checks still run in this order.
-        chain = _gather({
+        is_token, registered = (rpc.url, d.receiver_id), (rpc.url, d.receiver_id, str(requirements.pay_to))
+        reads = {
             "head": lambda: int(rpc.final_block()["height"]),
             "access": lambda: rpc.access_key(payer, str(d.public_key)),
-            "token": lambda: rpc.account(d.receiver_id),
             "balance": lambda: rpc.view(d.receiver_id, "ft_balance_of", {"account_id": payer}),
-            "storage": lambda: rpc.view(d.receiver_id, "storage_balance_of", {"account_id": str(requirements.pay_to)}),
-        })
+        }
+        if is_token not in self._known:
+            reads["token"] = lambda: rpc.account(d.receiver_id)
+        if registered not in self._known:
+            reads["storage"] = lambda: rpc.view(d.receiver_id, "storage_balance_of", {"account_id": str(requirements.pay_to)})
+        chain = _gather(reads)
         head = chain["head"].result()
         left = d.max_block_height - head
         if left <= 0:
@@ -307,17 +314,21 @@ class ExactNearFacilitator:
         if access.get("permission") != "FullAccess":
             raise _Invalid("access_key_not_full_access", "a function-call key can't attach the 1 yoctoNEAR deposit", payer)
 
-        token = chain["token"].result()
-        if not token or token.get("code_hash") in (None, "", _EMPTY_CODE):
-            raise _Invalid("asset_not_a_contract", "the token account has no contract", payer)
+        if "token" in chain:
+            token = chain["token"].result()
+            if not token or token.get("code_hash") in (None, "", _EMPTY_CODE):
+                raise _Invalid("asset_not_a_contract", "the token account has no contract", payer)
+            self._known.add(is_token)
         try:
             balance = int(str(chain["balance"].result()))
         except (ValueError, TypeError) as e:
             raise _Invalid("insufficient_funds", "couldn't read the payer's balance", payer) from e
         if balance < int(requirements.amount):
             raise _Invalid("insufficient_funds", "the payer's USDC balance is too low", payer)
-        if chain["storage"].result() is None:
-            raise _Invalid("recipient_not_registered", "the shop isn't registered with the token contract", payer)
+        if "storage" in chain:
+            if chain["storage"].result() is None:
+                raise _Invalid("recipient_not_registered", "the shop isn't registered with the token contract", payer)
+            self._known.add(registered)
         return sda
 
     def verify(self, payload: Any, requirements: Any, context: Any = None) -> Any:
@@ -349,7 +360,7 @@ class ExactNearFacilitator:
             try:
                 rpc.send_tx(signed, wait_until="INCLUDED", timeout=30.0)
             except RpcError as e:
-                if e.name in ("TIMEOUT_ERROR", "RPC_UNREACHABLE"):
+                if e.name in ("TIMEOUT_ERROR", "RPC_UNREACHABLE", "PROVIDER_LIMIT"):
                     self._nonce[network] = nonce + 1  # it may well have landed; the outcome check decides
                     return tx_hash
                 if attempt == 1 and "nonce" in str(e.data or e).lower():
@@ -395,7 +406,8 @@ class ExactNearFacilitator:
                 except RpcError as e:
                     if e.name == "UNKNOWN_TRANSACTION":
                         lost = lost or (tx == newest and time.time() - newest_at >= self.lost_after)
-                    elif e.name not in ("TIMEOUT_ERROR", "RPC_UNREACHABLE", "REQUEST_VALIDATION_ERROR"):
+                    elif e.name not in ("TIMEOUT_ERROR", "RPC_UNREACHABLE", "REQUEST_VALIDATION_ERROR", "RATE_LIMITED",
+                                        "PROVIDER_LIMIT"):
                         logger.info("near: status of %s: %s", tx, e)
                     continue
                 if near.final(out):
