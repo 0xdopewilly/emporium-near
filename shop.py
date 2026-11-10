@@ -25,7 +25,9 @@ NETWORKS: dict[str, tuple[str, str, bool]] = {
 DEFAULT_NETWORK = "near:testnet"
 # Public JSON-RPC endpoints and the USDC contract per network, for checking receipts on-chain.
 # On NEAR, USDC is Circle's native NEP-141 token (6 decimals), at an implicit account id.
-RPC_URLS = {"near:testnet": "https://test.rpc.fastnear.com", "near:mainnet": "https://free.rpc.fastnear.com",
+# On NEAR, a comma-separated list: a call the first endpoint refuses for its rate limit goes to the next.
+RPC_URLS = {"near:testnet": "https://test.rpc.fastnear.com,https://near-testnet.drpc.org",
+            "near:mainnet": "https://free.rpc.fastnear.com,https://near.drpc.org",
             "eip155:84532": "https://sepolia.base.org", "eip155:8453": "https://mainnet.base.org"}
 USDC = {"near:testnet": "3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af",
         "near:mainnet": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",

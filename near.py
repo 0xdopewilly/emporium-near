@@ -361,30 +361,62 @@ class RpcError(Exception):
         self.name, self.data = name, data
 
 
+_RATE_LIMITED = re.compile(r"rate.?limit|too many requests", re.I)
+
+
 class Rpc:
-    """NEAR JSON-RPC over httpx: the handful of calls a payment needs."""
+    """NEAR JSON-RPC over httpx: the handful of calls a payment needs.
 
-    def __init__(self, url: str, timeout: float = 20.0):
-        if not url:
+    ``url`` may name several endpoints, comma-separated. A call an endpoint refuses for its rate limit, or
+    that can't reach it, goes to the next one; when every endpoint has refused, it waits a moment (longer
+    each round) and goes round again. A transaction sent to an endpoint that didn't answer is not sent
+    again here: it may already be on its way, and the relayer's settle looks it up instead."""
+
+    def __init__(self, url: str, timeout: float = 20.0, rounds: int = 4):
+        urls = [u.strip() for u in str(url or "").split(",") if u.strip()]
+        if not urls:
             raise ValueError("no NEAR RPC endpoint configured")
-        self.url, self.timeout = url, timeout
+        self.urls, self.url, self.timeout, self.rounds = urls, urls[0], timeout, max(1, rounds)
 
-    def call(self, method: str, params: Any, timeout: Optional[float] = None) -> Any:
+    def _post(self, url: str, payload: dict, timeout: float) -> Any:
         try:
-            r = httpx.post(self.url, json={"jsonrpc": "2.0", "id": "emporium", "method": method, "params": params},
-                           timeout=timeout or self.timeout)
-            body = r.json()
-        except (httpx.HTTPError, ValueError) as e:
+            r = httpx.post(url, json=payload, timeout=timeout)
+        except httpx.HTTPError as e:
             raise RpcError("RPC_UNREACHABLE", e.__class__.__name__) from e
-        err = body.get("error")
+        if r.status_code == 429:
+            raise RpcError("RATE_LIMITED", f"HTTP 429 from {url}")
+        try:
+            body = r.json()
+        except ValueError as e:
+            raise RpcError("RPC_UNREACHABLE", f"HTTP {r.status_code}, not JSON") from e
+        err = body.get("error") if isinstance(body, dict) else None
         if err:
             cause = err.get("cause") or {}
-            raise RpcError(str(cause.get("name") or err.get("name") or "RPC_ERROR"),
-                           str(err.get("data") or err.get("message") or ""), err)
+            name = str(cause.get("name") or err.get("name") or "RPC_ERROR")
+            text = str(err.get("data") or err.get("message") or "")
+            if _RATE_LIMITED.search(text) or _RATE_LIMITED.search(name):
+                raise RpcError("RATE_LIMITED", text, err)
+            raise RpcError(name, text, err)
         result = body.get("result")
         if isinstance(result, dict) and isinstance(result.get("error"), str):  # older nodes report view errors here
             raise RpcError("QUERY_ERROR", result["error"])
         return result
+
+    def call(self, method: str, params: Any, timeout: Optional[float] = None) -> Any:
+        payload = {"jsonrpc": "2.0", "id": "emporium", "method": method, "params": params}
+        last: Optional[RpcError] = None
+        for n in range(self.rounds):
+            if n:
+                time.sleep(min(4.0, 0.5 * 2 ** (n - 1)))
+            for url in self.urls:
+                try:
+                    return self._post(url, payload, timeout or self.timeout)
+                except RpcError as e:
+                    if e.name == "RATE_LIMITED" or (e.name == "RPC_UNREACHABLE" and method != "send_tx"):
+                        last = e
+                        continue
+                    raise
+        raise last or RpcError("RPC_UNREACHABLE", "no endpoint answered")
 
     def final_block(self) -> dict:
         return self.call("block", {"finality": "final"})["header"]

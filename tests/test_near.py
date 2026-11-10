@@ -477,3 +477,78 @@ def test_a_near_shop_needs_its_accounts_and_relayer_key(net, monkeypatch):
     adapter = EmporiumAdapter(PlatformConfig(enabled=True), as_settings(settings), "test")
     with pytest.raises(RuntimeError, match="EMPORIUM_NEAR_RELAYER_KEY"):
         adapter._build_x402(good)
+
+
+# ---- the RPC client under load: rate limits and dead endpoints ---------------------------------
+class _Endpoints:
+    """Stands in for httpx.post: each URL answers from its own script of replies (the last one repeats)."""
+
+    def __init__(self, **script):
+        self.script = {f"https://{k.replace('_', '-')}.example": list(v) for k, v in script.items()}
+        self.calls: list[tuple[str, str]] = []
+
+    def __call__(self, url, json=None, timeout=None):
+        self.calls.append((url, json["method"]))
+        replies = self.script[url]
+        reply = replies.pop(0) if len(replies) > 1 else replies[0]
+        if reply == "down":
+            raise httpx.ConnectError("refused")
+        status, body = reply
+        return httpx.Response(status, json=body, request=httpx.Request("POST", url))
+
+
+_LIMITED = (200, {"jsonrpc": "2.0", "id": 1, "error": {"name": "RPC_ERROR", "message": "Rate limits exceeded. "
+                                                         "For higher rate limits get a subscription"}})
+_OK = (200, {"jsonrpc": "2.0", "id": 1, "result": {"header": {"height": 7, "hash": "h"}}})
+
+
+@pytest.fixture
+def no_sleep(monkeypatch):
+    waits = []
+    monkeypatch.setattr(near.time, "sleep", waits.append)
+    return waits
+
+
+def test_a_rate_limited_rpc_hands_the_call_to_the_next_endpoint(monkeypatch, no_sleep):
+    ep = _Endpoints(first=[_LIMITED], second=[_OK])
+    monkeypatch.setattr(near.httpx, "post", ep)
+    rpc = near.Rpc("https://first.example, https://second.example")
+    assert rpc.final_block()["height"] == 7
+    assert [u for u, _ in ep.calls] == ["https://first.example", "https://second.example"] and not no_sleep
+
+
+def test_http_429_and_a_dead_endpoint_also_move_on(monkeypatch, no_sleep):
+    ep = _Endpoints(first=[(429, {})], second=["down"], third=[_OK])
+    monkeypatch.setattr(near.httpx, "post", ep)
+    assert near.Rpc("https://first.example,https://second.example,https://third.example").final_block()["height"] == 7
+
+
+def test_when_every_endpoint_is_limited_it_backs_off_then_gives_up(monkeypatch, no_sleep):
+    ep = _Endpoints(first=[_LIMITED], second=[_LIMITED])
+    monkeypatch.setattr(near.httpx, "post", ep)
+    with pytest.raises(near.RpcError) as e:
+        near.Rpc("https://first.example,https://second.example", rounds=3).final_block()
+    assert e.value.name == "RATE_LIMITED" and len(ep.calls) == 6 and no_sleep == [0.5, 1.0]
+
+
+def test_a_limit_that_lifts_is_waited_out(monkeypatch, no_sleep):
+    ep = _Endpoints(only=[_LIMITED, _LIMITED, _OK])
+    monkeypatch.setattr(near.httpx, "post", ep)
+    assert near.Rpc("https://only.example").final_block()["height"] == 7 and no_sleep == [0.5, 1.0]
+
+
+def test_a_real_refusal_is_not_retried(monkeypatch, no_sleep):
+    gone = (200, {"jsonrpc": "2.0", "id": 1, "error": {"name": "HANDLER_ERROR", "cause": {"name": "UNKNOWN_ACCOUNT"}}})
+    ep = _Endpoints(first=[gone], second=[_OK])
+    monkeypatch.setattr(near.httpx, "post", ep)
+    assert near.Rpc("https://first.example,https://second.example").account("nobody.testnet") is None
+    assert len(ep.calls) == 1
+
+
+def test_a_transaction_sent_to_a_dead_endpoint_is_not_sent_again(monkeypatch, no_sleep):
+    """It may already be on its way; sending it elsewhere is the settle path's call (it looks it up first)."""
+    ep = _Endpoints(first=["down"], second=[_OK])
+    monkeypatch.setattr(near.httpx, "post", ep)
+    with pytest.raises(near.RpcError) as e:
+        near.Rpc("https://first.example,https://second.example").send_tx("AAAA")
+    assert e.value.name == "RPC_UNREACHABLE" and [m for _, m in ep.calls] == ["send_tx"]
