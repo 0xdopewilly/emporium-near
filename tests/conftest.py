@@ -104,9 +104,9 @@ class AgentStub:
         await self.adapter.send(event.source.chat_id, self.reply(event.text), metadata={"notify": True})
 
 
-@pytest.fixture
-def shop(facilitator):
-    """A running EmporiumAdapter on a random port, with the agent stubbed out."""
+def start_shop(settings: dict):
+    """A running EmporiumAdapter on a random port for these settings, with the agent stubbed out.
+    Returns (adapter, stop)."""
     from gateway.config import PlatformConfig
     from gateway.platform_registry import PlatformEntry, platform_registry
     from emporium.adapter import EmporiumAdapter
@@ -115,7 +115,6 @@ def shop(facilitator):
         platform_registry.register(PlatformEntry(name="emporium", label="Emporium", adapter_factory=lambda c: None,
                                                  check_fn=lambda: True))
 
-    settings = settings_for(facilitator.url)
     loop = asyncio.new_event_loop()
     t = threading.Thread(target=loop.run_forever, daemon=True)
     t.start()
@@ -129,11 +128,21 @@ def shop(facilitator):
     adapter.shop.port = port
     adapter.test_url = f"http://127.0.0.1:{port}"
     adapter.stub = stub
-    adapter.facilitator = facilitator
     adapter.settings = settings
+
+    def stop():
+        asyncio.run_coroutine_threadsafe(adapter.disconnect(), loop).result(10)
+        loop.call_soon_threadsafe(loop.stop)
+    return adapter, stop
+
+
+@pytest.fixture
+def shop(facilitator):
+    """A running EmporiumAdapter on a random port, with the agent stubbed out."""
+    adapter, stop = start_shop(settings_for(facilitator.url))
+    adapter.facilitator = facilitator
     yield adapter
-    asyncio.run_coroutine_threadsafe(adapter.disconnect(), loop).result(10)
-    loop.call_soon_threadsafe(loop.stop)
+    stop()
 
 
 def as_settings(d: dict):

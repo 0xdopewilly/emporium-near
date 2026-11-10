@@ -50,7 +50,8 @@ NEAR_RELAYER_SECRET = "EMPORIUM_NEAR_RELAYER_KEY"
 _EXPOSE = "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE"
 # Settlement failures that a retry can't fix: the authorization itself is bad, spent or unfunded.
 _SETTLE_FINAL = ("insufficient", "signature", "expired", "valid_before", "valid_after", "nonce", "used",
-                 "recipient", "amount", "scheme", "network_mismatch")
+                 "recipient", "amount", "scheme", "network_mismatch",
+                 "transfer_failed")  # NEAR: the delegate ran but its transfer failed, so its nonce is spent
 SETTLE_ATTEMPTS = 5
 SETTLE_MARGIN = 45   # seconds an authorization must outlive the job's timeout, so it can still settle
 MAX_CONNECTIONS = 64
@@ -293,9 +294,10 @@ class EmporiumAdapter(BasePlatformAdapter):
         return True
 
     # ---- lifecycle -------------------------------------------------------------------------
-    def _near_rpc(self) -> Any:
+    def _near_rpc(self, shop: Optional[Shop] = None) -> Any:
         from .near import Rpc
-        return Rpc(self.shop.rpc_url or RPC_URLS.get(self.shop.network, ""))
+        shop = shop or self.shop
+        return Rpc(shop.rpc_url or RPC_URLS.get(shop.network, ""))
 
     def _build_x402(self, shop: Shop) -> Any:
         from x402 import x402ResourceServerSync
@@ -319,7 +321,7 @@ class EmporiumAdapter(BasePlatformAdapter):
             server = x402ResourceServerSync(near_x402.near_facilitator(shop.near_relayer, KeyPair(secret), [shop.network],
                                                                        rpc_urls))
             near_x402.register_exact_near_server(server, [shop.network])
-            rpc = self._near_rpc()
+            rpc = self._near_rpc(shop)
             window = {s.id: near_x402.window_for(s.timeout_seconds + SETTLE_MARGIN + 60, rpc) for s in shop.services}
         else:
             from x402.mechanisms.evm.exact import register_exact_evm_server

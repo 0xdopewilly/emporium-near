@@ -23,7 +23,8 @@ import math
 import re
 import threading
 import time
-from typing import Any, Iterable, Optional
+from concurrent.futures import Future, ThreadPoolExecutor
+from typing import Any, Callable, Iterable, Optional
 
 from . import near
 from .near import (DelegateAction, FunctionCall, KeyPair, Rpc, RpcError, SignedDelegateAction, Transaction,
@@ -102,6 +103,12 @@ def _rpc_for(network: str, rpc_urls: Optional[dict] = None) -> Rpc:
     return Rpc(url)
 
 
+def _gather(calls: dict[str, Callable[[], Any]]) -> dict[str, Future]:
+    """Run independent RPC reads at once (each is a round trip); ``.result()`` re-raises a call's own error."""
+    with ThreadPoolExecutor(max_workers=len(calls)) as pool:
+        return {name: pool.submit(fn) for name, fn in calls.items()}
+
+
 # ---- buyer -------------------------------------------------------------------------------------
 class ExactNearClient:
     """Signs the payment: a delegate whose one action is ``ft_transfer(payTo, amount)`` on the asset,
@@ -113,6 +120,15 @@ class ExactNearClient:
         if not is_account_id(account_id):
             raise ValueError(f"{account_id!r} is not a NEAR account id")
         self.account_id, self.key, self._rpc_urls = account_id, key, rpc_urls or {}
+
+    @staticmethod
+    def find_default_asset(asset: str, network: str) -> Optional[dict]:
+        """USDC on NEAR is a known stablecoin to the SDK's spend controls (which by default pay only
+        those, up to their per-payment cap), as Base's and Solana's USDC are to theirs."""
+        usdc = USDC.get(str(network))
+        if usdc and str(asset).lower() == usdc:
+            return {"asset": usdc, "name": "USD Coin", "symbol": "USDC", "decimals": USDC_DECIMALS}
+        return None
 
     def create_payment_payload(self, requirements: Any) -> dict[str, Any]:
         network = str(requirements.network)
@@ -185,20 +201,27 @@ class ExactNearFacilitator:
     submitting it from the relayer account (which pays the gas). Implements SchemeNetworkFacilitator.
 
     Settling is idempotent per delegate: a retry finds the transaction it already sent and reports
-    that transaction's outcome, so one signed payment can never be submitted twice."""
+    that transaction's outcome. A delegate is sent again only when the network lost the first
+    transaction (the chain never saw it and the delegate's nonce is unused), and even then the chain
+    runs its transfer at most once: the delegate's nonce is spent by the first one to land."""
 
     scheme = SCHEME
     caip_family = "near:*"
+    wait_seconds = 90.0   # how long settle waits for the relayer's transaction to finalize
+    lost_after = 20.0     # seconds: a relayer transaction the chain still doesn't know by then was dropped
+    poll_seconds = 1.5    # between looks at a transaction's status
 
     def __init__(self, relayer_id: str, relayer_key: KeyPair, rpc_urls: Optional[dict] = None,
-                 max_gas: int = MAX_SPONSORED_GAS, wait_seconds: float = 90.0):
+                 max_gas: int = MAX_SPONSORED_GAS, wait_seconds: Optional[float] = None):
         if not is_account_id(relayer_id):
             raise ValueError(f"{relayer_id!r} is not a NEAR account id")
         self.relayer_id, self._key, self._rpc_urls = relayer_id, relayer_key, rpc_urls or {}
-        self.max_gas, self.wait_seconds = max_gas, wait_seconds
+        self.max_gas = max_gas
+        if wait_seconds is not None:
+            self.wait_seconds = wait_seconds
         self._lock = threading.Lock()          # one relayer transaction at a time: its nonces land in order
         self._nonce: dict[str, int] = {}       # network -> last nonce this relayer key used
-        self._sent: dict[str, str] = {}        # sha256(signed delegate) -> the tx hash that carried it
+        self._sent: dict[str, list[tuple[str, float]]] = {}  # sha256(signed delegate) -> [(tx hash, sent at)]
 
     def get_extra(self, network: Any) -> Optional[dict]:
         return None
@@ -260,13 +283,21 @@ class ExactNearFacilitator:
         if not 0 < call.gas <= self.max_gas:
             raise _Invalid("gas_above_policy", f"gas must be at most {self.max_gas // near.TGAS} TGas", payer)
 
-        head = int(rpc.final_block()["height"])
+        # What the chain says, read at once; the checks still run in this order.
+        chain = _gather({
+            "head": lambda: int(rpc.final_block()["height"]),
+            "access": lambda: rpc.access_key(payer, str(d.public_key)),
+            "token": lambda: rpc.account(d.receiver_id),
+            "balance": lambda: rpc.view(d.receiver_id, "ft_balance_of", {"account_id": payer}),
+            "storage": lambda: rpc.view(d.receiver_id, "storage_balance_of", {"account_id": str(requirements.pay_to)}),
+        })
+        head = chain["head"].result()
         left = d.max_block_height - head
         if left <= 0:
             raise _Invalid("delegate_action_expired", "the signed payment has expired", payer)
         if left > timeout_blocks(max_timeout):
             raise _Invalid("delegate_action_timeout_window_exceeds_maxTimeout", "the payment's window is longer than asked", payer)
-        access = rpc.access_key(payer, str(d.public_key))
+        access = chain["access"].result()
         if access is None:
             raise _Invalid("unknown_access_key", f"{payer} has no such key", payer)
         if d.nonce <= int(access.get("nonce", 0)):
@@ -276,16 +307,16 @@ class ExactNearFacilitator:
         if access.get("permission") != "FullAccess":
             raise _Invalid("access_key_not_full_access", "a function-call key can't attach the 1 yoctoNEAR deposit", payer)
 
-        token = rpc.account(d.receiver_id)
+        token = chain["token"].result()
         if not token or token.get("code_hash") in (None, "", _EMPTY_CODE):
             raise _Invalid("asset_not_a_contract", "the token account has no contract", payer)
         try:
-            balance = int(str(rpc.view(d.receiver_id, "ft_balance_of", {"account_id": payer})))
+            balance = int(str(chain["balance"].result()))
         except (ValueError, TypeError) as e:
             raise _Invalid("insufficient_funds", "couldn't read the payer's balance", payer) from e
         if balance < int(requirements.amount):
             raise _Invalid("insufficient_funds", "the payer's USDC balance is too low", payer)
-        if rpc.view(d.receiver_id, "storage_balance_of", {"account_id": str(requirements.pay_to)}) is None:
+        if chain["storage"].result() is None:
             raise _Invalid("recipient_not_registered", "the shop isn't registered with the token contract", payer)
         return sda
 
@@ -328,18 +359,52 @@ class ExactNearFacilitator:
             return tx_hash
         raise RpcError("INVALID_NONCE", "the relayer's nonce kept moving")
 
-    def _outcome(self, rpc: Rpc, tx_hash: str) -> Optional[dict]:
+    def _lost(self, rpc: Rpc, sda: SignedDelegateAction, tx_hash: str, sent_at: float) -> bool:
+        """Whether a relayer transaction carrying this delegate never reached the chain: the chain still
+        doesn't know it ``lost_after`` seconds on, and the delegate's nonce is unused."""
+        if time.time() - sent_at < self.lost_after:
+            return False
+        try:
+            rpc.tx_status(tx_hash, self.relayer_id, wait_until="NONE", timeout=10.0)
+            return False
+        except RpcError as e:
+            if e.name != "UNKNOWN_TRANSACTION":
+                return False
+        d = sda.delegate_action
+        try:
+            access = rpc.access_key(d.sender_id, str(d.public_key))
+        except RpcError:
+            return False
+        return access is not None and int(access.get("nonce", 0)) < d.nonce
+
+    def _outcome(self, rpc: Rpc, txs: list[tuple[str, float]], asset: str, payer: str, pay_to: str,
+                 amount: int) -> tuple[str, Optional[dict], bool]:
+        """Wait for the relayer transactions that carried this delegate to finalize. Returns
+        (tx, outcome, lost): the one whose outcome paid, else the newest with its final outcome (None
+        if it didn't finalize in time); ``lost`` when the chain still doesn't know the newest one."""
         deadline = time.time() + self.wait_seconds
-        while time.time() < deadline:
-            try:
-                out = rpc.tx_status(tx_hash, self.relayer_id, wait_until="FINAL", timeout=30.0)
+        finals: dict[str, dict] = {}
+        newest, newest_at = txs[-1]
+        while True:
+            lost = False
+            for tx, sent_at in reversed(txs):
+                if tx in finals:
+                    continue
+                try:
+                    out = rpc.tx_status(tx, self.relayer_id, wait_until="FINAL", timeout=30.0)
+                except RpcError as e:
+                    if e.name == "UNKNOWN_TRANSACTION":
+                        lost = lost or (tx == newest and time.time() - newest_at >= self.lost_after)
+                    elif e.name not in ("TIMEOUT_ERROR", "RPC_UNREACHABLE", "REQUEST_VALIDATION_ERROR"):
+                        logger.info("near: status of %s: %s", tx, e)
+                    continue
                 if near.final(out):
-                    return out
-            except RpcError as e:
-                if e.name not in ("UNKNOWN_TRANSACTION", "TIMEOUT_ERROR", "RPC_UNREACHABLE", "REQUEST_VALIDATION_ERROR"):
-                    logger.info("near: status of %s: %s", tx_hash, e)
-            time.sleep(1.5)
-        return None
+                    finals[tx] = out
+                    if near.paid(out, asset, payer, pay_to) == amount:
+                        return tx, out, False
+            if newest in finals or lost or time.time() >= deadline:
+                return newest, finals.get(newest), lost
+            time.sleep(self.poll_seconds)
 
     def settle(self, payload: Any, requirements: Any, context: Any = None) -> Any:
         from x402.schemas import SettleResponse
@@ -353,28 +418,33 @@ class ExactNearFacilitator:
             sda = signed_delegate(payload)
         except Exception:
             return fail("invalid_payload")
-        payer = sda.delegate_action.sender_id
+        payer, asset, pay_to = sda.delegate_action.sender_id, str(requirements.asset), str(requirements.pay_to)
         key = hashlib.sha256(sda.to_borsh()).hexdigest()
         rpc = _rpc_for(network, self._rpc_urls)
-        with self._lock:
-            tx_hash = self._sent.get(key)
-            if not tx_hash:
-                try:
-                    self._check(payload, requirements, rpc)  # the chain may have moved since verify
-                except _Invalid as e:
-                    return fail(e.reason, e.message, payer=payer)
-                except RpcError as e:
-                    return fail("rpc_unavailable", str(e), payer=payer)
-                try:
-                    tx_hash = self._submit(rpc, network, sda)
-                except RpcError as e:
-                    return fail("settlement_failed", str(e), payer=payer)
-                self._sent[key] = tx_hash
-        outcome = self._outcome(rpc, tx_hash)
+        tx_hash, outcome, lost = "", None, False
+        for _ in range(2):  # a relayer transaction the network lost is sent once more
+            with self._lock:
+                sent = self._sent.setdefault(key, [])
+                if not sent or self._lost(rpc, sda, *sent[-1]):
+                    try:
+                        self._check(payload, requirements, rpc)  # the chain may have moved since verify
+                    except _Invalid as e:
+                        return fail(e.reason, e.message, payer=payer)
+                    except RpcError as e:
+                        return fail("rpc_unavailable", str(e), payer=payer)
+                    try:
+                        sent.append((self._submit(rpc, network, sda), time.time()))
+                    except RpcError as e:
+                        if not sent:
+                            return fail("settlement_failed", str(e), payer=payer)
+                txs = list(sent)
+            tx_hash, outcome, lost = self._outcome(rpc, txs, asset, payer, pay_to, int(requirements.amount))
+            if not lost:
+                break
         if outcome is None:
-            return fail("settlement_pending", "the transaction hasn't finalized yet", tx_hash, payer)
-        moved = near.paid(outcome, str(requirements.asset), payer, str(requirements.pay_to))
-        if moved != int(requirements.amount):
+            return fail("settlement_pending", "the relayer's transaction didn't reach the chain" if lost else
+                        "the transaction hasn't finalized yet", tx_hash, payer)
+        if near.paid(outcome, asset, payer, pay_to) != int(requirements.amount):
             why = near.failures(outcome)
             return fail("transfer_failed", json.dumps(why)[:300] if why else "no matching ft_transfer in the outcome",
                         tx_hash, payer)
