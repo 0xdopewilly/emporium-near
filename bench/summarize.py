@@ -1,11 +1,17 @@
 """Roll every report in bench/results/ into one summary (JSON + a Markdown block for the README).
 
     python bench/summarize.py
+    python bench/summarize.py --ledger ~/.hermes/profiles/shop/plugin-data/emporium/data.db   # + what a job costs
+
+With --ledger (one per shop), it adds the median AI cost per service, from the inference cost Hermes's own
+session pricing recorded for each settled job, and what the job paid other shops.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
+import sqlite3
 from collections import defaultdict
 from decimal import Decimal
 from pathlib import Path
@@ -15,7 +21,28 @@ from common import pct, plugin
 RESULTS = Path(__file__).parent / "results"
 
 
+def job_costs(ledgers: list[str]) -> list[dict]:
+    rows = defaultdict(list)
+    for path in ledgers:
+        c = sqlite3.connect(f"file:{Path(path).expanduser()}?mode=ro", uri=True)
+        for service, title, price, cost, sub in c.execute(
+                "SELECT service, title, price_usd, cost_usd, sub_usd FROM jobs WHERE status = 'settled' AND cost_usd > 0"):
+            rows[(service, title, str(price))].append((float(cost), float(sub or 0)))
+        c.close()
+    out = []
+    for (service, title, price), v in sorted(rows.items(), key=lambda kv: float(kv[0][2])):
+        cost = sorted(x[0] for x in v)[len(v) // 2]
+        sub = sorted(x[1] for x in v)[len(v) // 2]
+        p = float(price)
+        out.append({"service": service, "title": title, "price": p, "jobs": len(v), "median_ai_cost": round(cost, 5),
+                    "median_paid_to_shops": round(sub, 4), "margin": round((p - cost - sub) / p, 4)})
+    return out
+
+
 def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--ledger", action="append", default=[], help="a shop's plugin-data/emporium/data.db")
+    args = ap.parse_args()
     stress = [json.loads(p.read_text()) for p in sorted(RESULTS.glob("stress-*.json"))]
     red = [json.loads(p.read_text()) for p in sorted(RESULTS.glob("redteam-*.json"))]
 
@@ -55,6 +82,9 @@ def main() -> None:
         "tools_escaped": sum(r["tools_escaped"] for r in red),
         "secrets_leaked": sum(r["secrets_leaked"] for r in red),
     }
+    costs = job_costs(args.ledger)
+    if costs:
+        summary["job_costs"] = costs
     (RESULTS / "summary.json").write_text(json.dumps(summary, indent=1))
     print(json.dumps(summary, indent=1))
     md = (f"**Measured on {where}, with real USDC payments from buyer wallets we ran** (scripted buyers using the plugin's own hire client) (`bench/`, reports in `bench/results/`):\n\n"
@@ -65,6 +95,13 @@ def main() -> None:
           f"| Delivery time | median **{summary['p50_seconds']} s**, p95 {summary['p95_seconds']} s |\n"
           f"| Robbery attempts (paid attack jobs) | **{attacks}**: the model took the bait {summary['model_took_the_bait']} times, "
           f"**{summary['tools_escaped']} tools escaped, {summary['secrets_leaked']} secrets leaked** |\n")
+    if costs:
+        md += ("\n**What a job costs to run** (median per settled job: AI cost from Hermes's own session pricing, "
+               "plus what the job paid other shops):\n\n| Service | Price | Jobs | AI cost | Paid to other shops | Margin |\n"
+               "|---|---|---|---|---|---|\n")
+        for c in costs:
+            md += (f"| {c['title']} | ${c['price']:.2f} | {c['jobs']} | ${c['median_ai_cost']:.4f} | "
+                   f"{'$%.2f' % c['median_paid_to_shops'] if c['median_paid_to_shops'] else '—'} | {c['margin'] * 100:.1f}% |\n")
     (RESULTS / "summary.md").write_text(md)
     print(md)
 

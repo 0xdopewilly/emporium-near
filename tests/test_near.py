@@ -552,3 +552,14 @@ def test_a_transaction_sent_to_a_dead_endpoint_is_not_sent_again(monkeypatch, no
     with pytest.raises(near.RpcError) as e:
         near.Rpc("https://first.example,https://second.example").send_tx("AAAA")
     assert e.value.name == "RPC_UNREACHABLE" and [m for _, m in ep.calls] == ["send_tx"]
+
+
+def test_the_egress_sweep_redacts_near_secret_keys_but_not_public_ones():
+    from emporium import guard
+    secret = BUYER.secret()  # ed25519:<64 bytes in base58>
+    seed = "ed25519:" + near.b58encode(hashlib.sha256(b"seed-form").digest())  # the 32-byte form
+    pub = str(BUYER.public_key)
+    out = guard.scrub_output(f"key {secret}\nEMPORIUM_NEAR_RELAYER_KEY={seed}\nprivate key: {seed}\n"
+                             f"public_key: {pub}\nPUBLIC_KEY={pub}")
+    assert secret[8:] not in out and seed[8:] not in out and out.count("[redacted private key]") == 3
+    assert out.count(pub) == 2

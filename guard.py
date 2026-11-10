@@ -139,6 +139,12 @@ _TOKENS = re.compile(
     r"|sk_live_[A-Za-z0-9]{20,}|rk_live_[A-Za-z0-9]{20,}|glpat-[A-Za-z0-9_-]{20,}|npm_[A-Za-z0-9]{36})\b")
 _BEARER = re.compile(r"(?i)\b(bearer)\s+[A-Za-z0-9._~+/=-]{16,}")
 _JWT = re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b")
+# NEAR keys: a 64-byte ed25519 secret (80+ base58 characters) anywhere; a shorter one only when it is
+# labelled as a private, secret or signing key, or set as a *_KEY variable. Public keys (44) stay readable.
+_B58 = "[1-9A-HJ-NP-Za-km-z]"
+_NEAR_SECRET = re.compile(rf"\bed25519:{_B58}{{80,}}")
+_LABELLED_NEAR_KEY = re.compile(rf"(?i)((?:private|secret|signing)[ _-]?key\W{{0,6}}|\b[A-Z][A-Z0-9_]*(?<!PUBLIC)_KEY\s*=\s*)"
+                                rf"ed25519:{_B58}{{40,}}")
 
 def strip_private(text: str, private: str, run: int = 9) -> str:
     """Remove any run of ``run``+ consecutive words copied from the service's private instructions
@@ -174,8 +180,8 @@ def strip_private(text: str, private: str, run: int = 9) -> str:
 
 
 def scrub_output(text: str) -> str:
-    """Secret sweep for text leaving the machine: PEM keys, labelled wallet keys, seed phrases, vendor
-    tokens, bearer tokens and JWTs."""
+    """Secret sweep for text leaving the machine: PEM keys, labelled wallet keys, NEAR ed25519 secret keys,
+    seed phrases, vendor tokens, bearer tokens and JWTs."""
     out = str(text or "")
     out = _scrub_seed_phrases(out)
     out = _PEM.sub("[redacted private key]", out)
@@ -183,6 +189,8 @@ def scrub_output(text: str) -> str:
     out = _TOKENS.sub("[redacted token]", out)
     out = _BEARER.sub(lambda m: f"{m.group(1)} [redacted]", out)
     out = _JWT.sub("[redacted token]", out)
+    out = _LABELLED_NEAR_KEY.sub(lambda m: f"{m.group(1)}[redacted private key]", out)
+    out = _NEAR_SECRET.sub("[redacted private key]", out)
     return out
 
 
