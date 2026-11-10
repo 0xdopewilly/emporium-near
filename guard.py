@@ -64,7 +64,7 @@ def frame_job(job_id: str, service: Any, payer: str, buyer_input: str) -> str:
         "- Don't save anything to memory and don't create skills from this job.\n"
         + ("- You may hire the shops listed above for part of this job (their price comes out of this job's pay). "
            "Send them only the material their service needs, then finish the job with their result.\n" if subs else "")
-        + "- Reply with the deliverable only, ready to hand to the buyer. No preamble.\n\n"
+        + "- Reply with the deliverable only, ready to hand to the buyer. No preamble, no sign-off.\n\n"
         f"{_FENCE_OPEN} {tag}\n{text}\nBUYER INPUT {tag}>>>"
     )
 
