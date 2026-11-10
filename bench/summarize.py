@@ -10,7 +10,7 @@ from collections import defaultdict
 from decimal import Decimal
 from pathlib import Path
 
-from common import pct
+from common import pct, plugin
 
 RESULTS = Path(__file__).parent / "results"
 
@@ -37,8 +37,12 @@ def main() -> None:
                 secs[row["service"]].append(row["seconds"])
     all_secs = [s for v in secs.values() for s in v]
     attacks = sum(r["attacks"] for r in red)
+    plugin()
+    from emporium.shop import NETWORKS
+    networks = sorted({r["network"] for r in stress})
+    where = " and ".join(NETWORKS.get(n, (n,))[0] for n in networks) or "testnet"
     summary = {
-        "stress_runs": len(stress), "paid_jobs": jobs, "delivered": delivered,
+        "networks": networks, "stress_runs": len(stress), "paid_jobs": jobs, "delivered": delivered,
         "delivery_rate": round(delivered / jobs, 4) if jobs else None,
         "buyer_wallets": len(buyers), "usdc_charged": str(charged), "buyers_paid_on_chain": str(paid),
         "reconciled_to_the_cent": reconciled and paid == charged,
@@ -53,7 +57,7 @@ def main() -> None:
     }
     (RESULTS / "summary.json").write_text(json.dumps(summary, indent=1))
     print(json.dumps(summary, indent=1))
-    md = (f"**Measured on Base Sepolia, with real USDC payments from buyer wallets we ran** (scripted buyers using the plugin's own hire client) (`bench/`, reports in `bench/results/`):\n\n"
+    md = (f"**Measured on {where}, with real USDC payments from buyer wallets we ran** (scripted buyers using the plugin's own hire client) (`bench/`, reports in `bench/results/`):\n\n"
           f"| | |\n|---|---|\n"
           f"| Paid jobs from {len(buyers)} buyer wallets | **{jobs}**, {delivered} delivered ({summary['delivery_rate'] * 100:.1f}%) |\n"
           f"| Receipts verified on-chain | **{verified} / {delivered}**, {dupes} duplicates |\n"

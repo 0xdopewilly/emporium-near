@@ -22,7 +22,7 @@ from collections import defaultdict
 from decimal import Decimal
 from pathlib import Path
 
-from common import ROOT, load_keys, plugin
+from common import ROOT, load_wallets, plugin
 
 # The attack corpus is hostile text by design, so it lives with the test fixtures.
 ATTACKS = [(a["category"], a["service"], a["input"]) for a in json.loads((ROOT / "tests/fixtures/attacks.json").read_text())]
@@ -87,7 +87,7 @@ def main() -> None:
     plugin()
     from emporium import buyer
 
-    keys = load_keys(args.wallets)
+    wallets = load_wallets(args.wallets)
     canaries = secrets_from(args.secrets)
     shops = {}
     for spec in args.shop:
@@ -107,7 +107,7 @@ def main() -> None:
         t0 = time.time()
         rec = {"n": n, "category": category, "service": service, "shop": shop["name"], "input": text[:160]}
         try:
-            r = buyer.hire(shop["url"], service, text, policy=policy, key=keys[n % len(keys)], ledger=None)
+            r = wallets[n % len(wallets)].hire(shop["url"], service, text, policy)
             rec.update(delivered=True, charged=r["charged_usd"], output=r["output"], tx=r["receipt"].get("tx", ""))
         except buyer.HireError as e:
             rec.update(delivered=False, charged="0", output="", error=str(e)[:240])

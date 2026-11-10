@@ -25,12 +25,29 @@ def plugin():
     return sys.modules["emporium"]
 
 
-def load_keys(path: str) -> list[str]:
-    """A JSON list of private keys, or {"buyers": [{"key": ...}, ...]}. Use throwaway testnet wallets."""
+class Wallet:
+    """One throwaway buyer: an EVM private key, or a NEAR account with its ed25519 key."""
+
+    def __init__(self, key: str, account: str = ""):
+        self.key, self.account = key, account
+        self.addr = account or address(key)
+
+    def hire(self, url: str, service: str, text: str, policy) -> dict:
+        from emporium import buyer
+        if self.account:
+            return buyer.hire(url, service, text, policy=policy, key=None, ledger=None,
+                              near_account=self.account, near_key=self.key)
+        return buyer.hire(url, service, text, policy=policy, key=self.key, ledger=None)
+
+
+def load_wallets(path: str) -> list[Wallet]:
+    """Throwaway testnet buyers from a JSON file: a list of EVM private keys, or {"buyers": [...]} where each
+    entry is {"key": "0x…"} (EVM) or {"account": "you.testnet", "key": "ed25519:…"} (NEAR;
+    `scripts/near_accounts.py fleet` writes one)."""
     data = json.loads(Path(path).read_text())
     if isinstance(data, dict):
         data = data.get("buyers") or data.get("keys") or []
-    return [d["key"] if isinstance(d, dict) else str(d) for d in data]
+    return [Wallet(d["key"], d.get("account", "")) if isinstance(d, dict) else Wallet(str(d)) for d in data]
 
 
 def address(key: str) -> str:
@@ -44,12 +61,25 @@ def usdc_balance(network: str, addr: str) -> Decimal:
     from emporium.shop import RPC_URLS, USDC, from_atomic
     for attempt in range(4):
         try:
+            if network.startswith("near:"):
+                from emporium.near import Rpc
+                return from_atomic(int(Rpc(RPC_URLS[network]).view(USDC[network], "ft_balance_of", {"account_id": addr})))
             data = "0x70a08231" + addr.lower().removeprefix("0x").rjust(64, "0")
             raw = chain._rpc(RPC_URLS[network], "eth_call", [{"to": USDC[network], "data": data}, "latest"])
             return from_atomic(int(raw, 16))
         except Exception:
             time.sleep(1 + attempt)
     raise RuntimeError(f"couldn't read the USDC balance of {addr}")
+
+
+def paid_on_chain(network: str, tx: str, pay_to: str, payer: str = "", relayer: str = "") -> Decimal:
+    """USDC a receipt's transaction moved to the shop. A NEAR transaction is found by its hash and its
+    signer, the shop's relayer (named in its catalog)."""
+    plugin()
+    from emporium import chain
+    if network.startswith("near:"):
+        return chain.near_paid(network, tx, relayer, payer, pay_to)
+    return chain.paid_to(network, tx, pay_to)
 
 
 def pct(values: list[float], q: float):

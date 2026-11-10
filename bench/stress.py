@@ -25,7 +25,7 @@ from collections import defaultdict
 from decimal import Decimal
 from pathlib import Path
 
-from common import address, load_keys, pct, plugin, usdc_balance
+from common import load_wallets, paid_on_chain, pct, plugin, usdc_balance
 from inputs import INPUTS
 
 BUSY = ("all hands busy", "too many jobs", "HTTP 503", "HTTP 429")
@@ -41,10 +41,9 @@ def main() -> None:
     args = ap.parse_args()
 
     plugin()
-    from emporium import buyer, chain
+    from emporium import buyer
 
-    keys = load_keys(args.wallets)
-    wallets = [(k, address(k)) for k in keys]
+    wallets = [(w, w.addr) for w in load_wallets(args.wallets)]
     rnd = random.Random(args.seed)
     jobs = []
     for spec in args.plan:
@@ -56,7 +55,7 @@ def main() -> None:
     shops = {}
     for url in {u for u, _, _ in jobs}:
         cat = buyer.catalog(url, fresh=True)
-        shops[url] = {"name": cat["name"], "pay_to": cat["pay_to"], "network": cat["network"],
+        shops[url] = {"name": cat["name"], "pay_to": cat["pay_to"], "network": cat["network"], "relayer": cat.get("relayer", ""),
                       "prices": {s["id"]: Decimal(s["price_usd"]) for s in cat["services"]}}
     network = next(iter(shops.values()))["network"]
 
@@ -103,12 +102,12 @@ def main() -> None:
                 time.sleep(0.5)
                 todo.put((i, url, service, text, tries))
                 continue
-            key, addr = wallets[w]
+            wallet, addr = wallets[w]
             t0 = time.time()
             rec = {"i": i, "shop": shops[url]["name"], "url": url, "service": service, "buyer": addr,
                    "t": round(t0 - started, 2)}
             try:
-                r = buyer.hire(url, service, text, policy=policy, key=key, ledger=None)
+                r = wallet.hire(url, service, text, policy)
                 rec.update(ok=True, seconds=round(time.time() - t0, 2), tx=r["receipt"].get("tx", ""),
                            charged=r["charged_usd"], job=r.get("job", ""), output_chars=len(r["output"]))
                 with lock:
@@ -140,7 +139,7 @@ def main() -> None:
     verified, bad = 0, []
     for r in delivered:
         try:
-            got = chain.paid_to(network, r["tx"], shops[r["url"]]["pay_to"])
+            got = paid_on_chain(network, r["tx"], shops[r["url"]]["pay_to"], r["buyer"], shops[r["url"]]["relayer"])
         except Exception:
             got = Decimal(0)
         if r["tx"] and got >= Decimal(r["charged"]):

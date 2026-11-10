@@ -5,6 +5,7 @@ public faucet funds. Uses only this plugin's own near.py.
     python scripts/near_accounts.py status                                           # NEAR and USDC balances
     python scripts/near_accounts.py fund <account> <usd>                             # send test USDC from the parent
     python scripts/near_accounts.py env <account>                                    # print KEY=… lines for a .env
+    python scripts/near_accounts.py fleet .dev/fleet-near.json                       # the buyers, as a bench wallet file
 
 Keys are written to .dev/near-wallets.json (git-ignored, mode 600) and are never printed except by
 ``env``, which you redirect into a profile's .env yourself. The layout:
@@ -173,6 +174,18 @@ def cmd_env(a) -> None:
     print(f"{a.var}={w[a.account]['secret']}")
 
 
+def cmd_fleet(a) -> None:
+    """Write the buyer accounts and keys as a wallet file for bench/stress.py and bench/redteam.py."""
+    w = load()
+    buyers = [{"account": acc, "key": w[acc]["secret"]} for acc in sorted(w, key=lambda x: (len(x), x))
+              if acc.startswith("buyer-") and "secret" in w[acc]]
+    out = Path(a.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps({"buyers": buyers}, indent=1))
+    os.chmod(out, 0o600)
+    print(f"wrote {len(buyers)} buyers to {out} (keys inside: keep it out of git)")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -193,6 +206,9 @@ def main() -> None:
     s.add_argument("account")
     s.add_argument("--var", default="EMPORIUM_NEAR_RELAYER_KEY")
     s.set_defaults(fn=cmd_env)
+    s = sub.add_parser("fleet")
+    s.add_argument("out")
+    s.set_defaults(fn=cmd_fleet)
     a = ap.parse_args()
     a.fn(a)
 
