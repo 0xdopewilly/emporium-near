@@ -38,8 +38,13 @@ def main() -> None:
     from emporium.shop import NETWORKS, USDC, is_near
 
     url = args.shop.rstrip("/")
-    cat = httpx.get(url + "/.well-known/emporium.json", timeout=20).json()
-    feed = httpx.get(url + "/feed", timeout=20).json()
+    try:
+        cat = httpx.get(url + "/.well-known/emporium.json", timeout=20).json()
+        feed = httpx.get(url + "/feed", timeout=20).json()
+        if not isinstance(cat, dict) or "network" not in cat or not isinstance(feed, dict):
+            raise ValueError("not an Emporium catalog")
+    except (httpx.HTTPError, ValueError) as e:
+        sys.exit(f"{url} isn't answering as an Emporium shop ({e.__class__.__name__}: {str(e)[:120]})")
     network, pay_to, relayer = cat["network"], cat["pay_to"], cat.get("relayer", "")
     if not is_near(network):
         sys.exit(f"{cat['name']} is on {network}; this script checks NEAR shops")
