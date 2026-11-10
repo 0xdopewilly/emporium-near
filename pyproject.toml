@@ -9,6 +9,8 @@ dependencies = [
     # and EIP-3009 USDC authorizations for the buyer tools. 2.22 is the oldest release that works with the v2 sync
     # resource server this plugin uses (the test suite passes on 2.22 through 2.26 and fails on 2.20).
     "x402[evm]>=2.22,<3",
+    # Ed25519 signing for NEAR (near.py). Hermes already pins it; the floor only says the plugin needs it.
+    "cryptography>=42",
 ]
 
 [tool.pytest.ini_options]
