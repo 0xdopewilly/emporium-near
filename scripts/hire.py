@@ -3,8 +3,8 @@ your key signs a USDC transfer (a NEP-366 delegate: no gas needed), the job runs
 with its on-chain receipt. A failed job costs nothing.
 
     export EMPORIUM_NEAR_BUYER_KEY=ed25519:…        # the account's full-access key; never on the command line
-    python scripts/hire.py https://emporium-near-production.up.railway.app translate-yoruba \
-        "Your order has shipped and will arrive on Friday." --account you.testnet
+    python scripts/hire.py https://shop-production-8cc3cf57.up.railway.app code-review \
+        "def is_even(n): return n % 2 == 1" --account you.testnet
 
 The account needs a little testnet USDC (faucet.circle.com, "NEAR Testnet") and must be registered with
 the USDC contract; `scripts/near_accounts.py setup` does both for accounts it creates.

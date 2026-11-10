@@ -1,7 +1,7 @@
 """Check a shop's sales against NEAR, with no keys and no account: read its catalog and job feed, then look
 up each settled job's transaction on-chain and confirm a USDC transfer of the job's price to the shop.
 
-    python scripts/verify_shop.py https://emporium-near-production.up.railway.app
+    python scripts/verify_shop.py https://shop-production-8cc3cf57.up.railway.app
     python scripts/verify_shop.py http://127.0.0.1:9502 --jobs 20
 
 Run it with a Python that has the plugin's dependencies (Hermes's venv works). A shop can claim anything on
