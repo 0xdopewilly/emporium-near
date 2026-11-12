@@ -17,7 +17,7 @@ from typing import Any, Optional
 
 import httpx
 
-from .shop import RPC_URLS, USDC, from_atomic
+from .shop import ARCHIVAL_RPC_URLS, RPC_URLS, USDC, from_atomic
 
 TRANSFER = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"           # Transfer(address,address,uint256)
 AUTHORIZATION_USED = "0x98de503528ee59b575ef0c0a2576a82497bfc029a5685b209e9ec333479b10a5"  # AuthorizationUsed(address,bytes32)
@@ -61,7 +61,7 @@ def near_paid(network: str, tx: str, signer: str, payer: str, pay_to: str, rpc_u
     if not (rpc and usdc and tx and signer):
         return Decimal(0)
     try:
-        outcome = Rpc(rpc).tx_status(tx, signer, wait_until="FINAL")
+        outcome = _final_outcome(Rpc, RpcError, network, rpc, tx, signer)
     except RpcError:
         return Decimal(0)
     if failures(outcome):
@@ -74,6 +74,22 @@ def near_paid(network: str, tx: str, signer: str, payer: str, pay_to: str, rpc_u
             except ValueError:
                 continue
     return from_atomic(total)
+
+
+def _final_outcome(Rpc, RpcError, network: str, rpc: str, tx: str, signer: str) -> dict:
+    """The transaction's final outcome. Asked without waiting first, so a node that has dropped an old
+    transaction says so at once (rather than waiting out a FINAL poll); a transaction still settling is
+    then waited for; one the node no longer keeps is read from the network's archival node."""
+    try:
+        outcome = Rpc(rpc).tx_status(tx, signer, wait_until="NONE")
+        if outcome.get("final_execution_status") == "FINAL":
+            return outcome
+        return Rpc(rpc).tx_status(tx, signer, wait_until="FINAL")
+    except RpcError:
+        archival = ARCHIVAL_RPC_URLS.get(network, "")
+        if not archival or archival == rpc:
+            raise
+    return Rpc(archival).tx_status(tx, signer, wait_until="FINAL")
 
 
 AUTHORIZATION_STATE = "0xe94a0102"  # authorizationState(address,bytes32)

@@ -45,6 +45,10 @@ def test_paid_job_is_delivered_and_settled(shop, tmp_path):
     ev = shop.stub.events[0]
     assert ev.source.chat_id == "job-" + job["id"]
     assert re.search(r"<<<BUYER INPUT ([0-9a-f]{8})\nping 123\nBUYER INPUT \1>>>", ev.text)
+    # the shop window shows the sale in its HTML, before any script runs (what a bot or a no-JS reader sees)
+    page = httpx.get(shop.test_url + "/").text
+    assert '<b id="jobs">1</b>' in page and '<b id="earned">$0.05</b>' in page
+    assert "No jobs yet" not in page and r["tx"][:10] in page and "Delivered" in page
 
 
 def test_failed_job_is_never_charged(shop):

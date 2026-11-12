@@ -9,7 +9,7 @@
 - **Agents hire agents.** A job can hire another shop for part of the work, and pays it the same way from the shop's own NEAR wallet.
 - **x402 on NEAR, built from the spec.** The plugin implements the x402 v2 [`exact` scheme for NEAR](https://github.com/x402-foundation/x402/blob/main/specs/schemes/exact/scheme_exact_near.md) for all three roles (buyer, shop, facilitator), plugged into the official x402 Python SDK. `near.py` encodes NEAR's Borsh by hand, with no NEAR SDK underneath, and its bytes are identical to `near-api-js` (the check is below).
 
-**Live on NEAR testnet:** https://shop-production-8cc3cf57.up.railway.app is Ada's Emporium. Its launch-post service hires Tunde's Translations, a second shop in the same deployment, for the Yoruba half. To check its sales on-chain with no keys, run `python scripts/verify_shop.py https://shop-production-8cc3cf57.up.railway.app`.
+**Live on NEAR testnet:** https://shop-production-8cc3cf57.up.railway.app is Ada's Emporium. Its launch-post service hires Tunde's Translations, a second shop in the same deployment, for the Yoruba half. To check its sales on-chain with no keys, run `$PY scripts/verify_shop.py https://shop-production-8cc3cf57.up.railway.app` (Hermes's Python, set up in "Try it from a fresh clone" below).
 
 **Measured on NEAR testnet, with real USDC payments from buyer accounts we ran** (scripted buyers using the plugin's own hire client) (`bench/`, reports in `bench/results/`):
 
@@ -66,7 +66,7 @@ The model the shops run, DeepSeek V4.1 Flash, is hosted by NEAR AI Cloud in a tr
 
 ## Try it from a fresh clone
 
-These steps need no keys and no NEAR account. Python 3.11+ and [uv](https://docs.astral.sh/uv/) are assumed. The plugin runs inside Hermes, so its tests run on Hermes's Python:
+These steps need no keys and no NEAR account. Python 3.11+ and [uv](https://docs.astral.sh/uv/) are assumed, plus Node.js 22+ for the Borsh check (near-api-js 7.4.0 requires it). The plugin runs inside Hermes, so its tests run on Hermes's Python:
 
 ```bash
 git clone --depth 1 --branch v0.23.0 https://github.com/NousResearch/hermes-agent
@@ -79,13 +79,13 @@ PY=../hermes-agent/.venv/bin/python
 | Do | See |
 |---|---|
 | `$PY -m pytest tests -q` | `124 passed`. The NEAR tests run real HTTP shops and buyers against `tests/fake_near.py`, an in-memory NEAR chain behind NEAR's JSON-RPC (accounts, access-key nonces, USDC, delegate actions). |
-| `npm i --prefix /tmp/nearjs near-api-js@7.4.0`<br>`$PY scripts/check_borsh.py /tmp/nearjs` | `7 of 7 identical`: the delegate, its NEP-461 hash, the signed delegate and the relayer's transaction (unsigned, hash, signed), byte for byte against NEAR's own JS library. |
+| `npm i --prefix /tmp/nearjs near-api-js@7.4.0`<br>`$PY scripts/check_borsh.py /tmp/nearjs` | `7 of 7 identical`: the buyer's public key, the delegate, its NEP-461 hash, the signed delegate and the relayer's transaction (unsigned, hash, signed), byte for byte against NEAR's own JS library. |
 | `$PY scripts/verify_shop.py https://shop-production-8cc3cf57.up.railway.app` | Each recent receipt of the live shop, looked up on NEAR testnet: `N of N receipts confirmed on NEAR`. |
 | `$PY -m hermes_cli.main plugins validate .` | `Validation passed.` (Hermes's own plugin checks: manifest, isolated load, declared tools and hooks, security scan). |
 
 ### Hire the live shop yourself
 
-This needs a NEAR testnet account holding a little testnet USDC. The account needs no NEAR beyond its minimum, because the shop pays the gas. Get USDC from [faucet.circle.com](https://faucet.circle.com) ("NEAR Testnet"). The account must also be registered with the USDC contract once, and `scripts/near_accounts.py setup` creates accounts that are.
+This needs a NEAR testnet account holding a little testnet USDC. The account needs no NEAR beyond its minimum, because the shop pays the gas. Get USDC from [faucet.circle.com](https://faucet.circle.com) ("NEAR Testnet"). The account must also be registered with the USDC contract once. To make one that is: `$PY scripts/near_accounts.py setup --parent <a-new-name>.testnet --buyers 1` creates the parent from the testnet faucet and `buyer-1.<parent>` registered with USDC (keys go to the git-ignored `.dev/near-wallets.json`). Send the faucet's USDC to the parent, then run `fund buyer-1.<parent> 1`, and `env buyer-1.<parent> --var EMPORIUM_NEAR_BUYER_KEY` prints the key line for the export below.
 
 ```bash
 export EMPORIUM_NEAR_BUYER_KEY=ed25519:…      # the account's full-access key, from the environment only
@@ -162,7 +162,7 @@ To let your Hermes hire shops, put a dedicated low-balance NEAR account in the p
 Both benches make real paid jobs on NEAR testnet against running shops, from a fleet of throwaway buyer accounts:
 
 ```bash
-python scripts/near_accounts.py setup --buyers 10           # testnet accounts under one faucet-funded parent
+python scripts/near_accounts.py setup --parent <yours>.testnet --buyers 10   # testnet accounts under one faucet-funded parent
 python scripts/near_accounts.py fleet .dev/fleet-near.json  # the buyers' keys, as a bench wallet file (git-ignored)
 
 # many buyers at once, then every receipt and every account reconciled on NEAR

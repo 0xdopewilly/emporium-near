@@ -96,6 +96,7 @@ def net(monkeypatch):
     c.add_account("shop.testnet")
     c.add_account("unregistered.testnet", register=False)
     monkeypatch.setitem(shop_mod.RPC_URLS, NET, c.url)  # every NEAR RPC client in the plugin reads this map
+    monkeypatch.setitem(shop_mod.ARCHIVAL_RPC_URLS, NET, "")  # tests never reach a real archival node
     monkeypatch.setattr(near_x402.ExactNearFacilitator, "poll_seconds", 0.01)
     yield c
     c.stop()
@@ -138,7 +139,7 @@ def facilitator():
     return near_x402.ExactNearFacilitator("relay.testnet", RELAYER)
 
 
-def test_a_payment_settles_once_and_the_buyer_pays_no_gas(net):
+def test_a_payment_settles_once_and_the_buyer_pays_no_gas(net, monkeypatch):
     req = terms()
     payload = paid_by_client(req)
     fac = facilitator()
@@ -162,6 +163,15 @@ def test_a_payment_settles_once_and_the_buyer_pays_no_gas(net):
     # the payment is what chain.near_paid (receipts, track records) reads back
     assert onchain.near_paid(NET, s.transaction, "relay.testnet", "buyer.testnet", "shop.testnet") == Decimal("0.05")
     assert onchain.near_paid(NET, s.transaction, "relay.testnet", "buyer.testnet", "thief.testnet") == 0
+    # a node that has dropped the transaction (public nodes keep about 30 h) hands over to the archival one
+    pruned = FakeNear().start()
+    try:
+        monkeypatch.setitem(shop_mod.RPC_URLS, NET, pruned.url)
+        assert onchain.near_paid(NET, s.transaction, "relay.testnet", "buyer.testnet", "shop.testnet") == 0
+        monkeypatch.setitem(shop_mod.ARCHIVAL_RPC_URLS, NET, net.url)
+        assert onchain.near_paid(NET, s.transaction, "relay.testnet", "buyer.testnet", "shop.testnet") == Decimal("0.05")
+    finally:
+        pruned.stop()
 
 
 def _cases(c: FakeNear):

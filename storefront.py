@@ -10,7 +10,7 @@ import html
 import json
 import time
 from decimal import Decimal
-from typing import Any
+from typing import Any, Optional
 
 from .shop import Shop, money, usd
 
@@ -43,9 +43,41 @@ def feed(shop: Shop, books: Any, limit: int = 12) -> dict[str, Any]:
             "not_charged": s["not_charged"], "jobs": jobs}
 
 
+def _ago(seconds: int) -> str:
+    return f"{seconds}s ago" if seconds < 60 else f"{seconds // 60}m ago" if seconds < 3600 else f"{seconds // 3600}h ago"
+
+
+def _rows(f: Optional[dict[str, Any]]) -> str:
+    """The feed as the page's script draws it, so a reader without JavaScript (or a bot) sees the real shop."""
+    e = html.escape
+    if not f or not f["jobs"]:
+        return '<div class="empty">No jobs yet. Be the first.</div>'
+    h = ('<div class="row head"><span>Job</span><span>Price</span><span>Status</span>'
+         '<span class="hide">Receipt</span><span class="hide">When</span></div>')
+    for j in f["jobs"]:
+        rc = (f'<a href="{e(j["explorer"])}" target="_blank" rel="noopener">{e(j["tx"][:10])}…</a>' if j["explorer"] and j["tx"]
+              else '<span style="color:var(--mute)">—</span>')
+        h += (f'<div class="row"><span>{e(j["title"])} <span class="m" style="color:var(--mute)">· {e(j["payer"])}</span></span>'
+              f'<span class="m">{e(j["price"])}</span><span><span class="st {e(j["status"])}">{e(j["label"])}</span></span>'
+              f'<span class="m hide">{rc}</span><span class="hide" style="color:var(--mute)">{_ago(j["age"])}</span></div>')
+    return h
+
+
 def render(shop: Shop, books: Any) -> str:
     e = html.escape
     base = shop.base_url()
+    try:
+        f: Optional[dict[str, Any]] = feed(shop, books)
+    except Exception:  # the page still renders, and its script fills in from /feed
+        f = None
+    is_open = bool(f and f["open"])
+    stat = {
+        "earned": e(str(f["earned_total"])) if f else "$0.00",
+        "jobs": e(str(f["jobs_settled"])) if f else "0",
+        "buyers": e(str(f["buyers"])) if f else "0",
+        "buyerslbl": "buyer" if f and f["buyers"] == 1 else "buyers",
+        "p50": e(f"{f['p50_seconds']}s") if f and f["p50_seconds"] is not None else "—",
+    }
     cards = []
     for s in shop.services:
         tools = "".join(f'<span class="chip">{e(t.replace("_", " "))}</span>' for t in s.tools) or \
@@ -115,13 +147,13 @@ footer{{margin-top:40px;color:var(--mute);font-size:13px;display:flex;justify-co
   <div>
     <div class="brand"><div class="mark">H</div><h1>{e(shop.name)}</h1></div>
     <p class="tag">{e(shop.tagline)}</p>
-    <div class="pills"><span class="pill" id="openpill">…</span><span class="pill">USDC on {e(shop.network_label)}</span>{testnet}<span class="pill">x402</span></div>
+    <div class="pills"><span class="pill {"open" if is_open else "closed"}" id="openpill">{"● Open for business" if is_open else ("● Closed" if f else "…")}</span><span class="pill">USDC on {e(shop.network_label)}</span>{testnet}<span class="pill">x402</span></div>
   </div>
   <div class="stats">
-    <div class="stat gold"><b id="earned">$0.00</b><span>earned</span></div>
-    <div class="stat"><b id="jobs">0</b><span>jobs delivered</span></div>
-    <div class="stat"><b id="buyers">0</b><span id="buyerslbl">buyers</span></div>
-    <div class="stat"><b id="p50">—</b><span>median delivery</span></div>
+    <div class="stat gold"><b id="earned">{stat["earned"]}</b><span>earned</span></div>
+    <div class="stat"><b id="jobs">{stat["jobs"]}</b><span>jobs delivered</span></div>
+    <div class="stat"><b id="buyers">{stat["buyers"]}</b><span id="buyerslbl">{stat["buyerslbl"]}</span></div>
+    <div class="stat"><b id="p50">{stat["p50"]}</b><span>median delivery</span></div>
   </div>
 </div>
 <h2>On the menu</h2>
@@ -134,7 +166,7 @@ footer{{margin-top:40px;color:var(--mute);font-size:13px;display:flex;justify-co
   <div class="step"><b>4 · Pay on delivery</b>{e(pay)}</div>
 </div>
 <h2>Recently served</h2>
-<div class="feed" id="feed"><div class="empty">No jobs yet. Be the first.</div></div>
+<div class="feed" id="feed">{_rows(f)}</div>
 <footer><span>Wallet <span class="m">{e(shop.pay_to)}</span></span><span>Powered by Hermes Emporium · <a style="color:var(--gold)" href="{e(base)}/.well-known/emporium.json">catalog.json</a></span></footer>
 </div>
 <script>
