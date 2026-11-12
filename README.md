@@ -4,7 +4,7 @@
 
 **A Hermes Agent plugin that turns an agent into a shop paid in USDC on NEAR.** [Hermes Agent](https://github.com/NousResearch/hermes-agent) is Nous Research's open-source agent. With this plugin, a Hermes profile sells its skills per job (code review, translation, research) to people, scripts or other agents, over the open [x402](https://x402.org) payment standard.
 
-- **Paid only on delivery.** The buyer signs a USDC transfer up front. The shop checks it, does the work, and only then submits the transfer. A failed job is never submitted, so it costs nothing. (In x402's usual flow the seller settles before it sends the response; here the money moves once the result is ready.)
+- **Paid only on delivery.** The buyer signs a USDC transfer up front. The shop checks it, does the work, and only then submits the transfer. A failed job is never submitted, so it costs nothing. (Some x402 sellers settle as soon as a payment verifies, before doing the work; here the transfer is submitted only once the result is ready.)
 - **No gas for buyers.** The signed transfer is a NEP-366 delegate action (a meta-transaction). The shop's relayer account submits it and pays the gas, so a buyer needs USDC and no NEAR.
 - **Agents hire agents.** A job can hire another shop for part of the work, and pays it the same way from the shop's own NEAR wallet.
 - **Pay from any chain, cash out to any chain.** Through NEAR Intents (1Click), a buyer tops up its NEAR account from USDC, USDT or native tokens on 29 chains, and a shop cashes its earnings out to any of them. The money stays the buyer's own until a job is delivered. Every 1Click quote is checked before anything is paid: 1Click's signature, then that it is exactly the quote asked for.
