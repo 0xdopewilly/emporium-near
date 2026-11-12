@@ -41,6 +41,12 @@ MAX_SPONSORED_GAS = 100 * near.TGAS
 # burns 2.3 TGas, and a delegate signed with 1 TGas fails on chain with "Exceeded the prepaid gas"
 # (interop/README.md). Both reference clients sign 30 TGas.
 MIN_TRANSFER_GAS = 5 * near.TGAS
+# Public RPC nodes' "final" heads differ by a block or two (FastNEAR vs dRPC: up to 2 apart, measured), and the
+# spec leaves no slack: a delegate signed for head + timeoutBlocks, judged against a node one block behind,
+# reads as a window longer than asked. So the client signs a few blocks inside the window, and the
+# facilitator looks at the head again before calling a window that is only just too long a violation.
+CLIENT_WINDOW_SLACK = 3
+HEAD_LAG_BLOCKS = 10
 USDC_DECIMALS = 6
 ESTIMATED_BLOCK_SECONDS = 1       # the spec turns maxTimeoutSeconds into blocks at one block a second
 _EMPTY_CODE = "11111111111111111111111111111111"
@@ -164,7 +170,7 @@ class ExactNearClient:
             sender_id=self.account_id, receiver_id=asset,
             actions=(FunctionCall("ft_transfer", args, FT_TRANSFER_GAS, 1),),
             nonce=int(access["nonce"]) + 1,
-            max_block_height=head + timeout_blocks(requirements.max_timeout_seconds),
+            max_block_height=head + max(1, timeout_blocks(requirements.max_timeout_seconds) - CLIENT_WINDOW_SLACK),
             public_key=self.key.public_key)
         return {"signedDelegateAction": delegate.sign(self.key).to_base64()}
 
@@ -227,6 +233,7 @@ class ExactNearFacilitator:
     wait_seconds = 90.0   # how long settle waits for the relayer's transaction to finalize
     lost_after = 20.0     # seconds: a relayer transaction the chain still doesn't know by then was dropped
     poll_seconds = 1.5    # between looks at a transaction's status
+    head_retry_seconds = 0.7  # between looks at the head when a window is only just too long (up to 3 looks)
 
     def __init__(self, relayer_id: str, relayer_key: KeyPair, rpc_urls: Optional[dict] = None,
                  max_gas: int = MAX_SPONSORED_GAS, wait_seconds: Optional[float] = None):
@@ -327,10 +334,16 @@ class ExactNearFacilitator:
             reads["storage"] = lambda: rpc.view(d.receiver_id, "storage_balance_of", {"account_id": str(requirements.pay_to)})
         chain = _gather(reads)
         head = chain["head"].result()
-        left = d.max_block_height - head
+        left, window = d.max_block_height - head, timeout_blocks(max_timeout)
+        for _ in range(3):  # the head can only move forward: a fresher one never makes a long window pass
+            if not window < left <= window + HEAD_LAG_BLOCKS:
+                break
+            time.sleep(self.head_retry_seconds)
+            head = max(head, int(rpc.final_block()["height"]))
+            left = d.max_block_height - head
         if left <= 0:
             raise _Invalid("delegate_action_expired", "the signed payment has expired", payer)
-        if left > timeout_blocks(max_timeout):
+        if left > window:
             raise _Invalid("delegate_action_timeout_window_exceeds_maxTimeout", "the payment's window is longer than asked", payer)
         access = chain["access"].result()
         if access is None:

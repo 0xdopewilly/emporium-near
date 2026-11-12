@@ -393,6 +393,13 @@ class Rpc:
         except ValueError as e:
             raise RpcError("RPC_UNREACHABLE", f"HTTP {r.status_code}, not JSON") from e
         err = body.get("error") if isinstance(body, dict) else None
+        if err and not isinstance(err, dict):  # a gateway's own error, not NEAR's {name, cause, data}
+            text = str(err)
+            if _RATE_LIMITED.search(text):
+                raise RpcError("RATE_LIMITED", text, err)
+            if _PLAN_LIMIT.search(text):
+                raise RpcError("PROVIDER_LIMIT", text, err)
+            raise RpcError("RPC_UNREACHABLE" if r.status_code >= 500 else "RPC_ERROR", text[:200], err)
         if err:
             cause = err.get("cause") or {}
             name = str(cause.get("name") or err.get("name") or "RPC_ERROR")

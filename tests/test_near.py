@@ -329,6 +329,38 @@ def test_two_delegates_signed_on_one_nonce_pay_once(net):
     assert net.usdc("shop.testnet") == 50_000 and len(net.included) == 1
 
 
+def test_a_window_only_just_too_long_is_judged_against_a_fresh_head(net, monkeypatch):
+    """One RPC node's final head can trail another's by a block or two; the buyer signed against the newer one."""
+    monkeypatch.setattr(near_x402.ExactNearFacilitator, "head_retry_seconds", 0.2)
+    req, fac = terms(seconds=300), facilitator()
+    lagging = delegate(net, height=net.height + 302)
+    threading.Timer(0.1, net.advance, args=(2,)).start()  # this node catches up
+    assert fac.verify(wrap(req, lagging), req).is_valid
+    stuck = delegate(net, height=net.height + 305)  # and if it never does, the window is too long
+    assert fac.verify(wrap(req, stuck), req).invalid_reason == "delegate_action_timeout_window_exceeds_maxTimeout"
+    far = delegate(net, height=net.height + 400)
+    assert fac.verify(wrap(req, far), req).invalid_reason == "delegate_action_timeout_window_exceeds_maxTimeout"
+    # the client signs a few blocks inside the window, so a verifier whose node lags still accepts it
+    signed = near_x402.signed_delegate(paid_by_client(req)).delegate_action
+    assert signed.max_block_height == net.height + 300 - near_x402.CLIENT_WINDOW_SLACK
+
+
+def test_rpc_reads_a_gateways_own_error_as_an_rpc_error(monkeypatch):
+    class Answer:
+        def __init__(self, status, body):
+            self.status_code, self._body = status, body
+
+        def json(self):
+            return self._body
+    answers = iter([Answer(503, {"error": "no upstream answered"}),
+                    Answer(200, {"jsonrpc": "2.0", "result": {"header": {"height": 7}}})])
+    monkeypatch.setattr(near.httpx, "post", lambda *a, **k: next(answers))
+    assert near.Rpc("http://a,http://b").final_block()["height"] == 7  # a read moves on to the next endpoint
+    monkeypatch.setattr(near.httpx, "post", lambda *a, **k: Answer(200, {"error": "boom"}))
+    with pytest.raises(near.RpcError):
+        near.Rpc("http://a", rounds=1).final_block()
+
+
 def test_timing_and_pricing(net):
     rpc = near.Rpc(net.url)
     assert abs(near.block_seconds(rpc) - 0.6) < 1e-9
