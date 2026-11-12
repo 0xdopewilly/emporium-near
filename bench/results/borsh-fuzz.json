@@ -1,0 +1,32 @@
+{
+ "generatedAt": "2026-11-12T21:46:25Z",
+ "oracle": "near-api-js 7.4.0",
+ "cases": 10000,
+ "seed": 1,
+ "identical": 10000,
+ "perField": {
+  "delegate_action_b64": 10000,
+  "nep461_hash_hex": 10000,
+  "signed_delegate_b64": 10000,
+  "tx_b64": 10000,
+  "tx_hash_b58": 10000,
+  "signed_tx_b64": 10000,
+  "decode_roundtrip": 10000
+ },
+ "coverage": {
+  "implicit_senders": 2062,
+  "eth_implicit_senders": 995,
+  "named_senders": 6943,
+  "function_calls": 19725,
+  "multi_action_delegates": 4861,
+  "json_args": 15872,
+  "raw_args": 3853,
+  "non_ascii_json_args": 10937,
+  "max_deposit_u128": 2815,
+  "max_gas_u64": 2749,
+  "max_nonce_u64": 1476
+ },
+ "seconds": 58.5,
+ "firstDifferences": [],
+ "repro": "python scripts/check_borsh.py <dir with near-api-js@7.4.0> --fuzz 10000 --seed 1"
+}
