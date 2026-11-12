@@ -197,10 +197,18 @@ def _cases(c: FakeNear):
         "insufficient_funds": (terms(amount="5000000"), delegate(c, amount="5000000")),
         "recipient_not_registered": (terms(pay_to="unregistered.testnet"), delegate(c, to="unregistered.testnet")),
         "relayer_is_payer": (terms(), delegate(c, sender="relay.testnet", key=RELAYER)),
+        # What testnet USDC itself refuses (interop/README.md, "the chain's verdict"): caught before the job runs.
+        "amount_not_a_string": (terms(), delegate(c, args={"receiver_id": "shop.testnet", "amount": 50000})),
+        "memo_not_a_string": (terms(), delegate(c, args={"receiver_id": "shop.testnet", "amount": "50000", "memo": 42})),
+        "repeated_key": (terms(), delegate(c, actions=[near.FunctionCall(
+            "ft_transfer", b'{"receiver_id":"thief.testnet","receiver_id":"shop.testnet","amount":"50000"}', 30 * TGAS, 1)])),
+        "gas_below_policy": (terms(), delegate(c, gas=1 * TGAS)),
+        "zero_gas": (terms(), delegate(c, gas=0)),
     }
 
 
-EXPECTED = {"extra_arguments": "invalid_action"}
+EXPECTED = {"extra_arguments": "invalid_action", "amount_not_a_string": "invalid_action",
+            "memo_not_a_string": "invalid_action", "repeated_key": "invalid_action", "zero_gas": "gas_below_policy"}
 
 
 @pytest.mark.parametrize("case", ["recipient_mismatch", "amount_mismatch", "asset_mismatch", "invalid_action",
@@ -208,7 +216,8 @@ EXPECTED = {"extra_arguments": "invalid_action"}
                                   "delegate_action_expired", "delegate_action_timeout_window_exceeds_maxTimeout",
                                   "delegate_action_nonce_already_used", "delegate_action_nonce_too_large",
                                   "access_key_not_full_access", "unknown_access_key", "insufficient_funds",
-                                  "recipient_not_registered", "relayer_is_payer"])
+                                  "recipient_not_registered", "relayer_is_payer", "amount_not_a_string",
+                                  "memo_not_a_string", "repeated_key", "gas_below_policy", "zero_gas"])
 def test_verify_refuses_a_bad_payment(net, case):
     req, sda = _cases(net)[case]
     fac = facilitator()
@@ -223,7 +232,10 @@ def test_verify_refuses_forged_and_malformed_payloads(net):
     req, fac = terms(), facilitator()
     good = delegate(net)
     forged = near.SignedDelegateAction(good.delegate_action, near.ED25519, bytes(64))
-    assert fac.verify(wrap(req, forged), req).invalid_reason == "invalid_signature"
+    v = fac.verify(wrap(req, forged), req)
+    assert v.invalid_reason == "invalid_signature" and not v.payer, "an unverified sender_id is never named the payer"
+    s = fac.settle(wrap(req, forged), req)
+    assert not s.success and not s.payer
     assert fac.verify(wrap(req, b64="bm90IGEgZGVsZWdhdGU="), req).invalid_reason == "invalid_payload"
     assert fac.verify(wrap(req, good, version=1), req).invalid_reason == "invalid_x402_version"
     assert fac.verify(wrap(req, good, accepted=terms(amount="1")), req).invalid_reason == "requirements_mismatch"
@@ -315,6 +327,38 @@ def test_two_delegates_signed_on_one_nonce_pay_once(net):
     s = fac.settle(second, req)
     assert not s.success and s.error_reason == "delegate_action_nonce_already_used"
     assert net.usdc("shop.testnet") == 50_000 and len(net.included) == 1
+
+
+def test_a_window_only_just_too_long_is_judged_against_a_fresh_head(net, monkeypatch):
+    """One RPC node's final head can trail another's by a block or two; the buyer signed against the newer one."""
+    monkeypatch.setattr(near_x402.ExactNearFacilitator, "head_retry_seconds", 0.2)
+    req, fac = terms(seconds=300), facilitator()
+    lagging = delegate(net, height=net.height + 302)
+    threading.Timer(0.1, net.advance, args=(2,)).start()  # this node catches up
+    assert fac.verify(wrap(req, lagging), req).is_valid
+    stuck = delegate(net, height=net.height + 305)  # and if it never does, the window is too long
+    assert fac.verify(wrap(req, stuck), req).invalid_reason == "delegate_action_timeout_window_exceeds_maxTimeout"
+    far = delegate(net, height=net.height + 400)
+    assert fac.verify(wrap(req, far), req).invalid_reason == "delegate_action_timeout_window_exceeds_maxTimeout"
+    # the client signs a few blocks inside the window, so a verifier whose node lags still accepts it
+    signed = near_x402.signed_delegate(paid_by_client(req)).delegate_action
+    assert signed.max_block_height == net.height + 300 - near_x402.CLIENT_WINDOW_SLACK
+
+
+def test_rpc_reads_a_gateways_own_error_as_an_rpc_error(monkeypatch):
+    class Answer:
+        def __init__(self, status, body):
+            self.status_code, self._body = status, body
+
+        def json(self):
+            return self._body
+    answers = iter([Answer(503, {"error": "no upstream answered"}),
+                    Answer(200, {"jsonrpc": "2.0", "result": {"header": {"height": 7}}})])
+    monkeypatch.setattr(near.httpx, "post", lambda *a, **k: next(answers))
+    assert near.Rpc("http://a,http://b").final_block()["height"] == 7  # a read moves on to the next endpoint
+    monkeypatch.setattr(near.httpx, "post", lambda *a, **k: Answer(200, {"error": "boom"}))
+    with pytest.raises(near.RpcError):
+        near.Rpc("http://a", rounds=1).final_block()
 
 
 def test_timing_and_pricing(net):

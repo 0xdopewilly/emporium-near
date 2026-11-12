@@ -1,0 +1,7563 @@
+{
+ "generatedAt": "2026-11-12T22:09:34.642Z",
+ "mode": "NEAR testnet",
+ "network": "near:testnet",
+ "rpc": {
+  "upstreams": [
+   "https://test.rpc.fastnear.com",
+   "https://near-testnet.drpc.org"
+  ],
+  "calls": 3208,
+  "byMethod": {
+   "query": 2269,
+   "block": 907,
+   "send_tx": 18,
+   "tx": 14
+  },
+  "byUpstream": {
+   "https://test.rpc.fastnear.com": 753,
+   "https://near-testnet.drpc.org": 2455
+  },
+  "rateLimited": 3120,
+  "retried": 334,
+  "failed": 0
+ },
+ "versions": {
+  "@x402/near": "2.30.0",
+  "@x402/core": "2.30.0",
+  "near-api-js": "7.4.0",
+  "node": "v24.19.0",
+  "x402Python": "2.26.0",
+  "python": "3.14.4",
+  "emporiumCommit": "e9d30a04ce40c46f539f085a41156a7ba563b175"
+ },
+ "accounts": {
+  "relayer": "interop-relay.emporium.testnet",
+  "payers": [
+   "buyer-1.emporium.testnet",
+   "buyer-2.emporium.testnet",
+   "buyer-3.emporium.testnet",
+   "buyer-4.emporium.testnet",
+   "buyer-5.emporium.testnet",
+   "buyer-6.emporium.testnet",
+   "buyer-7.emporium.testnet",
+   "buyer-8.emporium.testnet",
+   "buyer-9.emporium.testnet",
+   "buyer-10.emporium.testnet"
+  ],
+  "payTos": [
+   "emporium.testnet",
+   "ada.emporium.testnet",
+   "tunde.emporium.testnet",
+   "ada-wallet.emporium.testnet"
+  ],
+  "tamperBuyer": "buyer-1.emporium.testnet"
+ },
+ "seed": 402,
+ "direction1": {
+  "what": "Emporium's client signs; @x402/near's facilitator verifies (Emporium's too)",
+  "n": 120,
+  "acceptedByOfficial": 120,
+  "acceptedByEmporium": 120,
+  "agree": 120,
+  "errors": 0,
+  "rejections": [],
+  "medianVerifyMs": {
+   "official": 2244,
+   "emporium": 399
+  },
+  "seconds": 109,
+  "cases": [
+   {
+    "k": 0,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "dc70a234071c6336",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1187
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 556
+    },
+    "agree": true
+   },
+   {
+    "k": 1,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 60,
+    "sda": "8c89cbc9bbed33e0",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 1371
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 230
+    },
+    "agree": true
+   },
+   {
+    "k": 2,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "4e5b180ffc781083",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 1187
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 654
+    },
+    "agree": true
+   },
+   {
+    "k": 3,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 600,
+    "sda": "5628e2f827286e81",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 1275
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 619
+    },
+    "agree": true
+   },
+   {
+    "k": 4,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 1800,
+    "sda": "e3833d96acab709d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 1288
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 244
+    },
+    "agree": true
+   },
+   {
+    "k": 5,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 86400,
+    "sda": "7c55ac32b5572d21",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 1260
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 227
+    },
+    "agree": true
+   },
+   {
+    "k": 6,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 600,
+    "sda": "bc8fa2ca9b445b28",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 1145
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 275
+    },
+    "agree": true
+   },
+   {
+    "k": 7,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "b1565941c4295271",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 1288
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 225
+    },
+    "agree": true
+   },
+   {
+    "k": 8,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 600,
+    "sda": "059a67cd98650f09",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 1197
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 258
+    },
+    "agree": true
+   },
+   {
+    "k": 9,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 60,
+    "sda": "80afc69b05e7bcec",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 1137
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 223
+    },
+    "agree": true
+   },
+   {
+    "k": 10,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 3600,
+    "sda": "f802d13cb0e42527",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1287
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 231
+    },
+    "agree": true
+   },
+   {
+    "k": 11,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 60,
+    "sda": "4faf386271bed332",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 1325
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 239
+    },
+    "agree": true
+   },
+   {
+    "k": 12,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "e1f2e56ee7793862",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 1206
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 244
+    },
+    "agree": true
+   },
+   {
+    "k": 13,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "69319a67d96f18f1",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 1389
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 312
+    },
+    "agree": true
+   },
+   {
+    "k": 14,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 600,
+    "sda": "a2e427771309f999",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 1354
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 233
+    },
+    "agree": true
+   },
+   {
+    "k": 15,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 1800,
+    "sda": "8298cbe431c1f362",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 5106
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 243
+    },
+    "agree": true
+   },
+   {
+    "k": 16,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 120,
+    "sda": "f07e6265126b6398",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 5780
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 3867
+    },
+    "agree": true
+   },
+   {
+    "k": 17,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 60,
+    "sda": "b9730d5773b12d10",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2298
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 376
+    },
+    "agree": true
+   },
+   {
+    "k": 18,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 120,
+    "sda": "39d505fd7a85886f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2409
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 367
+    },
+    "agree": true
+   },
+   {
+    "k": 19,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 1800,
+    "sda": "f9b93db11d14c318",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2246
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 404
+    },
+    "agree": true
+   },
+   {
+    "k": 20,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 60,
+    "sda": "193ec2c4152681db",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2177
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 401
+    },
+    "agree": true
+   },
+   {
+    "k": 21,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 1800,
+    "sda": "5d0fc3d537bea16c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2168
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 416
+    },
+    "agree": true
+   },
+   {
+    "k": 22,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 120,
+    "sda": "5190c28143512e86",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2404
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 694
+    },
+    "agree": true
+   },
+   {
+    "k": 23,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 120,
+    "sda": "955b0e8e8fa20613",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2222
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 738
+    },
+    "agree": true
+   },
+   {
+    "k": 24,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 3600,
+    "sda": "9e6977febca3a17f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2419
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 389
+    },
+    "agree": true
+   },
+   {
+    "k": 25,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 120,
+    "sda": "83e588806f831e06",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2205
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 393
+    },
+    "agree": true
+   },
+   {
+    "k": 26,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 120,
+    "sda": "dd787b32ae98ae1f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2219
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 370
+    },
+    "agree": true
+   },
+   {
+    "k": 27,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 86400,
+    "sda": "43f4f18ff6940ac9",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2389
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 418
+    },
+    "agree": true
+   },
+   {
+    "k": 28,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 60,
+    "sda": "82667a43486c752f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2327
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 402
+    },
+    "agree": true
+   },
+   {
+    "k": 29,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 1800,
+    "sda": "e96593d125612852",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2167
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 728
+    },
+    "agree": true
+   },
+   {
+    "k": 30,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "a2e4de90f7b499b3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2416
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 414
+    },
+    "agree": true
+   },
+   {
+    "k": 31,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 600,
+    "sda": "db3eb24efa5956c5",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2465
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 386
+    },
+    "agree": true
+   },
+   {
+    "k": 32,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "b452b5651b853cbd",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2355
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 791
+    },
+    "agree": true
+   },
+   {
+    "k": 33,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 600,
+    "sda": "af2861b9ad7d75b3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2377
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 726
+    },
+    "agree": true
+   },
+   {
+    "k": 34,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 86400,
+    "sda": "c4d627bbed1d71d7",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2877
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 416
+    },
+    "agree": true
+   },
+   {
+    "k": 35,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 120,
+    "sda": "107bef43d8837e11",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2867
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 377
+    },
+    "agree": true
+   },
+   {
+    "k": 36,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 86400,
+    "sda": "2c5dce79d9e7d738",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2318
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 37,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 120,
+    "sda": "df689ea63848c113",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2632
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 374
+    },
+    "agree": true
+   },
+   {
+    "k": 38,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 300,
+    "sda": "7c4524686c7aa618",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2491
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 400
+    },
+    "agree": true
+   },
+   {
+    "k": 39,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 1800,
+    "sda": "7eeaf9d9f2bfcb80",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2377
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 375
+    },
+    "agree": true
+   },
+   {
+    "k": 40,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 86400,
+    "sda": "056b055790446205",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2388
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 378
+    },
+    "agree": true
+   },
+   {
+    "k": 41,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 1800,
+    "sda": "d044d97b2cd6b59f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2287
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 479
+    },
+    "agree": true
+   },
+   {
+    "k": 42,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 1800,
+    "sda": "1c073f81a2b219c5",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2408
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 425
+    },
+    "agree": true
+   },
+   {
+    "k": 43,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 300,
+    "sda": "bbac9920f896370f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2438
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 384
+    },
+    "agree": true
+   },
+   {
+    "k": 44,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 1800,
+    "sda": "7ab31b378a7fd356",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2316
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 45,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 600,
+    "sda": "edc78c5979dbd88f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2296
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 405
+    },
+    "agree": true
+   },
+   {
+    "k": 46,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 60,
+    "sda": "c673076a90cc1d89",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2307
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 419
+    },
+    "agree": true
+   },
+   {
+    "k": 47,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 3600,
+    "sda": "47019d4462db4151",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2319
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 368
+    },
+    "agree": true
+   },
+   {
+    "k": 48,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 1800,
+    "sda": "265a39629c234cd8",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2362
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 458
+    },
+    "agree": true
+   },
+   {
+    "k": 49,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 120,
+    "sda": "b2803f843ed967de",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2345
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 749
+    },
+    "agree": true
+   },
+   {
+    "k": 50,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 300,
+    "sda": "7573b97fb4df572d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2297
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 390
+    },
+    "agree": true
+   },
+   {
+    "k": 51,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 300,
+    "sda": "ae09c1e4d15064e6",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2375
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 413
+    },
+    "agree": true
+   },
+   {
+    "k": 52,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 120,
+    "sda": "de6051677747b704",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2217
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 399
+    },
+    "agree": true
+   },
+   {
+    "k": 53,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 86400,
+    "sda": "a4b7711f6d388633",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2239
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 400
+    },
+    "agree": true
+   },
+   {
+    "k": 54,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 3600,
+    "sda": "8676978369e0b287",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2239
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 401
+    },
+    "agree": true
+   },
+   {
+    "k": 55,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 300,
+    "sda": "a20ee096dc6ae4c2",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2028
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 426
+    },
+    "agree": true
+   },
+   {
+    "k": 56,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "5ab786d70015500c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2150
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 388
+    },
+    "agree": true
+   },
+   {
+    "k": 57,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 60,
+    "sda": "8af8f40b09c61441",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 1967
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 364
+    },
+    "agree": true
+   },
+   {
+    "k": 58,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 600,
+    "sda": "abb8476205c5abad",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2102
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 416
+    },
+    "agree": true
+   },
+   {
+    "k": 59,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 300,
+    "sda": "61bf15c3ced4b5ee",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2067
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 414
+    },
+    "agree": true
+   },
+   {
+    "k": 60,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 300,
+    "sda": "e097baf2a43048f3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2708
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 444
+    },
+    "agree": true
+   },
+   {
+    "k": 61,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 3600,
+    "sda": "653d223ebeb6e862",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2569
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 758
+    },
+    "agree": true
+   },
+   {
+    "k": 62,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 60,
+    "sda": "273575fbd95d487f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2008
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 1027
+    },
+    "agree": true
+   },
+   {
+    "k": 63,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 60,
+    "sda": "7117c9761948fb15",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2820
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 420
+    },
+    "agree": true
+   },
+   {
+    "k": 64,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 300,
+    "sda": "3c3d4033d8cb6a2d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 4642
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 231
+    },
+    "agree": true
+   },
+   {
+    "k": 65,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 1800,
+    "sda": "3fa79f068376d69a",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 5566
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 16619
+    },
+    "agree": true
+   },
+   {
+    "k": 66,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 3600,
+    "sda": "aa69726451ab64b3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 3454
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2254
+    },
+    "agree": true
+   },
+   {
+    "k": 67,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 120,
+    "sda": "27379daf742eea39",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 14268
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 4017
+    },
+    "agree": true
+   },
+   {
+    "k": 68,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 86400,
+    "sda": "bfbeae05e5aa1bec",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 7262
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 333
+    },
+    "agree": true
+   },
+   {
+    "k": 69,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 1800,
+    "sda": "4c85dd7a0acf5bf0",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 6786
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 7764
+    },
+    "agree": true
+   },
+   {
+    "k": 70,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 300,
+    "sda": "5b152f5154dd08e8",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 11256
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2148
+    },
+    "agree": true
+   },
+   {
+    "k": 71,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 3600,
+    "sda": "dfc3a82b2ff385bf",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 5729
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 586
+    },
+    "agree": true
+   },
+   {
+    "k": 72,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 3600,
+    "sda": "125186aca92513f7",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 3069
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2736
+    },
+    "agree": true
+   },
+   {
+    "k": 73,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "edf56fe27b1ac442",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 1687
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 738
+    },
+    "agree": true
+   },
+   {
+    "k": 74,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "036de79f967afe71",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2519
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 737
+    },
+    "agree": true
+   },
+   {
+    "k": 75,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 120,
+    "sda": "759e49c5f34a4fcb",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 1920
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 689
+    },
+    "agree": true
+   },
+   {
+    "k": 76,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 600,
+    "sda": "dea8b1dbcf70ca06",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2089
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 270
+    },
+    "agree": true
+   },
+   {
+    "k": 77,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 600,
+    "sda": "f09d2fc5af310901",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2200
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 388
+    },
+    "agree": true
+   },
+   {
+    "k": 78,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 86400,
+    "sda": "54569862179cac1f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2149
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 786
+    },
+    "agree": true
+   },
+   {
+    "k": 79,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 1800,
+    "sda": "e89d52eb33da62bd",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 3017
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 1209
+    },
+    "agree": true
+   },
+   {
+    "k": 80,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 3600,
+    "sda": "4f3eeb0f97622f26",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2128
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 226
+    },
+    "agree": true
+   },
+   {
+    "k": 81,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 3600,
+    "sda": "3a371e2274a594fc",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2179
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 400
+    },
+    "agree": true
+   },
+   {
+    "k": 82,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "a0a4f566c0e7ad26",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2009
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 409
+    },
+    "agree": true
+   },
+   {
+    "k": 83,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "285537a79eaaa607",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2491
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 84,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 600,
+    "sda": "b035d91376a36933",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2159
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 236
+    },
+    "agree": true
+   },
+   {
+    "k": 85,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 600,
+    "sda": "93122525504995f6",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 1762
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 188
+    },
+    "agree": true
+   },
+   {
+    "k": 86,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 600,
+    "sda": "c9db87c463b701f1",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2155
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 412
+    },
+    "agree": true
+   },
+   {
+    "k": 87,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 600,
+    "sda": "2077fc6fd3f30139",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2030
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 359
+    },
+    "agree": true
+   },
+   {
+    "k": 88,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 300,
+    "sda": "8eb12df8b24dc1e3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2158
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 387
+    },
+    "agree": true
+   },
+   {
+    "k": 89,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "17fb29b82d87fcab",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 1988
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 378
+    },
+    "agree": true
+   },
+   {
+    "k": 90,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 3600,
+    "sda": "ea18e7cc61f762cf",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2425
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 254
+    },
+    "agree": true
+   },
+   {
+    "k": 91,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 600,
+    "sda": "ea374b190cc72d2d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2515
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 455
+    },
+    "agree": true
+   },
+   {
+    "k": 92,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 600,
+    "sda": "e22fa38442f1699e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2406
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 243
+    },
+    "agree": true
+   },
+   {
+    "k": 93,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 3600,
+    "sda": "f4ae6ec624b59474",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2465
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 632
+    },
+    "agree": true
+   },
+   {
+    "k": 94,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 300,
+    "sda": "bd9c921d47d60534",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2517
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 445
+    },
+    "agree": true
+   },
+   {
+    "k": 95,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 300,
+    "sda": "c7b87236abf16a9f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2320
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 237
+    },
+    "agree": true
+   },
+   {
+    "k": 96,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 120,
+    "sda": "a455a29a4a7f120c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2499
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 399
+    },
+    "agree": true
+   },
+   {
+    "k": 97,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 120,
+    "sda": "595b47c926aaba7f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2230
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 370
+    },
+    "agree": true
+   },
+   {
+    "k": 98,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 120,
+    "sda": "90ffe116f68cbc1e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2081
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 379
+    },
+    "agree": true
+   },
+   {
+    "k": 99,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 1800,
+    "sda": "8b6ad5ca12316b7c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2121
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 403
+    },
+    "agree": true
+   },
+   {
+    "k": 100,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 120,
+    "sda": "8544077003f43c64",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1887
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 395
+    },
+    "agree": true
+   },
+   {
+    "k": 101,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "aafd5c208f04d41b",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 3366
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 355
+    },
+    "agree": true
+   },
+   {
+    "k": 102,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 1800,
+    "sda": "4ac6a1688957993a",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2248
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 425
+    },
+    "agree": true
+   },
+   {
+    "k": 103,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 120,
+    "sda": "5d280bf2ebaa12e4",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2367
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 193
+    },
+    "agree": true
+   },
+   {
+    "k": 104,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "94e76fbeefefcf9b",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2619
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 778
+    },
+    "agree": true
+   },
+   {
+    "k": 105,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "33fa4284271028c3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 1958
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 396
+    },
+    "agree": true
+   },
+   {
+    "k": 106,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 3600,
+    "sda": "c4f37cb55986bdea",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2213
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 391
+    },
+    "agree": true
+   },
+   {
+    "k": 107,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 1800,
+    "sda": "c55da0d62567b878",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2629
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 108,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 60,
+    "sda": "08f7e9f9149e874e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 1870
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 979
+    },
+    "agree": true
+   },
+   {
+    "k": 109,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 60,
+    "sda": "049437bb3205e2fb",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 1955
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 210
+    },
+    "agree": true
+   },
+   {
+    "k": 110,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "b8b2a470d9f46437",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2145
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 391
+    },
+    "agree": true
+   },
+   {
+    "k": 111,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 3600,
+    "sda": "f945302e3258a2f8",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2250
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 239
+    },
+    "agree": true
+   },
+   {
+    "k": 112,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 600,
+    "sda": "416ddc0d29f60553",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2158
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 113,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "a20dc4a22d8ae01c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2244
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 403
+    },
+    "agree": true
+   },
+   {
+    "k": 114,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 600,
+    "sda": "f693748684041f62",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2187
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 424
+    },
+    "agree": true
+   },
+   {
+    "k": 115,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 300,
+    "sda": "b5fbcc0332100140",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2206
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 229
+    },
+    "agree": true
+   },
+   {
+    "k": 116,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 300,
+    "sda": "c2bd6047bc2f4286",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2046
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 404
+    },
+    "agree": true
+   },
+   {
+    "k": 117,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 60,
+    "sda": "045a28701875a7f0",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 1928
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 407
+    },
+    "agree": true
+   },
+   {
+    "k": 118,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "c0615272b1b3c2f1",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2152
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 391
+    },
+    "agree": true
+   },
+   {
+    "k": 119,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 300,
+    "sda": "27aaccb40b282cb4",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2234
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 236
+    },
+    "agree": true
+   }
+  ]
+ },
+ "direction2": {
+  "what": "@x402/near's client signs; Emporium's facilitator verifies (the official too)",
+  "n": 120,
+  "acceptedByOfficial": 120,
+  "acceptedByEmporium": 120,
+  "agree": 120,
+  "errors": 0,
+  "rejections": [],
+  "medianVerifyMs": {
+   "official": 2391,
+   "emporium": 401
+  },
+  "seconds": 123,
+  "cases": [
+   {
+    "k": 0,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 300,
+    "sda": "85305f04a4a88270",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2217
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 384
+    },
+    "agree": true
+   },
+   {
+    "k": 1,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "f4a7f5c2131bb155",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2225
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 709
+    },
+    "agree": true
+   },
+   {
+    "k": 2,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 120,
+    "sda": "7c275cef3d817c4b",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2533
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 783
+    },
+    "agree": true
+   },
+   {
+    "k": 3,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 3600,
+    "sda": "b4b1e0315f85a1a6",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2525
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 391
+    },
+    "agree": true
+   },
+   {
+    "k": 4,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 120,
+    "sda": "044ee6538497d5c9",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2097
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 401
+    },
+    "agree": true
+   },
+   {
+    "k": 5,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 60,
+    "sda": "9112fed04fd3b2ba",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2051
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 399
+    },
+    "agree": true
+   },
+   {
+    "k": 6,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 300,
+    "sda": "28c7f27d2da58caa",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 1868
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 776
+    },
+    "agree": true
+   },
+   {
+    "k": 7,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 1800,
+    "sda": "930127aee36c6c0e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2362
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 410
+    },
+    "agree": true
+   },
+   {
+    "k": 8,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 86400,
+    "sda": "b729b3a19983eaae",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2275
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 363
+    },
+    "agree": true
+   },
+   {
+    "k": 9,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "9d7a326a63762a0d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2079
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 400
+    },
+    "agree": true
+   },
+   {
+    "k": 10,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 300,
+    "sda": "a28b78c8f6ad5ad1",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1990
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 381
+    },
+    "agree": true
+   },
+   {
+    "k": 11,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 1800,
+    "sda": "1bb9825cd1c151f5",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2097
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 258
+    },
+    "agree": true
+   },
+   {
+    "k": 12,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 120,
+    "sda": "844d4ac49497df16",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 13312
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 413
+    },
+    "agree": true
+   },
+   {
+    "k": 13,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 1800,
+    "sda": "9a979efe769b6eff",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 8235
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 416
+    },
+    "agree": true
+   },
+   {
+    "k": 14,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 300,
+    "sda": "502faa7c02bd5935",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 19439
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 1320
+    },
+    "agree": true
+   },
+   {
+    "k": 15,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "eca79699dee4bc21",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 18769
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 16715
+    },
+    "agree": true
+   },
+   {
+    "k": 16,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "39dcf0386b18ed11",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 7212
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 8322
+    },
+    "agree": true
+   },
+   {
+    "k": 17,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 300,
+    "sda": "49ee849f8d2699ca",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 3378
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 1488
+    },
+    "agree": true
+   },
+   {
+    "k": 18,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "49d5a79f6cb0c08d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2287
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 683
+    },
+    "agree": true
+   },
+   {
+    "k": 19,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 120,
+    "sda": "8404fd79fb9822f2",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2369
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 777
+    },
+    "agree": true
+   },
+   {
+    "k": 20,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 120,
+    "sda": "1359d9409a8a5c2d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2408
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 407
+    },
+    "agree": true
+   },
+   {
+    "k": 21,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 86400,
+    "sda": "7271902f9c8e5ce3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2169
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 705
+    },
+    "agree": true
+   },
+   {
+    "k": 22,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 300,
+    "sda": "0914f2a3ceeba075",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2539
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 23,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 600,
+    "sda": "93a5eafaf1d085f1",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2378
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 237
+    },
+    "agree": true
+   },
+   {
+    "k": 24,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 120,
+    "sda": "fc7ca5b2de0137de",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2709
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 393
+    },
+    "agree": true
+   },
+   {
+    "k": 25,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 120,
+    "sda": "e50f0b2cb1abce7b",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2555
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 384
+    },
+    "agree": true
+   },
+   {
+    "k": 26,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "9194117d6edb03e3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2791
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 870
+    },
+    "agree": true
+   },
+   {
+    "k": 27,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 120,
+    "sda": "b154115529090ac3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2441
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 807
+    },
+    "agree": true
+   },
+   {
+    "k": 28,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 3600,
+    "sda": "140fddb2399d9b2d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2886
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 394
+    },
+    "agree": true
+   },
+   {
+    "k": 29,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 600,
+    "sda": "0804c849263f45a6",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2307
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 227
+    },
+    "agree": true
+   },
+   {
+    "k": 30,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 300,
+    "sda": "e58f1b815b8621ed",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2717
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 388
+    },
+    "agree": true
+   },
+   {
+    "k": 31,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 3600,
+    "sda": "607b58e88318bfaf",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2896
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 412
+    },
+    "agree": true
+   },
+   {
+    "k": 32,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 60,
+    "sda": "a37d2cff2b8a40e3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2339
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 406
+    },
+    "agree": true
+   },
+   {
+    "k": 33,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 600,
+    "sda": "8a281139b1fdadae",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2369
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 414
+    },
+    "agree": true
+   },
+   {
+    "k": 34,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "b0e7762dbdc18d02",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2238
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 388
+    },
+    "agree": true
+   },
+   {
+    "k": 35,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "e4d9afad55535d4c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2222
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 411
+    },
+    "agree": true
+   },
+   {
+    "k": 36,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 60,
+    "sda": "6f5fa81eabb42f5c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2209
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 367
+    },
+    "agree": true
+   },
+   {
+    "k": 37,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 600,
+    "sda": "7a6a8d959ef7bf80",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2259
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 387
+    },
+    "agree": true
+   },
+   {
+    "k": 38,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 60,
+    "sda": "2e1400cef7c791ad",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2232
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 235
+    },
+    "agree": true
+   },
+   {
+    "k": 39,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 1800,
+    "sda": "2125f8d0078297da",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2391
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 469
+    },
+    "agree": true
+   },
+   {
+    "k": 40,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 600,
+    "sda": "7094b6680dc1b08e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2377
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 457
+    },
+    "agree": true
+   },
+   {
+    "k": 41,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "898d7bde257461f8",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2362
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 366
+    },
+    "agree": true
+   },
+   {
+    "k": 42,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "acf26cc0a18d632a",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2441
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 382
+    },
+    "agree": true
+   },
+   {
+    "k": 43,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 300,
+    "sda": "77e04603fd027c52",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2381
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 400
+    },
+    "agree": true
+   },
+   {
+    "k": 44,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "404753197b1180da",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2090
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 455
+    },
+    "agree": true
+   },
+   {
+    "k": 45,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "51b396633721cc38",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2036
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 347
+    },
+    "agree": true
+   },
+   {
+    "k": 46,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 1800,
+    "sda": "c9d8d901a54521a5",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2152
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 472
+    },
+    "agree": true
+   },
+   {
+    "k": 47,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "0499cd37084a4367",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2370
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 360
+    },
+    "agree": true
+   },
+   {
+    "k": 48,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 86400,
+    "sda": "438ef07335adfd7d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2389
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 389
+    },
+    "agree": true
+   },
+   {
+    "k": 49,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 120,
+    "sda": "e825d42976ca142a",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2393
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 421
+    },
+    "agree": true
+   },
+   {
+    "k": 50,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "6e35a1bc258f4bcc",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2141
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 393
+    },
+    "agree": true
+   },
+   {
+    "k": 51,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 60,
+    "sda": "c0bbe0d0b22fe5e3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2410
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 52,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 120,
+    "sda": "de82eb01fc1d2252",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2319
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 230
+    },
+    "agree": true
+   },
+   {
+    "k": 53,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 86400,
+    "sda": "f5522b7f6262004c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2341
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 336
+    },
+    "agree": true
+   },
+   {
+    "k": 54,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 600,
+    "sda": "562dd883aa0cc644",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2373
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 389
+    },
+    "agree": true
+   },
+   {
+    "k": 55,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 3600,
+    "sda": "9f768b947008d15e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2400
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 402
+    },
+    "agree": true
+   },
+   {
+    "k": 56,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 60,
+    "sda": "6435154797a5c13e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2406
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 396
+    },
+    "agree": true
+   },
+   {
+    "k": 57,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "62055394fae133e0",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2416
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 423
+    },
+    "agree": true
+   },
+   {
+    "k": 58,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 120,
+    "sda": "50ced2aa1acca9f8",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2469
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 402
+    },
+    "agree": true
+   },
+   {
+    "k": 59,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 120,
+    "sda": "ae34edd9fae032ec",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2418
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 406
+    },
+    "agree": true
+   },
+   {
+    "k": 60,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "3e586ab985653cde",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3206
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 387
+    },
+    "agree": true
+   },
+   {
+    "k": 61,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 1800,
+    "sda": "e5259c15f6623cf2",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 10609
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 246
+    },
+    "agree": true
+   },
+   {
+    "k": 62,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "1d880fda8b2917e3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2399
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 459
+    },
+    "agree": true
+   },
+   {
+    "k": 63,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 86400,
+    "sda": "10375c4ab099c8a0",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2391
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 391
+    },
+    "agree": true
+   },
+   {
+    "k": 64,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 60,
+    "sda": "a3f193859e063e9c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 15406
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2208
+    },
+    "agree": true
+   },
+   {
+    "k": 65,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 1800,
+    "sda": "ef674a578f6d407a",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 3989
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 11990
+    },
+    "agree": true
+   },
+   {
+    "k": 66,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 1800,
+    "sda": "6bf6b78bfe937a6a",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 17918
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 8146
+    },
+    "agree": true
+   },
+   {
+    "k": 67,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 300,
+    "sda": "7a861cf32a8b52bf",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 18729
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 17298
+    },
+    "agree": true
+   },
+   {
+    "k": 68,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 3600,
+    "sda": "1a6b103356cf2fec",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 15026
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 12635
+    },
+    "agree": true
+   },
+   {
+    "k": 69,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 120,
+    "sda": "d0c181686e756fba",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2880
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 401
+    },
+    "agree": true
+   },
+   {
+    "k": 70,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 60,
+    "sda": "108f258708cb9065",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 6357
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2197
+    },
+    "agree": true
+   },
+   {
+    "k": 71,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 60,
+    "sda": "5d3175551f09825e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2547
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 684
+    },
+    "agree": true
+   },
+   {
+    "k": 72,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 600,
+    "sda": "bc7a954c7cd154ad",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2418
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 558
+    },
+    "agree": true
+   },
+   {
+    "k": 73,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 600,
+    "sda": "7d14b877630f917b",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2124
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 396
+    },
+    "agree": true
+   },
+   {
+    "k": 74,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 86400,
+    "sda": "d2b147680e2d914d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2048
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 398
+    },
+    "agree": true
+   },
+   {
+    "k": 75,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 300,
+    "sda": "0a039d768b986113",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2629
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 706
+    },
+    "agree": true
+   },
+   {
+    "k": 76,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 1800,
+    "sda": "88f000bb4a9ce769",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2151
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 419
+    },
+    "agree": true
+   },
+   {
+    "k": 77,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 600,
+    "sda": "2e5a766ee3d7c332",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2388
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 362
+    },
+    "agree": true
+   },
+   {
+    "k": 78,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 86400,
+    "sda": "94f865ff59ae6e56",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2397
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 401
+    },
+    "agree": true
+   },
+   {
+    "k": 79,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 1800,
+    "sda": "3f7f1760bd5e7385",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2157
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 253
+    },
+    "agree": true
+   },
+   {
+    "k": 80,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 120,
+    "sda": "9bc23040596360b6",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2398
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 81,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 120,
+    "sda": "671238bbb7bf649d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2399
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 393
+    },
+    "agree": true
+   },
+   {
+    "k": 82,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 86400,
+    "sda": "529091c0ad3ef32d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2201
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 396
+    },
+    "agree": true
+   },
+   {
+    "k": 83,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 86400,
+    "sda": "d334681b731fbc83",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2152
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 388
+    },
+    "agree": true
+   },
+   {
+    "k": 84,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 300,
+    "sda": "61dc4e2f2ca42ab8",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2385
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 405
+    },
+    "agree": true
+   },
+   {
+    "k": 85,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "ccd7bdf3cd181a1e",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2064
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 224
+    },
+    "agree": true
+   },
+   {
+    "k": 86,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 120,
+    "sda": "ebfd286086d06fdd",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2389
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 379
+    },
+    "agree": true
+   },
+   {
+    "k": 87,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 300,
+    "sda": "982d1dd3cf04b501",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2306
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 424
+    },
+    "agree": true
+   },
+   {
+    "k": 88,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "tunde.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 60,
+    "sda": "3893a0bb8481c213",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2399
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 408
+    },
+    "agree": true
+   },
+   {
+    "k": 89,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 600,
+    "sda": "8ac77432138e555c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2462
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 378
+    },
+    "agree": true
+   },
+   {
+    "k": 90,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 3600,
+    "sda": "3221e8469d471146",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2438
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 479
+    },
+    "agree": true
+   },
+   {
+    "k": 91,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-3.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 60,
+    "sda": "9fd30d3ffa603b06",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2318
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 416
+    },
+    "agree": true
+   },
+   {
+    "k": 92,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 1800,
+    "sda": "bf3e5c8debc51c6f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2249
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 416
+    },
+    "agree": true
+   },
+   {
+    "k": 93,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 300,
+    "sda": "6224b6a4162d6feb",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2138
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 397
+    },
+    "agree": true
+   },
+   {
+    "k": 94,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 3600,
+    "sda": "a547bd8c01ff2a0f",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2537
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 458
+    },
+    "agree": true
+   },
+   {
+    "k": 95,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-2.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 120,
+    "sda": "03c5d7845b09784c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2418
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 367
+    },
+    "agree": true
+   },
+   {
+    "k": 96,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "ada.emporium.testnet",
+    "amount": "7",
+    "maxTimeoutSeconds": 300,
+    "sda": "6edb4740d1a05188",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2406
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 393
+    },
+    "agree": true
+   },
+   {
+    "k": 97,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 3600,
+    "sda": "d8e7f6cc1d9b3337",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2416
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 413
+    },
+    "agree": true
+   },
+   {
+    "k": 98,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 1800,
+    "sda": "5f29678c6dd3c3ce",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2356
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 365
+    },
+    "agree": true
+   },
+   {
+    "k": 99,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "629ef7335dae468b",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2379
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 391
+    },
+    "agree": true
+   },
+   {
+    "k": 100,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 86400,
+    "sda": "03300bf30f621910",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2389
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 398
+    },
+    "agree": true
+   },
+   {
+    "k": 101,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 600,
+    "sda": "1da2041f7e309c69",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2047
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 384
+    },
+    "agree": true
+   },
+   {
+    "k": 102,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 86400,
+    "sda": "61cde0a1979cf446",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 3146
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 733
+    },
+    "agree": true
+   },
+   {
+    "k": 103,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 600,
+    "sda": "cf86eede5949b5f3",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2229
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 393
+    },
+    "agree": true
+   },
+   {
+    "k": 104,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 300,
+    "sda": "20893452ecadb44d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2167
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 414
+    },
+    "agree": true
+   },
+   {
+    "k": 105,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-8.emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 600,
+    "sda": "4f696d5ad1a60ae4",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2299
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 720
+    },
+    "agree": true
+   },
+   {
+    "k": 106,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-10.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 120,
+    "sda": "ced0bb384151925c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2390
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 431
+    },
+    "agree": true
+   },
+   {
+    "k": 107,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "buyer-7.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 86400,
+    "sda": "d3d9ee72eee28a76",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 2521
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 384
+    },
+    "agree": true
+   },
+   {
+    "k": 108,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 300,
+    "sda": "c159a3080a5319ef",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2228
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 409
+    },
+    "agree": true
+   },
+   {
+    "k": 109,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "999",
+    "maxTimeoutSeconds": 120,
+    "sda": "adcb3c081a457a55",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2457
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 398
+    },
+    "agree": true
+   },
+   {
+    "k": 110,
+    "payer": "buyer-1.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 1800,
+    "sda": "fd5b6e1e2dcc5f76",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2648
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 396
+    },
+    "agree": true
+   },
+   {
+    "k": 111,
+    "payer": "buyer-2.emporium.testnet",
+    "payTo": "buyer-9.emporium.testnet",
+    "amount": "99999",
+    "maxTimeoutSeconds": 3600,
+    "sda": "9e9dfa1735c5e75c",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 2638
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 394
+    },
+    "agree": true
+   },
+   {
+    "k": 112,
+    "payer": "buyer-3.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "50000",
+    "maxTimeoutSeconds": 600,
+    "sda": "70ccd69c407ffd86",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2639
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 1290
+    },
+    "agree": true
+   },
+   {
+    "k": 113,
+    "payer": "buyer-4.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 3600,
+    "sda": "a4acbc4ac5c9170d",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2226
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 409
+    },
+    "agree": true
+   },
+   {
+    "k": 114,
+    "payer": "buyer-5.emporium.testnet",
+    "payTo": "buyer-6.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 60,
+    "sda": "94686d6f878cad27",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2518
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 438
+    },
+    "agree": true
+   },
+   {
+    "k": 115,
+    "payer": "buyer-6.emporium.testnet",
+    "payTo": "buyer-5.emporium.testnet",
+    "amount": "10000",
+    "maxTimeoutSeconds": 3600,
+    "sda": "e30a7687339d7c67",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 3248
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 423
+    },
+    "agree": true
+   },
+   {
+    "k": 116,
+    "payer": "buyer-7.emporium.testnet",
+    "payTo": "buyer-4.emporium.testnet",
+    "amount": "1",
+    "maxTimeoutSeconds": 60,
+    "sda": "c64a25b49e1813f1",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 2311
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-7.emporium.testnet",
+     "ms": 466
+    },
+    "agree": true
+   },
+   {
+    "k": 117,
+    "payer": "buyer-8.emporium.testnet",
+    "payTo": "emporium.testnet",
+    "amount": "12345",
+    "maxTimeoutSeconds": 1800,
+    "sda": "c1e4b0a757c540ec",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 4060
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-8.emporium.testnet",
+     "ms": 389
+    },
+    "agree": true
+   },
+   {
+    "k": 118,
+    "payer": "buyer-9.emporium.testnet",
+    "payTo": "ada-wallet.emporium.testnet",
+    "amount": "100",
+    "maxTimeoutSeconds": 60,
+    "sda": "b2fcdac51807de03",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 3929
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-9.emporium.testnet",
+     "ms": 2598
+    },
+    "agree": true
+   },
+   {
+    "k": 119,
+    "payer": "buyer-10.emporium.testnet",
+    "payTo": "buyer-1.emporium.testnet",
+    "amount": "150000",
+    "maxTimeoutSeconds": 120,
+    "sda": "cfea53714d0083d1",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 2831
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-10.emporium.testnet",
+     "ms": 391
+    },
+    "agree": true
+   }
+  ]
+ },
+ "tamper": {
+  "summary": {
+   "tampered": 71,
+   "bothReject": 71,
+   "controls": 7,
+   "bothAccept": 7,
+   "agree": 78,
+   "judged": 78,
+   "errors": [],
+   "classes": [
+    "wrong amount",
+    "wrong payTo",
+    "wrong asset",
+    "wrong method",
+    "extra action",
+    "deposit != 1 yocto",
+    "excess gas",
+    "expired max_block_height",
+    "window > maxTimeoutSeconds",
+    "bad signature",
+    "signer != key owner",
+    "stale nonce",
+    "wrong network",
+    "wrong version/scheme",
+    "bad requirements",
+    "chain state",
+    "malformed payload"
+   ],
+   "emporiumNamesPayerOfficialDoesNot": [],
+   "officialNamesPayerEmporiumDoesNot": [
+    "T19",
+    "T20",
+    "T22",
+    "T41"
+   ],
+   "edges": [
+    {
+     "id": "E01",
+     "title": "amount as a JSON number, not a string",
+     "official": false,
+     "emporium": false,
+     "agree": true,
+     "chainPaysAsAsked": false,
+     "officialMatchesChain": true,
+     "emporiumMatchesChain": true,
+     "tx": "9rYXK8JX8jys7VsnEw8CryJxzh4pPtp6TZUimtHkUA4k",
+     "chainError": null
+    },
+    {
+     "id": "E02",
+     "title": "duplicate receiver_id key (another account first, payTo last)",
+     "official": true,
+     "emporium": false,
+     "agree": false,
+     "chainPaysAsAsked": false,
+     "officialMatchesChain": false,
+     "emporiumMatchesChain": true,
+     "tx": "DSzHGewfvpNmjHPBdGAmqb4B3XPukHN2QW2DgLwCvtfi",
+     "chainError": null
+    },
+    {
+     "id": "E03",
+     "title": "duplicate amount key (\"1\" first, the amount last)",
+     "official": true,
+     "emporium": false,
+     "agree": false,
+     "chainPaysAsAsked": false,
+     "officialMatchesChain": false,
+     "emporiumMatchesChain": true,
+     "tx": "CkaRkDpiUgs7YuxL4f2cHqAy9jMyxo7bSpiVGe3g9ydc",
+     "chainError": null
+    },
+    {
+     "id": "E04",
+     "title": "memo is a number",
+     "official": true,
+     "emporium": false,
+     "agree": false,
+     "chainPaysAsAsked": false,
+     "officialMatchesChain": false,
+     "emporiumMatchesChain": true,
+     "tx": "AjwrBGK4jTFpuW4go21aip8xBpVfc97WoHn3qKdnHJbc",
+     "chainError": null
+    },
+    {
+     "id": "E05",
+     "title": "an extra unknown argument (msg)",
+     "official": true,
+     "emporium": false,
+     "agree": false,
+     "chainPaysAsAsked": true,
+     "officialMatchesChain": true,
+     "emporiumMatchesChain": false,
+     "tx": "68D7LakHHjCpDvLCzzTSo3UBNixt4cJj51be4BJot54u",
+     "chainError": null
+    },
+    {
+     "id": "E06",
+     "title": "gas 0",
+     "official": true,
+     "emporium": false,
+     "agree": false,
+     "chainPaysAsAsked": false,
+     "officialMatchesChain": false,
+     "emporiumMatchesChain": true,
+     "tx": null,
+     "chainError": "INVALID_TRANSACTION: {'TxExecutionError': {'InvalidTxError': {'ActionsValidation': 'FunctionCallZeroAttachedGas'}}}"
+    },
+    {
+     "id": "E07",
+     "title": "gas 1 TGas",
+     "official": true,
+     "emporium": false,
+     "agree": false,
+     "chainPaysAsAsked": false,
+     "officialMatchesChain": false,
+     "emporiumMatchesChain": true,
+     "tx": "FU82CRneWreb6CGLdmH98mNiRBShPhcB5Dc2dtu4fNzk",
+     "chainError": null
+    },
+    {
+     "id": "E08",
+     "title": "a trailing byte after the signature",
+     "official": true,
+     "emporium": false,
+     "agree": false,
+     "chainPaysAsAsked": true,
+     "officialMatchesChain": true,
+     "emporiumMatchesChain": false,
+     "tx": "WXHZPohpXwixCuF6ntDMVsWYDYuxm9KdZSCE8oJcW5f",
+     "chainError": null
+    },
+    {
+     "id": "E09",
+     "title": "requirements amount \"0\" (and a transfer of 0)",
+     "official": true,
+     "emporium": false,
+     "agree": false,
+     "chainPaysAsAsked": false,
+     "officialMatchesChain": false,
+     "emporiumMatchesChain": true,
+     "tx": "5YWTLerpdRihTzhcWimYF9BGgowyCmvwP1dJy4mSMiex",
+     "chainError": null
+    }
+   ]
+  },
+  "cases": [
+   {
+    "id": "C01",
+    "cls": "control",
+    "title": "untampered payment (near-api-js signs it)",
+    "expect": "accept",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 10810
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 12978
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "C02",
+    "cls": "control",
+    "title": "with a string memo",
+    "expect": "accept",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 18695
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 4175
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "C03",
+    "cls": "control",
+    "title": "with memo: null",
+    "expect": "accept",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 20872
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2174
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "C04",
+    "cls": "control",
+    "title": "args keys reordered, with whitespace",
+    "expect": "accept",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3057
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1046
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "C05",
+    "cls": "control",
+    "title": "gas exactly at the 100 TGas cap",
+    "expect": "accept",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2230
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1110
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "C06",
+    "cls": "control",
+    "title": "maxTimeoutSeconds 3600, window used in full",
+    "expect": "accept",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2393
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 399
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "C07",
+    "cls": "control",
+    "title": "signed by hand: ed25519 over sha256(NEP-461 prefix + delegate)",
+    "expect": "accept",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2366
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 408
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T01",
+    "cls": "wrong amount",
+    "title": "transfer is 1 unit short",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_amount_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "amount_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer is for a different amount"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T02",
+    "cls": "wrong amount",
+    "title": "transfer is 1 unit over",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_amount_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 4
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "amount_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer is for a different amount"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T03",
+    "cls": "wrong amount",
+    "title": "accepted.amount differs from the requirements",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_amount_mismatch",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "requirements_mismatch",
+     "payer": "",
+     "ms": 1,
+     "message": "the payment was signed for different terms"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T04",
+    "cls": "wrong amount",
+    "title": "amount with a leading zero",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_amount_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "amount_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer is for a different amount"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T05",
+    "cls": "wrong amount",
+    "title": "negative amount",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_ft_transfer_args",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "amount_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer is for a different amount"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T06",
+    "cls": "wrong amount",
+    "title": "amount missing from the args",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_ft_transfer_args",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer's amount must be a JSON string"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T07",
+    "cls": "wrong payTo",
+    "title": "transfer pays another account",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_recipient_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "recipient_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer pays someone else"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T08",
+    "cls": "wrong payTo",
+    "title": "accepted.payTo differs from the requirements",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_pay_to_mismatch",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "requirements_mismatch",
+     "payer": "",
+     "ms": 1,
+     "message": "the payment was signed for different terms"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T09",
+    "cls": "wrong payTo",
+    "title": "receiver_id differs only in case",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_recipient_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "recipient_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer pays someone else"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T10",
+    "cls": "wrong payTo",
+    "title": "receiver_id is a number",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_ft_transfer_args",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "recipient_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer pays someone else"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T11",
+    "cls": "wrong asset",
+    "title": "delegate calls another token contract",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_token_contract_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "asset_mismatch",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer is on a different token"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T12",
+    "cls": "wrong asset",
+    "title": "accepted.asset differs from the requirements",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_asset_mismatch",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "requirements_mismatch",
+     "payer": "",
+     "ms": 1,
+     "message": "the payment was signed for different terms"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T13",
+    "cls": "wrong asset",
+    "title": "requirements name an account with no contract",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_token_contract_no_code",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1645
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "asset_not_a_contract",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 404,
+     "message": "the token account has no contract"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T14",
+    "cls": "wrong asset",
+    "title": "requirements name an account that doesn't exist",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_token_account_not_found",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2119
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "asset_not_a_contract",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1337,
+     "message": "the token account has no contract"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T15",
+    "cls": "wrong method",
+    "title": "ft_transfer_call instead of ft_transfer",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_method_name",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "a payment is exactly one ft_transfer"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T16",
+    "cls": "wrong method",
+    "title": "storage_deposit",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_method_name",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2,
+     "message": "a payment is exactly one ft_transfer"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T17",
+    "cls": "wrong method",
+    "title": "Ft_transfer (case)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_method_name",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "a payment is exactly one ft_transfer"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T18",
+    "cls": "extra action",
+    "title": "two ft_transfers",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_action_count",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action_count",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "a payment is exactly one ft_transfer"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T19",
+    "cls": "extra action",
+    "title": "ft_transfer + Transfer of 1 NEAR",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_action_count",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (action type 3 is not a function call)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "T20",
+    "cls": "extra action",
+    "title": "ft_transfer + AddKey (full access) for an attacker key",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_action_count",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (action type 5 is not a function call)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "T21",
+    "cls": "extra action",
+    "title": "no actions at all",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_action_count",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 4
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action_count",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "a payment is exactly one ft_transfer"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T22",
+    "cls": "extra action",
+    "title": "a lone Transfer instead of a function call",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_action_kind",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (action type 3 is not a function call)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "T23",
+    "cls": "deposit != 1 yocto",
+    "title": "deposit 0",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_attached_deposit",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_deposit",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "an ft_transfer attaches exactly 1 yoctoNEAR"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T24",
+    "cls": "deposit != 1 yocto",
+    "title": "deposit 2 yocto",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_attached_deposit",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_deposit",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "an ft_transfer attaches exactly 1 yoctoNEAR"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T25",
+    "cls": "deposit != 1 yocto",
+    "title": "deposit 1 NEAR (the relayer would pay it)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_attached_deposit",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_deposit",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "an ft_transfer attaches exactly 1 yoctoNEAR"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T26",
+    "cls": "excess gas",
+    "title": "100 TGas + 1 gas",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_gas_limit_exceeded",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "gas_above_policy",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "gas must be at most 100 TGas"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T27",
+    "cls": "excess gas",
+    "title": "300 TGas",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_gas_limit_exceeded",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "gas_above_policy",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "gas must be at most 100 TGas"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T28",
+    "cls": "excess gas",
+    "title": "u64 max gas",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_gas_limit_exceeded",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "gas_above_policy",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "gas must be at most 100 TGas"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T29",
+    "cls": "expired max_block_height",
+    "title": "max_block_height = head - 1",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_expired",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 429
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_expired",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 418,
+     "message": "the signed payment has expired"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T30",
+    "cls": "expired max_block_height",
+    "title": "max_block_height = 1",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_expired",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 405
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_expired",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 393,
+     "message": "the signed payment has expired"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T31",
+    "cls": "window > maxTimeoutSeconds",
+    "title": "max_block_height 100 blocks past the window",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_timeout_window_exceeds_max_timeout",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1048
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_timeout_window_exceeds_maxTimeout",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 775,
+     "message": "the payment's window is longer than asked"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T32",
+    "cls": "window > maxTimeoutSeconds",
+    "title": "max_block_height = u64 max",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_timeout_window_exceeds_max_timeout",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 237
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_timeout_window_exceeds_maxTimeout",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 255,
+     "message": "the payment's window is longer than asked"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T33",
+    "cls": "bad signature",
+    "title": "one bit of the signature flipped",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signature",
+     "payer": null,
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_signature",
+     "payer": "",
+     "ms": 1,
+     "message": "the delegate's signature doesn't match its key"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T34",
+    "cls": "bad signature",
+    "title": "signed by another key than the one it names",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signature",
+     "payer": null,
+     "ms": 3
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_signature",
+     "payer": "",
+     "ms": 1,
+     "message": "the delegate's signature doesn't match its key"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T35",
+    "cls": "bad signature",
+    "title": "a valid signature of a different delegate (amount 1)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signature",
+     "payer": null,
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_signature",
+     "payer": "",
+     "ms": 3,
+     "message": "the delegate's signature doesn't match its key"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T36",
+    "cls": "bad signature",
+    "title": "signature all zeros",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signature",
+     "payer": null,
+     "ms": 1
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_signature",
+     "payer": "",
+     "ms": 1,
+     "message": "the delegate's signature doesn't match its key"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T37",
+    "cls": "signer != key owner",
+    "title": "sender is another account; key is the buyer's",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_access_key_not_found",
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 817
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "unknown_access_key",
+     "payer": "buyer-2.emporium.testnet",
+     "ms": 426,
+     "message": "buyer-2.emporium.testnet has no such key"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T38",
+    "cls": "signer != key owner",
+    "title": "a fresh key the buyer never added",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_access_key_not_found",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 782
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "unknown_access_key",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 375,
+     "message": "buyer-1.emporium.testnet has no such key"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T39",
+    "cls": "signer != key owner",
+    "title": "sender account doesn't exist",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_access_key_not_found",
+     "payer": "no-such-account-x402.emporium.testnet",
+     "ms": 798
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "unknown_access_key",
+     "payer": "no-such-account-x402.emporium.testnet",
+     "ms": 395,
+     "message": "no-such-account-x402.emporium.testnet has no such key"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T40",
+    "cls": "signer != key owner",
+    "title": "the relayer as payer",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_relayer_cannot_be_payer",
+     "payer": "interop-relay.emporium.testnet",
+     "ms": 4
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "relayer_is_payer",
+     "payer": "interop-relay.emporium.testnet",
+     "ms": 1,
+     "message": "the relayer can't pay itself"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T41",
+    "cls": "signer != key owner",
+    "title": "a secp256k1 key the buyer never added",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_access_key_not_found",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 772
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "unsupported_key_type",
+     "payer": "",
+     "ms": 1,
+     "message": "only ed25519 keys are accepted"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T42",
+    "cls": "stale nonce",
+    "title": "nonce = the key's current nonce (already used)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_nonce_already_used",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 798
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_nonce_already_used",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 397,
+     "message": "this signed payment's nonce was already used"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T43",
+    "cls": "stale nonce",
+    "title": "nonce 1000 below the key's",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_nonce_already_used",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 808
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_nonce_already_used",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 408,
+     "message": "this signed payment's nonce was already used"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T44",
+    "cls": "stale nonce",
+    "title": "nonce above NEAR's bound (head * 1e6), with a day of margin",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_nonce_out_of_range",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 402
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_nonce_too_large",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 400,
+     "message": "the nonce is out of range"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T45",
+    "cls": "wrong network",
+    "title": "requirements near:mainnet, payload near:testnet",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_network_mismatch",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "network_mismatch",
+     "payer": "",
+     "ms": 1,
+     "message": "network_mismatch"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T46",
+    "cls": "wrong network",
+    "title": "payload near:mainnet, requirements near:testnet",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_network_mismatch",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "network_mismatch",
+     "payer": "",
+     "ms": 1,
+     "message": "network_mismatch"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T47",
+    "cls": "wrong network",
+    "title": "near:betanet",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_network",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "sdk_ValueError",
+     "payer": null,
+     "ms": 1,
+     "message": "no NEAR RPC endpoint configured"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T48",
+    "cls": "wrong network",
+    "title": "an EVM network (eip155:84532)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "sdk_error",
+     "message": "No facilitator registered for scheme: exact and network: eip155:84532",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "sdk_SchemeNotFoundError",
+     "payer": null,
+     "ms": 1,
+     "message": "No scheme 'exact' registered for network 'eip155:84532'"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T49",
+    "cls": "wrong version/scheme",
+    "title": "x402Version 1",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "sdk_error",
+     "message": "No facilitator registered for x402 version: 1",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "sdk_SchemeNotFoundError",
+     "payer": null,
+     "ms": 1,
+     "message": "No scheme 'exact' registered for network 'near:testnet'"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T50",
+    "cls": "wrong version/scheme",
+    "title": "scheme upto",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "sdk_error",
+     "message": "No facilitator registered for scheme: upto and network: near:testnet",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "sdk_SchemeNotFoundError",
+     "payer": null,
+     "ms": 1,
+     "message": "No scheme 'upto' registered for network 'near:testnet'"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T51",
+    "cls": "bad requirements",
+    "title": "maxTimeoutSeconds 0",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_max_timeout",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_requirements",
+     "payer": "",
+     "ms": 1,
+     "message": "invalid_requirements"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T52",
+    "cls": "bad requirements",
+    "title": "maxTimeoutSeconds -60",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_max_timeout",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_requirements",
+     "payer": "",
+     "ms": 1,
+     "message": "invalid_requirements"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T53",
+    "cls": "chain state",
+    "title": "payer's balance is below the amount",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "insufficient_funds",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1808
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "insufficient_funds",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 377,
+     "message": "the payer's USDC balance is too low"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "T54",
+    "cls": "chain state",
+    "title": "payTo isn't registered with the token",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_recipient_not_registered_for_storage",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2409
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "recipient_not_registered",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 717,
+     "message": "the shop isn't registered with the token contract"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "M01",
+    "cls": "malformed payload",
+    "title": "signedDelegateAction isn't base64",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signed_delegate_action",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (Only base64 data is allowed)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M02",
+    "cls": "malformed payload",
+    "title": "signedDelegateAction is empty",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signed_delegate_action",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (truncated)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M03",
+    "cls": "malformed payload",
+    "title": "200 random bytes",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signed_delegate_action",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (field too long)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M04",
+    "cls": "malformed payload",
+    "title": "truncated by 7 bytes",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signed_delegate_action",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (truncated)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M05",
+    "cls": "malformed payload",
+    "title": "an unsigned delegate (NEP-461 message, no signature)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signed_delegate_action",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (field too long)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M06",
+    "cls": "malformed payload",
+    "title": "a signed relayer transaction instead of a delegate",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signed_delegate_action",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (field too long)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M07",
+    "cls": "malformed payload",
+    "title": "payload is {}",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_shape",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (not a signed delegate action)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M08",
+    "cls": "malformed payload",
+    "title": "signedDelegateAction is a number",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_shape",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (not a signed delegate action)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M09",
+    "cls": "malformed payload",
+    "title": "the delegate as JSON, base64'd",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signed_delegate_action",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (field too long)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M10",
+    "cls": "malformed payload",
+    "title": "unknown signature type byte (7)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_signed_delegate_action",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (unknown signature type)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "M11",
+    "cls": "malformed payload",
+    "title": "args aren't JSON (bytes ff fe)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_ft_transfer_args",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 3,
+     "message": "the transfer's arguments aren't JSON"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "M12",
+    "cls": "malformed payload",
+    "title": "args are a JSON array",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_ft_transfer_args",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2,
+     "message": "unexpected transfer arguments"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": true
+   },
+   {
+    "id": "M13",
+    "cls": "malformed payload",
+    "title": "payload carries the base64 in another field",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_shape",
+     "payer": null,
+     "ms": 0
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (not a signed delegate action)"
+    },
+    "agree": true,
+    "emporiumDecodes": false,
+    "pass": true
+   },
+   {
+    "id": "E01",
+    "cls": "edge",
+    "title": "amount as a JSON number, not a string",
+    "expect": "edge",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_ft_transfer_args",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer's amount must be a JSON string"
+    },
+    "agree": true,
+    "emporiumDecodes": true,
+    "pass": null,
+    "chain": {
+     "via": "relayer, unverified",
+     "submitted": true,
+     "tx": "9rYXK8JX8jys7VsnEw8CryJxzh4pPtp6TZUimtHkUA4k",
+     "final": true,
+     "failures": [
+      {
+       "ActionError": {
+        "index": 0,
+        "kind": {
+         "FunctionCallError": {
+          "ExecutionError": "Smart contract panicked: panicked at 'Failed to deserialize input from JSON.: Error(\"invalid type: integer `10000`, expected a string\", line: 1, column: 48)', src/fiat_token.rs:768:1"
+         }
+        }
+       }
+      }
+     ],
+     "transfers": [],
+     "paid": "0",
+     "paysAsAsked": false,
+     "explorer": "https://testnet.nearblocks.io/txns/9rYXK8JX8jys7VsnEw8CryJxzh4pPtp6TZUimtHkUA4k"
+    }
+   },
+   {
+    "id": "E02",
+    "cls": "edge",
+    "title": "duplicate receiver_id key (another account first, payTo last)",
+    "expect": "edge",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2454
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 4,
+     "message": "the transfer's arguments repeat a key"
+    },
+    "agree": false,
+    "emporiumDecodes": true,
+    "pass": null,
+    "chain": {
+     "via": "relayer, unverified",
+     "submitted": true,
+     "tx": "DSzHGewfvpNmjHPBdGAmqb4B3XPukHN2QW2DgLwCvtfi",
+     "final": true,
+     "failures": [
+      {
+       "ActionError": {
+        "index": 0,
+        "kind": {
+         "FunctionCallError": {
+          "ExecutionError": "Smart contract panicked: panicked at 'Failed to deserialize input from JSON.: Error(\"duplicate field `receiver_id`\", line: 1, column: 55)', src/fiat_token.rs:768:1"
+         }
+        }
+       }
+      }
+     ],
+     "transfers": [],
+     "paid": "0",
+     "paysAsAsked": false,
+     "explorer": "https://testnet.nearblocks.io/txns/DSzHGewfvpNmjHPBdGAmqb4B3XPukHN2QW2DgLwCvtfi"
+    }
+   },
+   {
+    "id": "E03",
+    "cls": "edge",
+    "title": "duplicate amount key (\"1\" first, the amount last)",
+    "expect": "edge",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2216
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "the transfer's arguments repeat a key"
+    },
+    "agree": false,
+    "emporiumDecodes": true,
+    "pass": null,
+    "chain": {
+     "via": "relayer, unverified",
+     "submitted": true,
+     "tx": "CkaRkDpiUgs7YuxL4f2cHqAy9jMyxo7bSpiVGe3g9ydc",
+     "final": true,
+     "failures": [
+      {
+       "ActionError": {
+        "index": 0,
+        "kind": {
+         "FunctionCallError": {
+          "ExecutionError": "Smart contract panicked: panicked at 'Failed to deserialize input from JSON.: Error(\"duplicate field `amount`\", line: 1, column: 55)', src/fiat_token.rs:768:1"
+         }
+        }
+       }
+      }
+     ],
+     "transfers": [],
+     "paid": "0",
+     "paysAsAsked": false,
+     "explorer": "https://testnet.nearblocks.io/txns/CkaRkDpiUgs7YuxL4f2cHqAy9jMyxo7bSpiVGe3g9ydc"
+    }
+   },
+   {
+    "id": "E04",
+    "cls": "edge",
+    "title": "memo is a number",
+    "expect": "edge",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2372
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "unexpected transfer arguments"
+    },
+    "agree": false,
+    "emporiumDecodes": true,
+    "pass": null,
+    "chain": {
+     "via": "relayer, unverified",
+     "submitted": true,
+     "tx": "AjwrBGK4jTFpuW4go21aip8xBpVfc97WoHn3qKdnHJbc",
+     "final": true,
+     "failures": [
+      {
+       "ActionError": {
+        "index": 0,
+        "kind": {
+         "FunctionCallError": {
+          "ExecutionError": "Smart contract panicked: panicked at 'Failed to deserialize input from JSON.: Error(\"invalid type: integer `42`, expected a string\", line: 1, column: 60)', src/fiat_token.rs:768:1"
+         }
+        }
+       }
+      }
+     ],
+     "transfers": [],
+     "paid": "0",
+     "paysAsAsked": false,
+     "explorer": "https://testnet.nearblocks.io/txns/AjwrBGK4jTFpuW4go21aip8xBpVfc97WoHn3qKdnHJbc"
+    }
+   },
+   {
+    "id": "E05",
+    "cls": "edge",
+    "title": "an extra unknown argument (msg)",
+    "expect": "edge",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2108
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_action",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "unexpected transfer arguments"
+    },
+    "agree": false,
+    "emporiumDecodes": true,
+    "pass": null,
+    "chain": {
+     "via": "relayer, unverified",
+     "submitted": true,
+     "tx": "68D7LakHHjCpDvLCzzTSo3UBNixt4cJj51be4BJot54u",
+     "final": true,
+     "failures": [],
+     "transfers": [
+      {
+       "old_owner_id": "buyer-1.emporium.testnet",
+       "new_owner_id": "emporium.testnet",
+       "amount": "10000"
+      }
+     ],
+     "paid": "10000",
+     "paysAsAsked": true,
+     "explorer": "https://testnet.nearblocks.io/txns/68D7LakHHjCpDvLCzzTSo3UBNixt4cJj51be4BJot54u"
+    }
+   },
+   {
+    "id": "E06",
+    "cls": "edge",
+    "title": "gas 0",
+    "expect": "edge",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2417
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "gas_below_policy",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "gas must be at least 5 TGas, or the transfer runs out of gas on chain"
+    },
+    "agree": false,
+    "emporiumDecodes": true,
+    "pass": null,
+    "chain": {
+     "via": "relayer, unverified",
+     "submitted": false,
+     "error": "INVALID_TRANSACTION: {'TxExecutionError': {'InvalidTxError': {'ActionsValidation': 'FunctionCallZeroAttachedGas'}}}",
+     "refusedBy": "chain",
+     "paysAsAsked": false
+    }
+   },
+   {
+    "id": "E07",
+    "cls": "edge",
+    "title": "gas 1 TGas",
+    "expect": "edge",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2209
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "gas_below_policy",
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 1,
+     "message": "gas must be at least 5 TGas, or the transfer runs out of gas on chain"
+    },
+    "agree": false,
+    "emporiumDecodes": true,
+    "pass": null,
+    "chain": {
+     "via": "relayer, unverified",
+     "submitted": true,
+     "tx": "FU82CRneWreb6CGLdmH98mNiRBShPhcB5Dc2dtu4fNzk",
+     "final": true,
+     "failures": [
+      {
+       "ActionError": {
+        "index": 0,
+        "kind": {
+         "FunctionCallError": {
+          "ExecutionError": "Exceeded the prepaid gas."
+         }
+        }
+       }
+      }
+     ],
+     "transfers": [],
+     "paid": "0",
+     "paysAsAsked": false,
+     "explorer": "https://testnet.nearblocks.io/txns/FU82CRneWreb6CGLdmH98mNiRBShPhcB5Dc2dtu4fNzk"
+    }
+   },
+   {
+    "id": "E08",
+    "cls": "edge",
+    "title": "a trailing byte after the signature",
+    "expect": "edge",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2150
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_payload",
+     "payer": "",
+     "ms": 1,
+     "message": "not a signed delegate action (trailing bytes)"
+    },
+    "agree": false,
+    "emporiumDecodes": false,
+    "pass": null,
+    "chain": {
+     "via": "@x402/near settle",
+     "submitted": true,
+     "tx": "WXHZPohpXwixCuF6ntDMVsWYDYuxm9KdZSCE8oJcW5f",
+     "success": true,
+     "errorReason": null,
+     "errorMessage": null,
+     "final": true,
+     "failures": [],
+     "transfers": [
+      {
+       "old_owner_id": "buyer-1.emporium.testnet",
+       "new_owner_id": "emporium.testnet",
+       "amount": "10000"
+      }
+     ],
+     "paid": "10000",
+     "paysAsAsked": true,
+     "explorer": "https://testnet.nearblocks.io/txns/WXHZPohpXwixCuF6ntDMVsWYDYuxm9KdZSCE8oJcW5f"
+    }
+   },
+   {
+    "id": "E09",
+    "cls": "edge",
+    "title": "requirements amount \"0\" (and a transfer of 0)",
+    "expect": "edge",
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-1.emporium.testnet",
+     "ms": 2217
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "invalid_requirements",
+     "payer": "",
+     "ms": 1,
+     "message": "invalid_requirements"
+    },
+    "agree": false,
+    "emporiumDecodes": true,
+    "pass": null,
+    "chain": {
+     "via": "relayer, unverified",
+     "submitted": true,
+     "tx": "5YWTLerpdRihTzhcWimYF9BGgowyCmvwP1dJy4mSMiex",
+     "final": true,
+     "failures": [
+      {
+       "ActionError": {
+        "index": 0,
+        "kind": {
+         "FunctionCallError": {
+          "ExecutionError": "Smart contract panicked: The amount should be a positive number"
+         }
+        }
+       }
+      }
+     ],
+     "transfers": [],
+     "paid": "0",
+     "paysAsAsked": false,
+     "explorer": "https://testnet.nearblocks.io/txns/5YWTLerpdRihTzhcWimYF9BGgowyCmvwP1dJy4mSMiex"
+    }
+   },
+   {
+    "id": "R1",
+    "cls": "stale nonce",
+    "title": "replay of a payment already settled (emporium-signed -> official settles)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_nonce_already_used",
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 459
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_nonce_already_used",
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 577,
+     "message": "this signed payment's nonce was already used"
+    },
+    "agree": true,
+    "pass": true
+   },
+   {
+    "id": "R2",
+    "cls": "stale nonce",
+    "title": "replay of a payment already settled (official-signed -> emporium settles)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_nonce_already_used",
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 380
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_nonce_already_used",
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 1668,
+     "message": "this signed payment's nonce was already used"
+    },
+    "agree": true,
+    "pass": true
+   },
+   {
+    "id": "R3",
+    "cls": "stale nonce",
+    "title": "replay of a payment already settled (emporium-signed -> official settles)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_nonce_already_used",
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 411
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_nonce_already_used",
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 627,
+     "message": "this signed payment's nonce was already used"
+    },
+    "agree": true,
+    "pass": true
+   },
+   {
+    "id": "R4",
+    "cls": "stale nonce",
+    "title": "replay of a payment already settled (official-signed -> emporium settles)",
+    "expect": "reject",
+    "official": {
+     "valid": false,
+     "reason": "invalid_exact_near_payload_delegate_action_nonce_already_used",
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 478
+    },
+    "emporium": {
+     "valid": false,
+     "reason": "delegate_action_nonce_already_used",
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 1206,
+     "message": "this signed payment's nonce was already used"
+    },
+    "agree": true,
+    "pass": true
+   }
+  ]
+ },
+ "settles": [
+  {
+   "way": "emporium-signed -> official settles",
+   "payer": "buyer-3.emporium.testnet",
+   "payTo": "emporium.testnet",
+   "amount": "10000",
+   "before": "870000",
+   "verify": {
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 2260
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-3.emporium.testnet",
+     "ms": 238
+    },
+    "agree": true
+   },
+   "settleMs": 7173,
+   "settle": {
+    "success": true,
+    "transaction": "ERKjoaAB3YK53pmr8uMFSrAkNoUHYroenQdtv8EsvFNJ",
+    "errorReason": null,
+    "errorMessage": null
+   },
+   "chain": {
+    "final": true,
+    "failures": [],
+    "transfers": [
+     {
+      "old_owner_id": "buyer-3.emporium.testnet",
+      "new_owner_id": "emporium.testnet",
+      "amount": "10000"
+     }
+    ],
+    "paid": "10000"
+   },
+   "confirmed": true,
+   "explorer": "https://testnet.nearblocks.io/txns/ERKjoaAB3YK53pmr8uMFSrAkNoUHYroenQdtv8EsvFNJ",
+   "after": "860000",
+   "crossReplaySettle": {
+    "by": "emporium",
+    "success": false,
+    "errorReason": "delegate_action_nonce_already_used"
+   },
+   "afterReplay": "860000"
+  },
+  {
+   "way": "official-signed -> emporium settles",
+   "payer": "buyer-4.emporium.testnet",
+   "payTo": "emporium.testnet",
+   "amount": "10000",
+   "before": "670000",
+   "verify": {
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 2249
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-4.emporium.testnet",
+     "ms": 732
+    },
+    "agree": true
+   },
+   "settleMs": 5294,
+   "settle": {
+    "success": true,
+    "transaction": "6x3kp4C3xZFMeJrjy5qoydnDVc4FsUprgo16iqfZ1frA",
+    "errorReason": null,
+    "errorMessage": null
+   },
+   "chain": {
+    "final": true,
+    "failures": [],
+    "transfers": [
+     {
+      "old_owner_id": "buyer-4.emporium.testnet",
+      "new_owner_id": "emporium.testnet",
+      "amount": "10000"
+     }
+    ],
+    "paid": "10000"
+   },
+   "confirmed": true,
+   "explorer": "https://testnet.nearblocks.io/txns/6x3kp4C3xZFMeJrjy5qoydnDVc4FsUprgo16iqfZ1frA",
+   "after": "660000",
+   "crossReplaySettle": {
+    "by": "official",
+    "success": false,
+    "errorReason": "invalid_exact_near_payload_delegate_action_nonce_already_used"
+   },
+   "afterReplay": "660000"
+  },
+  {
+   "way": "emporium-signed -> official settles",
+   "payer": "buyer-5.emporium.testnet",
+   "payTo": "emporium.testnet",
+   "amount": "10000",
+   "before": "480000",
+   "verify": {
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 2489
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-5.emporium.testnet",
+     "ms": 877
+    },
+    "agree": true
+   },
+   "settleMs": 7521,
+   "settle": {
+    "success": true,
+    "transaction": "G69d6z5rDqv6RYUaQ6XbKAxoSxgqhfhP4iQeDjcitxRp",
+    "errorReason": null,
+    "errorMessage": null
+   },
+   "chain": {
+    "final": true,
+    "failures": [],
+    "transfers": [
+     {
+      "old_owner_id": "buyer-5.emporium.testnet",
+      "new_owner_id": "emporium.testnet",
+      "amount": "10000"
+     }
+    ],
+    "paid": "10000"
+   },
+   "confirmed": true,
+   "explorer": "https://testnet.nearblocks.io/txns/G69d6z5rDqv6RYUaQ6XbKAxoSxgqhfhP4iQeDjcitxRp",
+   "after": "470000",
+   "crossReplaySettle": {
+    "by": "emporium",
+    "success": false,
+    "errorReason": "delegate_action_nonce_already_used"
+   },
+   "afterReplay": "470000"
+  },
+  {
+   "way": "official-signed -> emporium settles",
+   "payer": "buyer-6.emporium.testnet",
+   "payTo": "emporium.testnet",
+   "amount": "10000",
+   "before": "730000",
+   "verify": {
+    "official": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 2471
+    },
+    "emporium": {
+     "valid": true,
+     "reason": null,
+     "payer": "buyer-6.emporium.testnet",
+     "ms": 412
+    },
+    "agree": true
+   },
+   "settleMs": 5492,
+   "settle": {
+    "success": true,
+    "transaction": "8BnDFP7voHCyqaNwqDFwBou7rS7SsXYg4H8B5ztkdSSX",
+    "errorReason": null,
+    "errorMessage": null
+   },
+   "chain": {
+    "final": true,
+    "failures": [],
+    "transfers": [
+     {
+      "old_owner_id": "buyer-6.emporium.testnet",
+      "new_owner_id": "emporium.testnet",
+      "amount": "10000"
+     }
+    ],
+    "paid": "10000"
+   },
+   "confirmed": true,
+   "explorer": "https://testnet.nearblocks.io/txns/8BnDFP7voHCyqaNwqDFwBou7rS7SsXYg4H8B5ztkdSSX",
+   "after": "720000",
+   "crossReplaySettle": {
+    "by": "official",
+    "success": false,
+    "errorReason": "invalid_exact_near_payload_delegate_action_nonce_already_used"
+   },
+   "afterReplay": "720000"
+  }
+ ],
+ "seconds": 379
+}

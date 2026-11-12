@@ -1,0 +1,15 @@
+{
+  "name": "emporium-near-interop",
+  "private": true,
+  "type": "module",
+  "description": "Checks Emporium's Python x402 exact-on-NEAR against the official @x402/near, both directions",
+  "scripts": {
+    "check": "node run.mjs --n 120 --m 120 --settle --settles 2 --chain-truth",
+    "offline": "node run.mjs --offline --n 40 --m 40 --settle"
+  },
+  "dependencies": {
+    "@x402/core": "2.30.0",
+    "@x402/near": "2.30.0",
+    "near-api-js": "7.4.0"
+  }
+}
