@@ -37,6 +37,10 @@ SCHEME = "exact"
 NETWORKS = ("near:testnet", "near:mainnet")
 FT_TRANSFER_GAS = 30 * near.TGAS
 MAX_SPONSORED_GAS = 100 * near.TGAS
+# Less than this and the token's receipt runs out of gas after the job is done: testnet USDC's ft_transfer
+# burns 2.3 TGas, and a delegate signed with 1 TGas fails on chain with "Exceeded the prepaid gas"
+# (interop/README.md). Both reference clients sign 30 TGas.
+MIN_TRANSFER_GAS = 5 * near.TGAS
 USDC_DECIMALS = 6
 ESTIMATED_BLOCK_SECONDS = 1       # the spec turns maxTimeoutSeconds into blocks at one block a second
 _EMPTY_CODE = "11111111111111111111111111111111"
@@ -53,6 +57,19 @@ def window_for(seconds: float, rpc: Optional[Rpc] = None) -> int:
     is stated in blocks at the measured rate, with a quarter more to spare."""
     secs = near.block_seconds(rpc) if rpc is not None else 0.5
     return int(math.ceil(seconds / secs * 1.25))
+
+
+def _strict_object(pairs: list) -> dict:
+    """A JSON object whose keys are all distinct: the token contract refuses ``{"amount":"1","amount":"5"}``
+    ("duplicate field") while a lenient parser keeps the last one and would pass it."""
+    keys = [k for k, _ in pairs]
+    if len(set(keys)) != len(keys):
+        raise ValueError("a key is repeated")
+    return dict(pairs)
+
+
+def transfer_args(call: FunctionCall) -> Any:
+    return json.loads(call.args.decode("utf-8"), object_pairs_hook=_strict_object)
 
 
 def signed_delegate(payload: Any) -> SignedDelegateAction:
@@ -256,13 +273,14 @@ class ExactNearFacilitator:
         except Exception as e:
             raise _Invalid("invalid_payload", f"not a signed delegate action ({e})") from e
         d = sda.delegate_action
+        # No payer is named until the signature checks out: until then sender_id is only the client's claim.
+        if d.public_key.key_type != near.ED25519 or sda.signature_type != near.ED25519:
+            raise _Invalid("unsupported_key_type", "only ed25519 keys are accepted")
+        if not sda.verify():
+            raise _Invalid("invalid_signature", "the delegate's signature doesn't match its key")
         payer = d.sender_id
         if payer == self.relayer_id:
             raise _Invalid("relayer_is_payer", "the relayer can't pay itself", payer)
-        if d.public_key.key_type != near.ED25519 or sda.signature_type != near.ED25519:
-            raise _Invalid("unsupported_key_type", "only ed25519 keys are accepted", payer)
-        if not sda.verify():
-            raise _Invalid("invalid_signature", "the delegate's signature doesn't match its key", payer)
         if len(d.actions) != 1:
             raise _Invalid("invalid_action_count", "a payment is exactly one ft_transfer", payer)
         call = d.actions[0]
@@ -270,21 +288,31 @@ class ExactNearFacilitator:
             raise _Invalid("invalid_action", "a payment is exactly one ft_transfer", payer)
         if d.receiver_id != str(requirements.asset):
             raise _Invalid("asset_mismatch", "the transfer is on a different token", payer)
+        # The arguments as the token contract will read them: NEP-141's ft_transfer(receiver_id, amount: U128
+        # as a JSON string, memo: Option<String>). Anything the contract would refuse is refused here, before
+        # the job runs (testnet USDC panics on a numeric amount, a numeric memo, or a repeated key).
         try:
-            args = call.json_args()
+            args = transfer_args(call)
         except ValueError as e:
+            if "repeated" in str(e):
+                raise _Invalid("invalid_action", "the transfer's arguments repeat a key", payer) from e
             raise _Invalid("invalid_payload", "the transfer's arguments aren't JSON", payer) from e
         if not isinstance(args, dict) or set(args) - {"receiver_id", "amount", "memo"} or \
                 not isinstance(args.get("memo", ""), (str, type(None))):
             raise _Invalid("invalid_action", "unexpected transfer arguments", payer)
         if args.get("receiver_id") != str(requirements.pay_to):
             raise _Invalid("recipient_mismatch", "the transfer pays someone else", payer)
-        if str(args.get("amount")) != str(requirements.amount):
+        if not isinstance(args.get("amount"), str):
+            raise _Invalid("invalid_action", "the transfer's amount must be a JSON string", payer)
+        if args["amount"] != str(requirements.amount):
             raise _Invalid("amount_mismatch", "the transfer is for a different amount", payer)
         if call.deposit != 1:
             raise _Invalid("invalid_deposit", "an ft_transfer attaches exactly 1 yoctoNEAR", payer)
-        if not 0 < call.gas <= self.max_gas:
+        if call.gas > self.max_gas:
             raise _Invalid("gas_above_policy", f"gas must be at most {self.max_gas // near.TGAS} TGas", payer)
+        if call.gas < MIN_TRANSFER_GAS:
+            raise _Invalid("gas_below_policy", f"gas must be at least {MIN_TRANSFER_GAS // near.TGAS} TGas, or the "
+                           "transfer runs out of gas on chain", payer)
 
         # What the chain says, read at once; the checks still run in this order.
         is_token, registered = (rpc.url, d.receiver_id), (rpc.url, d.receiver_id, str(requirements.pay_to))
@@ -441,7 +469,7 @@ class ExactNearFacilitator:
                     try:
                         self._check(payload, requirements, rpc)  # the chain may have moved since verify
                     except _Invalid as e:
-                        return fail(e.reason, e.message, payer=payer)
+                        return fail(e.reason, e.message, payer=e.payer)
                     except RpcError as e:
                         return fail("rpc_unavailable", str(e), payer=payer)
                     try:

@@ -197,10 +197,18 @@ def _cases(c: FakeNear):
         "insufficient_funds": (terms(amount="5000000"), delegate(c, amount="5000000")),
         "recipient_not_registered": (terms(pay_to="unregistered.testnet"), delegate(c, to="unregistered.testnet")),
         "relayer_is_payer": (terms(), delegate(c, sender="relay.testnet", key=RELAYER)),
+        # What testnet USDC itself refuses (interop/README.md, "the chain's verdict"): caught before the job runs.
+        "amount_not_a_string": (terms(), delegate(c, args={"receiver_id": "shop.testnet", "amount": 50000})),
+        "memo_not_a_string": (terms(), delegate(c, args={"receiver_id": "shop.testnet", "amount": "50000", "memo": 42})),
+        "repeated_key": (terms(), delegate(c, actions=[near.FunctionCall(
+            "ft_transfer", b'{"receiver_id":"thief.testnet","receiver_id":"shop.testnet","amount":"50000"}', 30 * TGAS, 1)])),
+        "gas_below_policy": (terms(), delegate(c, gas=1 * TGAS)),
+        "zero_gas": (terms(), delegate(c, gas=0)),
     }
 
 
-EXPECTED = {"extra_arguments": "invalid_action"}
+EXPECTED = {"extra_arguments": "invalid_action", "amount_not_a_string": "invalid_action",
+            "memo_not_a_string": "invalid_action", "repeated_key": "invalid_action", "zero_gas": "gas_below_policy"}
 
 
 @pytest.mark.parametrize("case", ["recipient_mismatch", "amount_mismatch", "asset_mismatch", "invalid_action",
@@ -208,7 +216,8 @@ EXPECTED = {"extra_arguments": "invalid_action"}
                                   "delegate_action_expired", "delegate_action_timeout_window_exceeds_maxTimeout",
                                   "delegate_action_nonce_already_used", "delegate_action_nonce_too_large",
                                   "access_key_not_full_access", "unknown_access_key", "insufficient_funds",
-                                  "recipient_not_registered", "relayer_is_payer"])
+                                  "recipient_not_registered", "relayer_is_payer", "amount_not_a_string",
+                                  "memo_not_a_string", "repeated_key", "gas_below_policy", "zero_gas"])
 def test_verify_refuses_a_bad_payment(net, case):
     req, sda = _cases(net)[case]
     fac = facilitator()
@@ -223,7 +232,10 @@ def test_verify_refuses_forged_and_malformed_payloads(net):
     req, fac = terms(), facilitator()
     good = delegate(net)
     forged = near.SignedDelegateAction(good.delegate_action, near.ED25519, bytes(64))
-    assert fac.verify(wrap(req, forged), req).invalid_reason == "invalid_signature"
+    v = fac.verify(wrap(req, forged), req)
+    assert v.invalid_reason == "invalid_signature" and not v.payer, "an unverified sender_id is never named the payer"
+    s = fac.settle(wrap(req, forged), req)
+    assert not s.success and not s.payer
     assert fac.verify(wrap(req, b64="bm90IGEgZGVsZWdhdGU="), req).invalid_reason == "invalid_payload"
     assert fac.verify(wrap(req, good, version=1), req).invalid_reason == "invalid_x402_version"
     assert fac.verify(wrap(req, good, accepted=terms(amount="1")), req).invalid_reason == "requirements_mismatch"
