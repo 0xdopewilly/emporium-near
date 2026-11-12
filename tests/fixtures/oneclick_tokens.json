@@ -1,0 +1,195 @@
+[
+ {
+  "assetId": "nep141:wrap.near",
+  "decimals": 24,
+  "blockchain": "near",
+  "symbol": "wNEAR",
+  "price": 3.44,
+  "contractAddress": "wrap.near",
+  "coingeckoId": "wrapped-near"
+ },
+ {
+  "assetId": "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+  "decimals": 6,
+  "blockchain": "near",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep141:eth-0xdac17f958d2ee523a2206206994597c13d831ec7.omft.near",
+  "decimals": 6,
+  "blockchain": "eth",
+  "symbol": "USDT",
+  "price": 0.999057,
+  "contractAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  "coingeckoId": "tether"
+ },
+ {
+  "assetId": "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
+  "decimals": 6,
+  "blockchain": "eth",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep141:eth.omft.near",
+  "decimals": 18,
+  "blockchain": "eth",
+  "symbol": "ETH",
+  "price": 2015.8,
+  "coingeckoId": "ethereum"
+ },
+ {
+  "assetId": "nep141:btc.omft.near",
+  "decimals": 8,
+  "blockchain": "btc",
+  "symbol": "BTC",
+  "price": 71505,
+  "coingeckoId": "bitcoin"
+ },
+ {
+  "assetId": "nep141:sol.omft.near",
+  "decimals": 9,
+  "blockchain": "sol",
+  "symbol": "SOL",
+  "price": 81.42,
+  "coingeckoId": "solana"
+ },
+ {
+  "assetId": "nep141:tron-d28a265909efecdcee7c5028585214ea0b96f015.omft.near",
+  "decimals": 6,
+  "blockchain": "tron",
+  "symbol": "USDT",
+  "price": 0.999057,
+  "contractAddress": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+  "coingeckoId": "tether"
+ },
+ {
+  "assetId": "nep141:sol-c800a4bd850783ccb82c2b2c7e84175443606352.omft.near",
+  "decimals": 6,
+  "blockchain": "sol",
+  "symbol": "USDT",
+  "price": 0.999057,
+  "contractAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+  "coingeckoId": "tether"
+ },
+ {
+  "assetId": "nep141:usdt.tether-token.near",
+  "decimals": 6,
+  "blockchain": "near",
+  "symbol": "USDT",
+  "price": 0.999057,
+  "contractAddress": "usdt.tether-token.near",
+  "coingeckoId": "tether"
+ },
+ {
+  "assetId": "nep141:arb.omft.near",
+  "decimals": 18,
+  "blockchain": "arb",
+  "symbol": "ETH",
+  "price": 2015.8,
+  "coingeckoId": "ethereum"
+ },
+ {
+  "assetId": "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near",
+  "decimals": 6,
+  "blockchain": "arb",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep141:arb-0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9.omft.near",
+  "decimals": 6,
+  "blockchain": "arb",
+  "symbol": "USDT0",
+  "price": 0.998909,
+  "contractAddress": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+  "coingeckoId": "usdt0"
+ },
+ {
+  "assetId": "nep141:base.omft.near",
+  "decimals": 18,
+  "blockchain": "base",
+  "symbol": "ETH",
+  "price": 2015.8,
+  "coingeckoId": "ethereum"
+ },
+ {
+  "assetId": "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
+  "decimals": 6,
+  "blockchain": "base",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep141:sol-5ce3bf3a31af18be40ba30f721101b4341690186.omft.near",
+  "decimals": 6,
+  "blockchain": "sol",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep141:pol-0x3c499c542cef5e3811e1192ce70d8cc03d5c3359.omdep.near",
+  "decimals": 6,
+  "blockchain": "pol",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep245:v2_1.omni.hot.tg:56_2w93GqMcEmQFDru84j3HZZWt557r",
+  "decimals": 18,
+  "blockchain": "bsc",
+  "symbol": "USDC(DEPRECATED)",
+  "price": 0.999519,
+  "contractAddress": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep141:bnb-0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d.omdep.near",
+  "decimals": 18,
+  "blockchain": "bsc",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep245:v2_1.omni.hot.tg:10_A2ewyUyDp6qsue1jqZsGypkCxRJ",
+  "decimals": 6,
+  "blockchain": "op",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "1cs_v1:hypercore:hip1:0x6d1e7cde53ba9467b783cb7c530ce054",
+  "decimals": 8,
+  "blockchain": "hypercore",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "0x6d1e7cde53ba9467b783cb7c530ce054",
+  "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "1cs_v1:hypercore:erc20:0xb88339CB7199b77E23DB6E890353E22632Ba630f",
+  "decimals": 6,
+  "blockchain": "hypercore",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "0xb88339CB7199b77E23DB6E890353E22632Ba630f",
+  "coingeckoId": "usd-coin"
+ }
+]

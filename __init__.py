@@ -129,8 +129,9 @@ def register(ctx: Any) -> None:
     ctx.register_hook("post_api_request", on_api)
     ctx.register_hook("on_session_end", on_turn_end)
 
-    ctx.register_command("shop", commands.make_slash(ctx), description="Your Emporium: earnings, jobs, open/close",
-                         args_hint="[jobs|buys|open|close]")
+    ctx.register_command("shop", commands.make_slash(ctx),
+                         description="Your Emporium: earnings, jobs, open/close; fund or cash out across chains",
+                         args_hint="[jobs|buys|open|close|quote|fund|cashout|track|transfers]")
     setup, handle = commands.make_cli(ctx)
     ctx.register_cli_command(name="emporium", help="Set up and run your Emporium shop", setup_fn=setup,
                              handler_fn=handle, description="Sell this Hermes's skills for USDC per job (x402).")

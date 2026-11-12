@@ -55,6 +55,30 @@ CREATE TABLE IF NOT EXISTS purchases (
 CREATE INDEX IF NOT EXISTS purchases_created ON purchases(created);
 CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS nonces (nonce TEXT PRIMARY KEY, job TEXT NOT NULL, created REAL NOT NULL);
+-- Money moved across chains through NEAR Intents (intents.py): a buyer funding its NEAR account from
+-- another chain, or the shop cashing out to one. One row per 1Click deposit address (one per quote).
+CREATE TABLE IF NOT EXISTS transfers (
+    deposit TEXT PRIMARY KEY,
+    kind TEXT NOT NULL,                 -- fund | cashout
+    usd TEXT NOT NULL,                  -- USDC arriving on NEAR (fund) or leaving it (cash-out)
+    origin TEXT NOT NULL,
+    destination TEXT NOT NULL,
+    recipient TEXT NOT NULL,
+    refund_to TEXT NOT NULL,
+    amount_in TEXT NOT NULL,
+    amount_out TEXT NOT NULL,
+    status TEXT NOT NULL,               -- quoted, registering, signed, sending, sent, then 1Click's status
+    quote TEXT NOT NULL,                -- 1Click's signed quote response, kept to settle any dispute
+    signature TEXT NOT NULL,
+    signed TEXT NOT NULL DEFAULT '',    -- the one signed transfer that pays this deposit, kept before it's sent
+    storage_tx TEXT NOT NULL DEFAULT '',
+    deposit_tx TEXT NOT NULL DEFAULT '',
+    dest_txs TEXT NOT NULL DEFAULT '',
+    error TEXT NOT NULL DEFAULT '',
+    created REAL NOT NULL,
+    updated REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS transfers_created ON transfers(created);
 """
 
 # Columns added after 0.1.0, applied to existing ledgers with ALTER TABLE (SQLite has no ADD COLUMN IF NOT EXISTS).
@@ -350,6 +374,41 @@ class Ledger:
         rows = self._rows("SELECT price_usd FROM purchases WHERE created >= ? AND status IN ('pending', ?, ?)",
                           (_start_of_day(), BOUGHT, UNKNOWN))
         return sum((Decimal(r["price_usd"]) for r in rows), Decimal(0))
+
+    # ---- transfers across chains (NEAR Intents) ----------------------------------------------
+    _TRANSFER_COLS = ("deposit", "kind", "usd", "origin", "destination", "recipient", "refund_to", "amount_in",
+                      "amount_out", "status", "quote", "signature")
+    _TRANSFER_UPDATABLE = {"status", "signed", "storage_tx", "deposit_tx", "dest_txs", "error"}
+
+    def add_transfer(self, row: dict[str, Any]) -> None:
+        """Record a live quote. A deposit address already recorded is left as it is (a retry never resets it)."""
+        now = time.time()
+        cols = self._TRANSFER_COLS
+        self._exec(f"INSERT OR IGNORE INTO transfers({', '.join(cols)}, created, updated) "
+                   f"VALUES({', '.join('?' for _ in cols)}, ?, ?)", (*[str(row.get(c) or "") for c in cols], now, now))
+
+    def update_transfer(self, deposit: str, **fields: Any) -> None:
+        keys = [k for k in fields if k in self._TRANSFER_UPDATABLE]
+        if keys:
+            self._exec(f"UPDATE transfers SET {', '.join(f'{k} = ?' for k in keys)}, updated = ? WHERE deposit = ?",
+                       (*[str(fields[k] or "") for k in keys], time.time(), deposit))
+
+    def transfer(self, deposit: str) -> Optional[dict[str, Any]]:
+        rows = self._rows("SELECT * FROM transfers WHERE deposit = ?", (deposit,))
+        return rows[0] if rows else None
+
+    def find_transfer(self, prefix: str) -> Optional[dict[str, Any]]:
+        """A transfer by its deposit address or a unique start of it (at least 6 characters)."""
+        prefix = (prefix or "").strip()
+        if len(prefix) < 6 or not prefix.isalnum():  # deposit addresses are hex or base58: no LIKE wildcards
+            return None
+        rows = self._rows("SELECT * FROM transfers WHERE deposit = ? OR lower(deposit) LIKE ? ORDER BY created DESC LIMIT 2",
+                          (prefix, prefix.lower() + "%"))
+        exact = [r for r in rows if r["deposit"] == prefix]
+        return exact[0] if exact else rows[0] if len(rows) == 1 else None
+
+    def recent_transfers(self, limit: int = 20) -> list[dict[str, Any]]:
+        return self._rows("SELECT * FROM transfers ORDER BY created DESC LIMIT ?", (int(limit),))
 
     def purchase_summary(self) -> dict[str, Any]:
         rows = self._rows("SELECT price_usd, created FROM purchases WHERE status = ?", (BOUGHT,))
