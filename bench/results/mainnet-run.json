@@ -1,0 +1,883 @@
+{
+ "network": "near:mainnet",
+ "date": "2026-11-12",
+ "summary": "A buyer funded from USDC on Base through NEAR Intents; 68 paid jobs and 12 shop-to-shop payments on NEAR mainnet, each settled after delivery with gas paid by the shop's relayer; then three cash-outs back to USDC on Base.",
+ "accounts": {
+  "ada-relay": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+  "tunde-relay": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+  "ada": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+  "ada-wallet": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+  "tunde": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+  "buyer-1": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+  "buyer-2": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+  "buyer-3": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c"
+ },
+ "fund": {
+  "route": "base:usdc -> near:usdc",
+  "near_account": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+  "deposit_address": "0xBAE3f7D90fCF1768f0bCF575a44bBA6a149Fd198",
+  "sent_usdc_on_base": "2.020563",
+  "received_usdc_on_near": "2.0",
+  "base_txs": [
+   "0xa525e287f5d0ff48b2ca7139818842960c72afd4daed437955aacf5d4fba48a8"
+  ],
+  "near_txs": [
+   "64unRKYQnrEnNwnQGb7YzXayWmFJVGhhrSHhFtmDqEhd",
+   "2bT8NrkdEY5nSxHv8PKECd4eqikuUPvTMhS6RqQLoDY2",
+   "HtvJP9WPJgK98yvV6RRhuRQnocErYy41mDnU9n5cxvM8",
+   "5p43yuEvm6v9WBKt8HtLNXjXfiUyv28ea3xZ8c3hDGCn"
+  ],
+  "refunded": "0",
+  "note": "1Click quoted 2.010259 USDC in for exactly 2 USDC out; 2.020563 was sent and the unused part came back to the sender on Base"
+ },
+ "payments": [
+  {
+   "kind": "smoke",
+   "tx": "5VpCJgcLbi3WXy35iuT1E3WgnkqE84JPNYEXyp6yrxnq",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba"
+  },
+  {
+   "kind": "job",
+   "tx": "2WaZo3k4hXdkWuPpesowoFW2hriZ74Qhzfq6ytsbnSUo",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 17.14
+  },
+  {
+   "kind": "job",
+   "tx": "9saoix2cWnNiTjgq5Us6d8SaVdHN96sUFhGtABaZkWVY",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 14.23
+  },
+  {
+   "kind": "job",
+   "tx": "4jDqEkvyBAfr9Rb7SMGKnqcL5WrEVFRQ33pahBm1tcEy",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 19.79
+  },
+  {
+   "kind": "job",
+   "tx": "GrNtZTfijbDutG8zppLMWTQ8oWKwyvLdterWmnjHQScd",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 50.53
+  },
+  {
+   "kind": "job",
+   "tx": "8SFe8a7SBtPR9edFqnuh1ikJMUjf3qcAbgFURUzEqbtQ",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 18.77
+  },
+  {
+   "kind": "job",
+   "tx": "BueRhJHHiQxbNqwcBWurc2E6zUZhib4XXVmSrzssLgMQ",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 13.26
+  },
+  {
+   "kind": "job",
+   "tx": "2qtVRb8WzqBRsv43CmRkhSouicNMCRfu5nAhet2Dn2KB",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 12.97
+  },
+  {
+   "kind": "job",
+   "tx": "2pwRwV8SdLp3wpmfB1t2y5UYoechMvFweaA2BhYePYW1",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 15.91
+  },
+  {
+   "kind": "job",
+   "tx": "3eY4UZGNsbQKL7gw8qC92de2Bj3dB1htRUahoFuk1tMk",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 63.18
+  },
+  {
+   "kind": "job",
+   "tx": "ua7SxPG25QAaG7kReTE61gfMxWkQyuxoV2VqtYoZ3mo",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 109.66
+  },
+  {
+   "kind": "job",
+   "tx": "256YTqJUXrULrZnPDQJZcM8o2mK3yQ7aWq3GAncTH5GJ",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 15.32
+  },
+  {
+   "kind": "job",
+   "tx": "ACj469KD4156K19XVdwjW32GiQswq3RiTiPB1fRMUrpx",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 21.38
+  },
+  {
+   "kind": "job",
+   "tx": "6271y176dxdnrVNVvKstiz5PHS7DttBsrsnuZMSELNKL",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 76.35
+  },
+  {
+   "kind": "job",
+   "tx": "FvZ7kqX2VuJMDEBRygPiUhXRY6SKK38ANQyJBG8Wfe5j",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 14.53
+  },
+  {
+   "kind": "job",
+   "tx": "4VGU4MstJ1jYiAD7uDieH2VoyWTEKHQGJHAo3vsvWVJ9",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 13.62
+  },
+  {
+   "kind": "job",
+   "tx": "87LqAR9w1864B4K9JVfRufhi3y2B5XdEpZrVbgjabQUH",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 16.33
+  },
+  {
+   "kind": "job",
+   "tx": "A4vuZSdyUQb8uyqh8BYoGc2MrrYhn1LKNfvDdXfS9tqH",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 67.26
+  },
+  {
+   "kind": "job",
+   "tx": "7PPCnuCi7j3uP1CxzLyYAetx3si1sPvvozcHjWDgPMZA",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 12.99
+  },
+  {
+   "kind": "job",
+   "tx": "A8MCUzMDPYiwJkAJ2EWR5vm9ehs7itNHWzc5KDsBWVRM",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 58.67
+  },
+  {
+   "kind": "job",
+   "tx": "HtxXC6nu7oQqJN9ACnfC8s2MVX9V8x6V1U8EzhGhyFUT",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 15.1
+  },
+  {
+   "kind": "job",
+   "tx": "3VEnbBXkHNQ7M9UEQ6x1os6DhkUGxJ95XSXTUrcwLhHs",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 65.77
+  },
+  {
+   "kind": "job",
+   "tx": "EdJqa1VHAttFXVCtVaT4W1ywS6yTa7LCdWSYfc5h3KVo",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 49.71
+  },
+  {
+   "kind": "job",
+   "tx": "8Cx47FQEYHgRbHHv1y6qcphHoWJoVmFqbYDGbQQnx9KU",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 28.46
+  },
+  {
+   "kind": "job",
+   "tx": "FFmwe84Kr4AwQRSVwyn7T4DYmMmyYdLsDPE9b164hLyQ",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 14.02
+  },
+  {
+   "kind": "job",
+   "tx": "Gn6C4qS71TDwHQnzVyNRR5Bzg5p1iMxRqFpnNmBTDFbk",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 16.81
+  },
+  {
+   "kind": "job",
+   "tx": "5JgPTs7YHTVg21ksZXVGxmmxdmRnwTxoAgADao76YGk8",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 27.43
+  },
+  {
+   "kind": "job",
+   "tx": "GG6Ym2MguBWai4giVmxxtFWYxM3WnPBr4eY2DP5HkZmf",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 14.7
+  },
+  {
+   "kind": "job",
+   "tx": "DnRUzbDYXgpkC6Y5g2U3ApgQCaSTr6gBWj6CfqSJmLw5",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 27.74
+  },
+  {
+   "kind": "job",
+   "tx": "EjDBZy2ehEpt4mTjG71gpi61q5kAz2emJGi7L9jwp25g",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 16.39
+  },
+  {
+   "kind": "job",
+   "tx": "5JaxU1KdvV617tYwYQi1dfaSGMPkaamQqg9zmKV3ViQ1",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 31.16
+  },
+  {
+   "kind": "job",
+   "tx": "Voer6Lg5JRnA6jhSupgqYBJRxhP2nWaGtV1kz3hVUgF",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 21.0
+  },
+  {
+   "kind": "job",
+   "tx": "75QDBTtgZFMVF1iGXrGChLVKQnDamHg1qwF9ux6DYqC",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 16.31
+  },
+  {
+   "kind": "job",
+   "tx": "4EZAA4Xvd5reGYBRvoWzTex5XTndrNWK5riTUQv5Ujv3",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 14.62
+  },
+  {
+   "kind": "job",
+   "tx": "A2WkVjTVWZCGJxQBMG12hh9MfDh8W2oCps1u6tnj8aoa",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 50.7
+  },
+  {
+   "kind": "job",
+   "tx": "pwwGCCLRTNReL2s6xWxv5DhPh592QZp624NTa94G8tm",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 82.25
+  },
+  {
+   "kind": "job",
+   "tx": "Hdye2rRzTSoLoNxG7fhxYCrT2wMeyDqHghhRc7pWMSMi",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 14.65
+  },
+  {
+   "kind": "job",
+   "tx": "FBxoiNkVFRymAWdYumE8uR1dcktBJ2ryuvDBAnr3mCZF",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 30.63
+  },
+  {
+   "kind": "job",
+   "tx": "9zpQty12KEdpz4tq9YzCgdoGeMZiR1H6i8suxvxqbWCa",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 20.6
+  },
+  {
+   "kind": "job",
+   "tx": "5GXMiCZDi9v2aXAXFfLYhae7tSpiRX1f7Cmapm8GXCvA",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 42.71
+  },
+  {
+   "kind": "job",
+   "tx": "HfCxJPCyPfR6jZngymvUGTPwxjqg16Br5461FESSbRyt",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 63.12
+  },
+  {
+   "kind": "job",
+   "tx": "4YLA95B9kpejxrwihgiBRDL4kpKpr7vuAV6fXsqGn3rS",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 23.2
+  },
+  {
+   "kind": "job",
+   "tx": "ChiKn9awT38c6F2GYDa62TDX5LDdCsWkNQ4j4jnfVpHZ",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 19.1
+  },
+  {
+   "kind": "job",
+   "tx": "Bkxx1gysJ5RbUmUw13qMApAbeGdN29joVRtSKNLQ16hj",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 27.56
+  },
+  {
+   "kind": "job",
+   "tx": "EP5Up4q9svEsfskgE1cw9m5UxxDPyzRsfPWPAY957qUD",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 25.19
+  },
+  {
+   "kind": "job",
+   "tx": "Aj7wRd2Yp3F9TwEivd3FL16QQ5YBBJ8Z2M8oGjd5rM4d",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 81.69
+  },
+  {
+   "kind": "job",
+   "tx": "EindQL1ZEbzLfo3JN6D68ShrQKW3vHfFMnTb3oxPHB15",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 47.4
+  },
+  {
+   "kind": "job",
+   "tx": "AVcbpqvW7RmfCMz71XSWB1eV4QQQkYSCeryaudZ68Q3N",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 18.17
+  },
+  {
+   "kind": "job",
+   "tx": "ARfSJAthojqjQYaTTtJimRH8rQCVcVZgB1PdxoLSQojC",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 93.47
+  },
+  {
+   "kind": "job",
+   "tx": "HZEQQJ7euSEFgMRK5Tffo2nB36EAVhCQJMtVfUncLSmJ",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 26.86
+  },
+  {
+   "kind": "job",
+   "tx": "2RFXqr3CvSmXZinnUEWX2JY7ownBgXEY7aHpFRubDAaH",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 58.96
+  },
+  {
+   "kind": "job",
+   "tx": "AFLoHUP3LQSSPxqTMKA77j7C4RehNz6Du2LnX2zudeD6",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 19.16
+  },
+  {
+   "kind": "job",
+   "tx": "UuWAjcxP2QEChjfyrB37oWmT1LwTmACsHsPCuwxVdFY",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 16.08
+  },
+  {
+   "kind": "job",
+   "tx": "7jxzSP3oNZe3jMZkSzmtjveg79MNrR8NQZnLqaN2yWPS",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 19.33
+  },
+  {
+   "kind": "job",
+   "tx": "5vkoqruAypufoWvWzPWTMwjQK9NrUvug4dsbtJwot5K",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 25.79
+  },
+  {
+   "kind": "job",
+   "tx": "F5Zv9fTqc7DZJNdiBLb62pyY7hiEpdAm1qHzgzeUPsbg",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 14.63
+  },
+  {
+   "kind": "job",
+   "tx": "Etm1Ngap6DpdRQ6bVrUBpAcQLgXGiLw2zMr98EzpDx1E",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 19.3
+  },
+  {
+   "kind": "job",
+   "tx": "BnJYLMUk3onryqcTaEychdfMjiJ7eX75soMVGRyWWAgM",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 17.91
+  },
+  {
+   "kind": "job",
+   "tx": "2FHkSe1XYvSqBFKBeXqe2sMqBrvLVtYzSwXFCDTQa2iR",
+   "payer": "44181974b71410316c508503934158ef3ea56f2b56dde60be61c90ecccb616ed",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 134.07
+  },
+  {
+   "kind": "job",
+   "tx": "4UQ21NGKtJSsVNh6ZNZ8rtAVEQ1kWg1q2QTTXuq1h2Lx",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 22.03
+  },
+  {
+   "kind": "job",
+   "tx": "F2gCGtb2VX18G1fCyJfATwDpc3NmjeFqaMz7gFJGQUfn",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.03",
+   "service": "launch-post",
+   "seconds": 55.84
+  },
+  {
+   "kind": "job",
+   "tx": "2qkkJDqYUsT2VGDNk5TYgS8do3SjmieFtEatbgMrhxPr",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-pidgin",
+   "seconds": 17.01
+  },
+  {
+   "kind": "job",
+   "tx": "EaNu2iF6WEjMX9UfDHgcrRQDngPoPhUkGFmeUvURJf3E",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 51.14
+  },
+  {
+   "kind": "job",
+   "tx": "HQAUZVCdVDfx3qzqYG7tkMkzTXWoUYZoRW67m2LLCDyx",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 14.06
+  },
+  {
+   "kind": "job",
+   "tx": "57nXusBwFiUzaRdXZuyXuBgZ7R2Qx8rWYmvxkYUTWLGG",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 15.64
+  },
+  {
+   "kind": "job",
+   "tx": "DkbkvrLipj8GLYTsDtLHZL398grfjJWrfLFhCZZCakYM",
+   "payer": "e6b540643a6ec5fabf8914679167a056d1d5c0e3d7078db24b752372f5df695c",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 29.23
+  },
+  {
+   "kind": "job",
+   "tx": "ECDfnu2J3iegBB3A3YSiQUXwKTEg9d47XcbpHhkpsUB3",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "seconds": 16.4
+  },
+  {
+   "kind": "job",
+   "tx": "EFoWSSGmtAkVL1xfgm2i9YT1dUYbLKqdehJNr5WFS3tT",
+   "payer": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "pay_to": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "usdc": "0.02",
+   "service": "code-review",
+   "seconds": 23.02
+  },
+  {
+   "kind": "subcontract",
+   "tx": "EHMtvzexmrTP3xfMghUJPL1Y6BgGhcLHu7EjUizsdHt6",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_8da423817750"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "Dtmii8Y56Nj5dcQYpcUBMQASCEFi3Kdk97LvUpaujvvV",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_274a4743566b"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "83cBUed8w8k5CwY7rKtsFBTvkY4HW5xsXBk1SpY9tiYS",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_11f83d2a651a"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "9rdwJ2S4EeFCkEwrsA9eXQmCF4WV5ZUhbhbkgtWkKmeD",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_f4b6cc32a834"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "AgVSRzU27AFwueyse565HpTYv2ne1PnyKjuZ7PiNhNTu",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_024e210f15ad"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "DBKXEMGk948CENykc4Q1iGDXH88iZeRPe567K2LHynhg",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_928212b48e0b"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "BR9ieHq2qDNBLSFdBJ5wmhNyn1a4Qbw41QAk9zLZkW2Z",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_d7ddbcf9afc7"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "SjZHof5UW7d3VqdRScxM6vKHMUhpYkMYvziFJ3qjuiS",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_b54fc671e20c"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "3tQzRxmPGpBvpuCZhKjLsvSBB42hCW5qpbP9PZJMBwPS",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_8d893dadcaf9"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "8upmWR72zCwEXYTt3N7FRbWzT6E1LfNuZ1egqf6zbpCx",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_1502450fcdaa"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "CRd3RUSw7TxraBw71oZPg8rTgu5kjHU1DWqMvi8dbteP",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_d4dd83bbc568"
+  },
+  {
+   "kind": "subcontract",
+   "tx": "CUVaTZaa1T4c4qUg4bcfcYB8d8FP6ZDC1D1PuiMkumJC",
+   "payer": "f9b7666c1cf51de7576cc3cb1f0aea198d32f9ea9fd6c1e3abcb812b11f34d8b",
+   "pay_to": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "usdc": "0.01",
+   "service": "translate-yoruba",
+   "for_job": "job_133a647091d8"
+  }
+ ],
+ "cashouts": [
+  {
+   "shop": "tunde",
+   "from": "1efddfd53509ecb6c789fff6374d82a3c49e7938c576b2c3529e1287dda455e4",
+   "usdc_in": "0.53",
+   "deposit_address": "d115f7f99778b52b47ebe30032d9cfe34fb0768c0b85f5097fe42af65f860abd",
+   "near_tx": "EdgGt7NEYWM1kSSq8zqzdpxiPMMNwogS7uKBRozKXyzc",
+   "registration_tx": "CoQ1q23ryKeRmwZ25ZftrTeTdtSvaANMhrKfd7EdFePU",
+   "relayer": "276e9dbd2092fa419ee82d5ce7bac86aad9732b795d2c954981b1525e5c5f762",
+   "base_tx": "0x5a514578e4b56bed7521600e9df0e2d5d297202c352368a084dbc6f7b333e781",
+   "usdc_out_on_base": "0.527545"
+  },
+  {
+   "shop": "ada",
+   "from": "730135fdc6048ff692c8c73cd2670bad51a1f8d06b2c32e54b15fae9523c6e55",
+   "usdc_in": "0.66",
+   "deposit_address": "b56583e1ef0ea853a83d1989b7abf2e4ed863d60841536080e83dd89a90382af",
+   "near_tx": "Dkfa2zvYwrgPPoT3uxwdoxu6CkwMLjQk6w38fduFbDJJ",
+   "registration_tx": "DakkRe97hABhj1BJAALzEdzjyqwPg4wHXgemUTXQ8cck",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "base_tx": "0x118cfa22c017c0ebcf2c66cecb11edf61251404508c2e9abdfda8832f1df5c30",
+   "usdc_out_on_base": "0.657466"
+  },
+  {
+   "shop": "buyers' leftovers, gathered in buyer-1",
+   "from": "3213da04599b866388ba875de1bfc0d34148a7265f894196ba268fe7cbf0ba53",
+   "usdc_in": "0.81",
+   "deposit_address": "99151af713a3f1f107dd59a9c5fb801a7d4b4b3852a2d93af849677d595149ad",
+   "near_tx": "52xXRGEdqWVsMmBiENAJ72ybKmktRzCr5UgE32UZUsoW",
+   "registration_tx": "GYf1Tv7LcbNoE7aXZqpZ4LRCiBjDD6fSRXVVz4TCqAbN",
+   "relayer": "1f56ab0c9eb8f133702b0a950ad9ce20b7d4dcca3a0158430e0a2f27355c864f",
+   "base_tx": "0x4e6dda4518e66c30f3ad676530921dd132bf723161dfd14cc071982247b0fa5f",
+   "usdc_out_on_base": "0.807436"
+  }
+ ],
+ "base_recipient": "0x08bdA6043701d8a593023cDb4Dc0c008b7c8A578",
+ "moves_between_own_accounts": [
+  "6UzLEmBxKz1R49Spfh6dAzfv2KhNqJcH4E9hJQL8uFVW",
+  "9JxtAFhPRywJoX7syMNPh62rXzgms7Kd3Au2kmnE2E4o",
+  "64dNudXY2mSx8xx2L8mJN5bHLBoNVkviSRHt7g2UYgeD",
+  "5VV8AjMuNtXrFchQgHXwQW621wjPjAr7YYXdY81xGuCX",
+  "3der2yU9TBLd1fbhMFe9NVHSmzcaiJZmkroANBULrSRo",
+  "HRAiP1rDJms2Z3itMKYYpUpnfnTuheVvdQFZ3wZJNfRt"
+ ],
+ "measured": {
+  "relayer_gas_near_per_relayed_tx": "0.00034",
+  "buyers_and_shops_near_spent": "0",
+  "round_trip": "2.020563 USDC sent on Base, 2 USDC landed on NEAR; 1.992447 USDC came back to Base through three cash-outs; the sender's Base balance went from 2.445531 to 2.435371 USDC, so the whole run cost 0.010160 USDC in route fees"
+ }
+}

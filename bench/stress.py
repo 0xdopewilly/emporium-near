@@ -37,6 +37,7 @@ def main() -> None:
     ap.add_argument("--plan", action="append", required=True, help="<shop_url>/<service>=<jobs>")
     ap.add_argument("--concurrency", type=int, default=6)
     ap.add_argument("--seed", type=int, default=7)
+    ap.add_argument("--network", default="near:testnet", help="the network the buyers may pay on (near:mainnet spends real USDC)")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
 
@@ -64,7 +65,7 @@ def main() -> None:
     before_buyers = {a: usdc_balance(network, a) for _, a in wallets}
     before_shops = {s["pay_to"]: usdc_balance(network, s["pay_to"]) for s in shops.values()}
 
-    policy = buyer.Policy(lambda k, d=None: {"buyer_max_per_job": "$5", "buyer_daily_budget": "$100000"}.get(k, d))
+    policy = buyer.Policy(lambda k, d=None: {"buyer_max_per_job": "$5", "buyer_daily_budget": "$100000", "buyer_networks": [args.network]}.get(k, d))
     todo: queue.Queue = queue.Queue()
     for i, j in enumerate(jobs):
         todo.put((i, *j, 0))

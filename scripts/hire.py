@@ -30,6 +30,8 @@ def main() -> None:
     ap.add_argument("text")
     ap.add_argument("--account", required=True, help="your NEAR account (it pays)")
     ap.add_argument("--max", default="$1.00", help="the most this one job may cost")
+    ap.add_argument("--network", default="near:testnet", choices=["near:testnet", "near:mainnet"],
+                    help="the network this buyer may pay on (mainnet spends real USDC)")
     args = ap.parse_args()
     key = os.environ.get("EMPORIUM_NEAR_BUYER_KEY", "")
     if not key.startswith("ed25519:"):
@@ -40,7 +42,7 @@ def main() -> None:
     spec.loader.exec_module(mod)
     from emporium import buyer
 
-    limits = {"buyer_max_per_job": args.max, "buyer_daily_budget": "$5.00", "buyer_networks": ["near:testnet"],
+    limits = {"buyer_max_per_job": args.max, "buyer_daily_budget": "$5.00", "buyer_networks": [args.network],
               "buyer_allow_hosts": ["127.0.0.1", "localhost"]}
     policy = buyer.Policy(lambda k, d=None: limits.get(k, d))
     t = time.time()

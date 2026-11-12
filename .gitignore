@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 node_modules/
 bench/results/*.tmp
+bench/results/interop-official-offline.json
