@@ -191,5 +191,14 @@
   "price": 0.999519,
   "contractAddress": "0xb88339CB7199b77E23DB6E890353E22632Ba630f",
   "coingeckoId": "usd-coin"
+ },
+ {
+  "assetId": "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
+  "decimals": 7,
+  "blockchain": "stellar",
+  "symbol": "USDC",
+  "price": 0.999519,
+  "contractAddress": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+  "coingeckoId": "usd-coin"
  }
 ]

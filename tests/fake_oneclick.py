@@ -94,6 +94,9 @@ class FakeOneClick:
         if method == "POST" and path == "/v0/quote":
             return self.quote(body or {})
         if method == "GET" and path == "/v0/status":
+            want = self.quotes.get(query.get("depositAddress", ""), {}).get("quote", {}).get("depositMemo")
+            if want and query.get("depositMemo") != want:
+                return 400, {"message": "depositMemo is required for this deposit address"}
             return self.status(query.get("depositAddress", ""))
         if method == "POST" and path == "/v0/deposit/submit":
             self.submitted.append(body)
@@ -121,6 +124,9 @@ class FakeOneClick:
         if not req.get("refundTo") or not req.get("recipient"):
             return 400, {"message": "refundTo is not valid"}
         amount = int(req["amount"])
+        memo = src["blockchain"] in ("stellar",)
+        if memo and req.get("depositMode") != "MEMO":
+            return 400, {"message": "Incorrect depositMode for originAsset from stellar chain"}
         if self.min_amount is not None and amount < self.min_amount:
             return 400, {"message": f"Amount is too low for bridge, try at least {self.min_amount} "}
         p_in, p_out = Decimal(str(src["price"])), Decimal(str(dst["price"]))
@@ -141,12 +147,14 @@ class FakeOneClick:
              "amountOut": str(amount_out), "amountOutFormatted": intents.fmt_amount(amount_out, dst["decimals"]),
              "amountOutUsd": str(amount_out / d_out * p_out), "minAmountOut": str(min_out),
              "timeEstimate": self.time_estimate, "refundFee": "0", "withdrawFee": "0"}
-        echoed = {**req, "depositMode": "SIMPLE", "confidentiality": "public", "quoteWaitingTimeMs": 0, "insured": False,
+        echoed = {"depositMode": "SIMPLE", **req, "confidentiality": "public", "quoteWaitingTimeMs": 0, "insured": False,
                   "appFees": [{"recipient": "f" * 64, "fee": 1}]}
         if not req.get("dry"):
             deadline = intents.parse_iso(req["deadline"]) or time.time()
             q.update({"deadline": intents.iso(deadline + 72 * 3600), "timeWhenInactive": intents.iso(deadline + 72 * 3600),
                       "depositAddress": self._deposit_address(src["blockchain"])})
+            if memo:
+                q["depositMemo"] = str(1_000_000 + self._n)
         resp = {"quote": q, "quoteRequest": echoed, "timestamp": intents.iso(time.time()),
                 "correlationId": f"fake-{self._n}"}
         resp["signature"] = "ed25519:" + near.b58encode(self.key.sign(intents.quote_message(intents.signed_quote_json(resp))))

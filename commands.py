@@ -151,28 +151,6 @@ def _intents_books():
         return intents.Books()
 
 
-def _fee_line(q: Any) -> str:
-    expected, worst = q.fee_bps()
-    eta = f" · about {q.time_estimate}s once the deposit confirms" if q.time_estimate else ""
-    if expected is None:
-        return "fee: unknown (1Click has no USD price for one side)" + eta
-    return f"fee ≈ {expected / 100}% expected, at most {worst / 100}% with the slippage buffer{eta}"
-
-
-def _quote_lines(q: Any) -> list[str]:
-    from .intents import fmt_amount
-    o, d = q.origin, q.destination
-    if q.kind == "fund":
-        lines = [f"  in:  {fmt_amount(q.amount_in, o.decimals)} {o.label} (about {fmt_amount(q.min_amount_in, o.decimals)} "
-                 "is used; the rest of the buffer comes back to the refund address)",
-                 f"  out: exactly {fmt_amount(q.amount_out, d.decimals)} {d.label} to {q.request['recipient']}"]
-    else:
-        lines = [f"  in:  exactly {fmt_amount(q.amount_in, o.decimals)} {o.label} from {q.request['refundTo']}",
-                 f"  out: about {fmt_amount(q.amount_out, d.decimals)} {d.label} (at least "
-                 f"{fmt_amount(q.min_amount_out, d.decimals)}) to {q.request['recipient']}"]
-    return lines + [f"  {_fee_line(q)}", "  ✓ signed by 1Click, and it is the quote that was asked for"]
-
-
 def _mainnet_or(account: str, fallback: str) -> str:
     from .near import is_account_id
     account = (account or "").strip()
@@ -195,7 +173,7 @@ def quote_text(get: Callable[[str, Any], Any], words: list[str]) -> str:
         q = intents.cashout_quote(client, usd=p["usd"], destination=p["token"], recipient=recipient, dry=True,
                                   shop=_mainnet_or(str(get("pay_to", "") or ""), intents.SAMPLE_ADDRESS["near"]),
                                   **_limits(p))
-    return "\n".join(["NEAR Intents quote (dry: nothing to pay, no deposit address made):"] + _quote_lines(q))
+    return "\n".join(["NEAR Intents quote (dry: nothing to pay, no deposit address made):"] + intents.quote_lines(q))
 
 
 def _limits(p: dict) -> dict:
@@ -231,7 +209,7 @@ def fund_text(get: Callable[[str, Any], Any], words: list[str], ctx: Any = None)
     intents.record(b, q)
     o = q.origin
     lines = [f"Top up {account} with exactly {intents.fmt_amount(q.amount_out, 6)} USDC on NEAR, from {o.label}:"]
-    lines += _quote_lines(q)[2:]
+    lines += intents.quote_lines(q)[2:]
     if p["send"]:
         res = intents.evm_pay(client, q, key, books=b)
         state = "confirmed" if res["confirmed"] else "sent, not confirmed yet"
@@ -290,7 +268,7 @@ def cashout_text(get: Callable[[str, Any], Any], words: list[str], profile: str 
                               min_out=min_out, **_limits(p))
     intents.record(b, q)
     preview = [f"Cash out {intents.fmt_amount(q.amount_in, 6)} USDC from {shop.pay_to} to {q.destination.label}:"]
-    preview += _quote_lines(q)
+    preview += intents.quote_lines(q)
     preview.append(f"  deposit address on NEAR: {q.deposit_address} (the relayer {shop.near_relayer} registers it "
                    "and pays the gas)")
     ask = getattr(ctx, "ask_choice", None)

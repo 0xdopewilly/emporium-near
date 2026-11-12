@@ -441,6 +441,9 @@ def test_fund_asks_for_exactly_the_usdc_and_refunds_to_the_payer(oneclick, mainn
             req["depositType"], req["refundType"]) == ("EXACT_OUTPUT", intents.NEAR_USDC, "5000000", "buyer.near",
                                                      "DESTINATION_CHAIN", "ORIGIN_CHAIN", "ORIGIN_CHAIN")
     assert req["refundTo"] == "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" and req["dry"] is False
+    assert req["slippageTolerance"] == intents.STABLE_SLIPPAGE_BPS, "stablecoin to stablecoin: a small buffer"
+    volatile = _live_fund(oneclick, mainnet, origin="sol:sol", refund_to="9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM")
+    assert volatile.request["slippageTolerance"] == intents.DEFAULT_SLIPPAGE_BPS
     assert q.amount_out == 5_000_000 and q.amount_in > 5_000_000 and q.deposit_address
     assert mainnet.included == [], "funding asks 1Click for an address; nothing on NEAR moves"
 
@@ -757,3 +760,139 @@ def test_terminal_commands(oneclick, keys, capsys):
     args = parser.parse_args(["quote", "1", "from", "arb:usdc"])
     handle(args)
     assert "exactly 1 USDC on NEAR" in capsys.readouterr().out
+
+
+# ---- 7. optional: the buyer's own EVM wallet pays a fund deposit -------------------------------------
+BUYER_EVM_KEY = "0x" + "22" * 32  # throwaway, only against the fake EVM node below
+
+
+class FakeEvm:
+    """Just enough of an EVM node's JSON-RPC: balances, gas, nonce, raw transactions and receipts."""
+
+    def __init__(self, usdc_balance: int = 50_000_000, eth_balance: int = 10**16):
+        import threading
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        self.usdc_balance, self.eth_balance = usdc_balance, eth_balance
+        self.raw: list[str] = []
+        self.reverts = False
+        outer = self
+
+        class H(BaseHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+
+            def do_POST(self):
+                body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)))
+                result = outer.handle(body["method"], body.get("params") or [])
+                b = json.dumps({"jsonrpc": "2.0", "id": body.get("id"), "result": result}).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(b)))
+                self.end_headers()
+                self.wfile.write(b)
+
+        self.httpd = ThreadingHTTPServer(("127.0.0.1", 0), H)
+        self.url = f"http://127.0.0.1:{self.httpd.server_address[1]}"
+        threading.Thread(target=self.httpd.serve_forever, kwargs={"poll_interval": 0.05}, daemon=True).start()
+
+    def handle(self, method, params):
+        from eth_account import Account
+        if method == "eth_call":
+            return hex(self.usdc_balance)
+        if method == "eth_getBalance":
+            return hex(self.eth_balance)
+        if method == "eth_estimateGas":
+            return hex(52_000)
+        if method == "eth_getBlockByNumber":
+            return {"baseFeePerGas": hex(10**7)}
+        if method == "eth_maxPriorityFeePerGas":
+            return hex(10**6)
+        if method == "eth_getTransactionCount":
+            return hex(7)
+        if method == "eth_sendRawTransaction":
+            self.raw.append(params[0])
+            return "0x" + Account.recover_transaction(params[0]).lower()[2:].rjust(64, "0")
+        if method == "eth_getTransactionReceipt":
+            return {"status": "0x0" if self.reverts else "0x1", "transactionHash": params[0]} if self.raw else None
+        return None
+
+    def stop(self):
+        self.httpd.shutdown()
+        self.httpd.server_close()
+
+
+@pytest.fixture
+def evm():
+    node = FakeEvm()
+    yield node
+    node.stop()
+
+
+def test_the_buyer_wallet_pays_the_deposit_once(oneclick, mainnet, ledger, evm):
+    from eth_account import Account
+    from eth_account.typed_transactions import TypedTransaction
+    from hexbytes import HexBytes
+    wallet = intents.evm_address(BUYER_EVM_KEY)
+    q = _live_fund(oneclick, mainnet, usd="5", refund_to=wallet)
+    b = intents.Books(ledger)
+    out = intents.evm_pay(client(), q, BUYER_EVM_KEY, books=b, rpc_url=evm.url, poll=0.01)
+    assert out["confirmed"] and out["status"] == "PENDING_DEPOSIT"
+    tx = TypedTransaction.from_bytes(HexBytes(evm.raw[0])).as_dict()
+    assert Account.recover_transaction(evm.raw[0]).lower() == wallet and tx["chainId"] == 8453 and tx["nonce"] == 7
+    assert "0x" + bytes(tx["to"]).hex() == q.origin.contract.lower() and tx["value"] == 0
+    data = bytes(tx["data"]).hex()
+    assert data[:8] == "a9059cbb" and data[32:72] == q.deposit_address.lower()[2:] and int(data[72:], 16) == q.amount_in
+    assert oneclick.submitted[-1] == {"txHash": out["tx"], "depositAddress": q.deposit_address}
+    again = intents.evm_pay(client(), q, BUYER_EVM_KEY, books=b, rpc_url=evm.url, poll=0.01)
+    assert again["tx"] == out["tx"] and set(evm.raw) == {evm.raw[0]}, "a retry rebroadcasts the same transaction"
+    assert ledger.transfer(q.deposit_address)["deposit_tx"] == out["tx"]
+
+
+def test_the_buyer_wallet_refuses_what_it_cant_pay(oneclick, mainnet, ledger, evm):
+    wallet = intents.evm_address(BUYER_EVM_KEY)
+    q = _live_fund(oneclick, mainnet, refund_to=PAYEE)
+    with pytest.raises(intents.IntentsError, match="refunds to another address"):
+        intents.evm_pay(client(), q, BUYER_EVM_KEY, rpc_url=evm.url)
+    evm.usdc_balance = 1
+    q = _live_fund(oneclick, mainnet, refund_to=wallet)
+    with pytest.raises(intents.IntentsError, match="less than the"):
+        intents.evm_pay(client(), q, BUYER_EVM_KEY, books=intents.Books(ledger), rpc_url=evm.url)
+    q = _live_fund(oneclick, mainnet, origin="sol:usdc", refund_to="9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM")
+    with pytest.raises(intents.IntentsError, match="by hand"):
+        intents.evm_pay(client(), q, BUYER_EVM_KEY, rpc_url=evm.url)
+    with pytest.raises(intents.IntentsError, match="not a valid EVM private key"):
+        intents.evm_address("0xnope")
+    assert evm.raw == []
+
+
+def test_a_reverted_deposit_is_reported(oneclick, mainnet, ledger, evm):
+    evm.reverts = True
+    q = _live_fund(oneclick, mainnet, refund_to=intents.evm_address(BUYER_EVM_KEY))
+    with pytest.raises(intents.IntentsError, match="reverted"):
+        intents.evm_pay(client(), q, BUYER_EVM_KEY, books=intents.Books(ledger), rpc_url=evm.url, poll=0.01)
+    assert ledger.transfer(q.deposit_address)["status"] == "failed"
+
+
+def test_slash_fund_send_pays_from_the_buyer_wallet(oneclick, mainnet, keys, evm, monkeypatch):
+    monkeypatch.setenv("EMPORIUM_BUYER_KEY", BUYER_EVM_KEY)
+    monkeypatch.setitem(intents.EVM_RPC, "base", evm.url)
+    out = slash(Ctx(MAINNET_SHOP), "fund 5 from base:usdc send")
+    assert f"Paid the deposit from {intents.evm_address(BUYER_EVM_KEY)} (confirmed)" in out and len(evm.raw) == 1
+
+
+def test_minimums_in_dollars_are_read_too():
+    e = intents.OneClickError("1Click refused: Temporary swap limits: minimum swap amount is $100", 400)
+    assert e.min_usd == Decimal(100) and e.min_amount is None
+
+
+def test_chains_that_need_a_memo_get_a_memo_deposit(oneclick, mainnet, ledger):
+    """Stellar takes deposits only with a memo: the quote is asked again in MEMO mode, the memo is shown,
+    signed, kept, and sent along when the status is looked up."""
+    q = _live_fund(oneclick, mainnet, origin="stellar:usdc", refund_to="GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
+    assert q.request["depositMode"] == "MEMO" and q.deposit_memo
+    assert json.loads(q.signed_json)["depositMemo"] == q.deposit_memo
+    b = intents.Books(ledger)
+    intents.record(b, q)
+    assert intents.track(client(), q.deposit_address, books=b)["status"] == "PENDING_DEPOSIT"
+    with pytest.raises(intents.OneClickError, match="depositMemo"):
+        intents.track(client(), q.deposit_address)

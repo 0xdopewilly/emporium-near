@@ -50,7 +50,8 @@ REFERRAL = "emporium"
 STORAGE_DEPOSIT = 1_250_000_000_000_000_000_000  # 0.00125 NEAR: what USDC on NEAR charges to register an account
 USDC_DECIMALS = 6
 MAX_USD = Decimal("10000")                   # a typo guard per fund or cash-out
-DEFAULT_SLIPPAGE_BPS = 100                   # 1Click's own example; the unused part of it is refunded
+DEFAULT_SLIPPAGE_BPS = 100                   # 1Click's own example; on a fund, the unused part is refunded
+STABLE_SLIPPAGE_BPS = 50                     # stablecoin to stablecoin: a smaller buffer to send and get back
 DEFAULT_MAX_FEE_BPS = 300                    # refuse a quote that may cost more than 3% (slippage buffer included)
 DELEGATE_SECONDS = 600                       # how long the shop's signed transfer stays valid
 
@@ -96,6 +97,7 @@ _EVM_ADDRESS = re.compile(r"^0x[0-9a-fA-F]{40}$")
 _IMPLICIT = re.compile(r"^[0-9a-f]{64}$")
 _BTC_ADDRESS = re.compile(r"^(bc1[02-9ac-hj-np-z]{11,71}|[13][1-9A-HJ-NP-Za-km-z]{25,34})$")
 _MIN_AMOUNT = re.compile(r"try at least (\d+)")
+_MIN_USD = re.compile(r"minimum swap amount is \$([\d.,]+)")
 
 
 class IntentsError(Exception):
@@ -111,14 +113,16 @@ class QuoteRejected(IntentsError):
 
 
 class OneClickError(IntentsError):
-    """1Click answered with an error. ``min_amount`` is set when the amount was below a route's minimum
-    (in the request's ``amount`` units)."""
+    """1Click answered with an error. When the amount was below a route's minimum, ``min_amount`` is that
+    minimum in the request's ``amount`` units, or ``min_usd`` when 1Click states it in dollars."""
 
     def __init__(self, message: str, status: int = 0, body: Any = None):
         super().__init__(message)
         self.status, self.body = status, body
         m = _MIN_AMOUNT.search(message or "")
         self.min_amount = int(m.group(1)) if m else None
+        u = _MIN_USD.search(message or "")
+        self.min_usd = Decimal(u.group(1).replace(",", "")) if u else None
 
 
 # ---- amounts --------------------------------------------------------------------------------------
@@ -497,6 +501,29 @@ class Quote:
         }
 
 
+# ---- describing a quote ---------------------------------------------------------------------------
+def fee_line(q: Quote) -> str:
+    expected, worst = q.fee_bps()
+    eta = f" · about {q.time_estimate}s once the deposit confirms" if q.time_estimate else ""
+    if expected is None:
+        return "fee: unknown (1Click has no USD price for one side)" + eta
+    return f"fee ≈ {expected / 100}% expected, at most {worst / 100}% with the slippage buffer{eta}"
+
+
+def quote_lines(q: Quote) -> list[str]:
+    """A verified quote in plain words: what goes in, what comes out, the fee and how long it takes."""
+    o, d = q.origin, q.destination
+    if q.kind == "fund":
+        lines = [f"  in:  {fmt_amount(q.amount_in, o.decimals)} {o.label} (about {fmt_amount(q.min_amount_in, o.decimals)} "
+                 "is used; the rest of the buffer comes back to the refund address)",
+                 f"  out: exactly {fmt_amount(q.amount_out, d.decimals)} {d.label} to {q.request['recipient']}"]
+    else:
+        lines = [f"  in:  exactly {fmt_amount(q.amount_in, o.decimals)} {o.label} from {q.request['refundTo']}",
+                 f"  out: about {fmt_amount(q.amount_out, d.decimals)} {d.label} (at least "
+                 f"{fmt_amount(q.min_amount_out, d.decimals)}) to {q.request['recipient']}"]
+    return lines + [f"  {fee_line(q)}", "  ✓ signed by 1Click, and it is the quote that was asked for"]
+
+
 def _same(field: str, got: Any, want: Any) -> bool:
     if field in ("recipient", "refundTo") and isinstance(want, str) and _EVM_ADDRESS.match(want):
         return isinstance(got, str) and got.lower() == want.lower()
@@ -542,7 +569,8 @@ def check_quote(resp: dict, sent: dict, origin: Token, destination: Token, *,
         _, worst = quote.fee_bps()
         if worst is not None and worst > max_fee_bps:
             raise QuoteRejected("fee", f"may cost {worst / 100}% (slippage buffer included), above the "
-                                       f"{Decimal(max_fee_bps) / 100}% limit")
+                                       f"{Decimal(max_fee_bps) / 100}% limit; a larger amount spreads fixed fees, or "
+                                       f"accept it with max-fee {int(worst) + 1} (basis points)")
     pay_by = parse_iso(sent["deadline"])
     if pay_by is None or pay_by <= now:
         raise QuoteRejected("deadline", "the quote's deadline has passed")
@@ -572,8 +600,20 @@ def quote_request(*, dry: bool, swap_type: str, origin: Token, destination: Toke
             "referral": referral}
 
 
+def ask_quote(client: OneClick, request: dict) -> tuple[dict, dict]:
+    """(the request as finally sent, 1Click's unchecked response). Some chains (Stellar, …) take deposits
+    only with a memo; when 1Click says so, the quote is asked again for a memo deposit address."""
+    try:
+        return request, client.quote(request)
+    except OneClickError as e:
+        if "depositMode" in request or "depositmode" not in str(e).lower():
+            raise
+    request = {**request, "depositMode": "MEMO"}
+    return request, client.quote(request)
+
+
 def _ask(client: OneClick, request: dict, origin: Token, destination: Token, **checks: Any) -> Quote:
-    resp = client.quote(request)
+    request, resp = ask_quote(client, request)
     return check_quote(resp, request, origin, destination, manager_key=client.manager_key, **checks)
 
 
@@ -598,8 +638,12 @@ def _rpc(rpc_url: str = "") -> Rpc:
 
 
 # ---- fund: any chain -> USDC on the buyer's own NEAR account ----------------------------------------
+def default_slippage(src: Token, dst: Token) -> int:
+    return STABLE_SLIPPAGE_BPS if src.stable and dst.stable else DEFAULT_SLIPPAGE_BPS
+
+
 def fund_quote(client: OneClick, *, usd: Any, origin: str, recipient: str, refund_to: str = "", dry: bool = False,
-               slippage_bps: int = DEFAULT_SLIPPAGE_BPS, max_fee_bps: Optional[int] = DEFAULT_MAX_FEE_BPS,
+               slippage_bps: Optional[int] = None, max_fee_bps: Optional[int] = DEFAULT_MAX_FEE_BPS,
                window: Optional[float] = None, rpc_url: str = "", check_registered: bool = True) -> Quote:
     """A quote that delivers exactly ``usd`` USDC on NEAR to ``recipient`` (the buyer's own account) for a
     deposit of ``origin`` (e.g. base:usdc). Anything 1Click can't swap goes back to ``refund_to`` on the
@@ -628,13 +672,14 @@ def fund_quote(client: OneClick, *, usd: Any, origin: str, recipient: str, refun
     if window is None:
         window = 7200 if src.chain in ("btc", "doge", "ltc", "bch", "zec", "dash") else 3600
     req = quote_request(dry=dry, swap_type="EXACT_OUTPUT", origin=src, destination=dst, amount=amount,
-                        refund_to=refund_to, recipient=recipient, window=window, slippage_bps=slippage_bps)
+                        refund_to=refund_to, recipient=recipient, window=window,
+                        slippage_bps=default_slippage(src, dst) if slippage_bps is None else slippage_bps)
     return _ask(client, req, src, dst, max_fee_bps=max_fee_bps)
 
 
 # ---- cash out: USDC on the shop's NEAR account -> any chain -----------------------------------------
 def cashout_quote(client: OneClick, *, usd: Any, destination: str, recipient: str, shop: str, dry: bool = False,
-                  slippage_bps: int = DEFAULT_SLIPPAGE_BPS, max_fee_bps: Optional[int] = DEFAULT_MAX_FEE_BPS,
+                  slippage_bps: Optional[int] = None, max_fee_bps: Optional[int] = DEFAULT_MAX_FEE_BPS,
                   window: float = 1800, min_out: int = 0) -> Quote:
     """A quote that swaps exactly ``usd`` USDC from the shop's NEAR account into ``destination`` (e.g.
     base:usdc) paid to ``recipient`` there. Refunds go back to the shop's NEAR account."""
@@ -645,7 +690,8 @@ def cashout_quote(client: OneClick, *, usd: Any, destination: str, recipient: st
         raise IntentsError("that's USDC on NEAR already; a plain transfer does it")
     recipient = check_address(dst.chain, recipient, "recipient")
     req = quote_request(dry=dry, swap_type="EXACT_INPUT", origin=src, destination=dst, amount=amount,
-                        refund_to=shop, recipient=recipient, window=window, slippage_bps=slippage_bps)
+                        refund_to=shop, recipient=recipient, window=window,
+                        slippage_bps=default_slippage(src, dst) if slippage_bps is None else slippage_bps)
     return _ask(client, req, src, dst, max_fee_bps=max_fee_bps, min_out=min_out)
 
 
@@ -914,6 +960,12 @@ def track(client: OneClick, deposit: str, *, books: Optional[Books] = None, memo
     checked against 1Click's signature too (``quote_signed``)."""
     deadline = time.time() + max(0.0, wait)
     seen = ""
+    row = books.get(deposit) if books is not None else None
+    if not memo and row and row.get("quote"):
+        try:
+            memo = str(json.loads(row["quote"])["quote"].get("depositMemo") or "")
+        except (ValueError, KeyError, TypeError):
+            memo = ""
     while True:
         st = client.status(deposit, memo)
         info = describe_status(st)
