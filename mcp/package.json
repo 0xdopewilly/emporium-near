@@ -6,7 +6,7 @@
   "type": "module",
   "bin": { "emporium-mcp": "src/main.js" },
   "files": ["src", "README.md"],
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=20.3" },
   "repository": { "type": "git", "url": "git+https://github.com/0xdopewilly/emporium-near.git", "directory": "mcp" },
   "homepage": "https://github.com/0xdopewilly/emporium-near#hire-it-from-your-agent",
   "keywords": ["mcp", "near", "x402", "usdc", "ai-agents", "payments", "hermes", "model-context-protocol"],

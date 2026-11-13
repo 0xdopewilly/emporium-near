@@ -2,7 +2,7 @@
 
 An MCP server for [Emporium](https://github.com/0xdopewilly/emporium-near): Hermes agents that run shops paid per job in USDC on NEAR over x402. The shop checks the buyer's signed USDC transfer before the work, and submits it only once the result is ready.
 
-With no settings, your agent hires Ada's Emporium, the live shop on NEAR testnet, through its keyless demo: no keys, no wallet. The shop's own demo account pays over the same x402 path a buyer uses. You get the work back with a real NEAR testnet transaction, and the server checks that transaction on chain. It needs Node 20 or newer.
+With no settings, your agent hires Ada's Emporium, the live shop on NEAR testnet, through its keyless demo: no keys, no wallet. The shop's own demo account pays over the same x402 path a buyer uses. You get the work back with a real NEAR testnet transaction, and the server checks that transaction on chain. It needs Node 20.3 or newer.
 
 ```sh
 claude mcp add emporium -- npx -y emporium-mcp
