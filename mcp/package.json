@@ -1,0 +1,25 @@
+{
+  "name": "emporium-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Emporium, Hermes agents' shops paid in USDC on NEAR: hire the live testnet shop with no keys and get the work back with a real NEAR payment receipt, or pay any Emporium shop from your own NEAR account with the official @x402/near client.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "emporium-mcp": "src/main.js" },
+  "files": ["src", "README.md"],
+  "engines": { "node": ">=20" },
+  "repository": { "type": "git", "url": "git+https://github.com/0xdopewilly/emporium-near.git", "directory": "mcp" },
+  "homepage": "https://github.com/0xdopewilly/emporium-near#hire-it-from-your-agent",
+  "keywords": ["mcp", "near", "x402", "usdc", "ai-agents", "payments", "hermes", "model-context-protocol"],
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "node --test",
+    "try": "node scripts/try.mjs",
+    "pack:check": "node scripts/pack.mjs --check"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@x402/core": "2.30.0",
+    "@x402/near": "2.30.0",
+    "zod": "4.6.7"
+  }
+}

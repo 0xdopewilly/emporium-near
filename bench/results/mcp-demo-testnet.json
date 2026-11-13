@@ -1,0 +1,18 @@
+{
+ "network": "near:testnet",
+ "date": "2026-11-13",
+ "summary": "emporium-mcp driving a local copy of Ada's Emporium (port 9602, relayer interop-relay.emporium.testnet, keyless demo paid from demo-buyer.emporium.testnet): three keyless hires through POST /demo/hire, one hire paid from the agent's own account with the official @x402/near 2.30.0 client, and a fourth keyless call from the same address refused by the 3-per-10-minutes cap. Every payment was submitted by the relayer after delivery; emporium-mcp checked each receipt on NEAR testnet, and scripts/verify_shop.py confirmed 4 of 4.",
+ "shop": {"pay_to": "ada.emporium.testnet", "relayer": "interop-relay.emporium.testnet", "demo_buyer_account": "demo-buyer.emporium.testnet"},
+ "funding": {
+  "note": "demo-buyer.emporium.testnet was created with scripts/near_accounts.py create demo-buyer, then given 3.00 test USDC by three bench buyers through relayed NEP-366 delegates (gasless for them)",
+  "txs": ["EpbRdti6eRQRroJc6Za9sNJKrmj8MPqL7qPSfChM8143", "Fw2kthDLBPJ2ePiCvcZiev7d24oi6zfgngHo6KDLre39", "CLmcWmhbEyExEX2A7JmPhJiggpSYcA5U58uiZUrR4fKj"]
+ },
+ "hires": [
+  {"tool": "emporium_hire", "paid_with": "keyless demo", "service": "code-review", "price": "$0.25", "payer": "demo-buyer.emporium.testnet", "tx": "4YTTcFMA28dhtVnsczvKQg3SEUas5f5yNoLbLVbULX1g", "seconds": 29.1, "onchain": "confirmed"},
+  {"tool": "emporium_hire", "paid_with": "keyless demo", "service": "web-brief", "price": "$0.40", "payer": "demo-buyer.emporium.testnet", "tx": "7eMki5nhY3kgjZ9HTY4pbgDM9hRXiUJAfCPyBPaan28E", "seconds": 52.3, "onchain": "confirmed"},
+  {"tool": "emporium_hire", "paid_with": "own account (@x402/near 2.30.0 client)", "service": "code-review", "price": "$0.25", "payer": "buyer-9.emporium.testnet", "tx": "6U1Cr6QWxr1uP2MfU2ykDx4K7zFG5X558B7DJdN4nJw1", "seconds": 25.0, "onchain": "confirmed"},
+  {"tool": "emporium_hire", "paid_with": "keyless demo", "service": "code-review", "price": "$0.25", "payer": "demo-buyer.emporium.testnet", "tx": "9TruvDhog5Vw2mS4iYa5HyXhZtgXoxHLzwgxqQv3aD5t", "onchain": "confirmed"}
+ ],
+ "refused": [{"tool": "emporium_hire", "paid_with": "keyless demo", "http_status": 429, "error": "3 demo jobs per 10 minutes from one address; try again in 7 min", "charged": false}],
+ "check": "scripts/verify_shop.py http://127.0.0.1:9602 -> 4 of 4 receipts confirmed on NEAR: $1.15 in USDC reached ada.emporium.testnet"
+}

@@ -98,6 +98,20 @@ Measured with 280 real dry quotes on 12 Nov 2026 ([bench/results/intents-quotes.
 
 Writing the comparison found five bugs in Emporium, fixed with tests before this README: a numeric amount, duplicate JSON keys and too little gas were accepted although the chain refuses them; a payer was reported from a payload whose signature failed; and RPC nodes a block or two apart could make a valid payment look expired.
 
+## Hire it from your agent
+
+`emporium-mcp` ([mcp/](mcp/)) is an MCP server for Claude Code, Codex, Cursor or any other MCP client. It needs no keys: it hires the live testnet shop through the shop's keyless demo, and the shop's own demo account (`demo-buyer.emporium.testnet`) pays over the same x402 path any buyer uses. The agent gets the deliverable with a real NEAR testnet receipt, and the server checks that receipt on chain.
+
+```bash
+claude mcp add emporium -- npx -y emporium-mcp
+```
+
+Then ask, for example: *Have the Emporium shop review this function, then check its receipt on chain: `def is_even(n): return n % 2 == 1`*. The agent calls `emporium_shop` to read the menu, `emporium_hire` to run the job and get the result with its receipt, and `emporium_verify` to look the transaction up on NEAR. Codex and Cursor setup is in [mcp/README.md](mcp/README.md).
+
+- **The demo runs on the shop** (`demo.py`, `POST /demo/hire`). It is off unless the owner sets `demo_buyer_account` and `EMPORIUM_DEMO_BUYER_KEY`, and it runs only on NEAR testnet. It sells only the shop's own services, up to $0.50 each. It allows 3 jobs per address every 10 minutes and 30 a day for everyone, and the ledger keeps those counts through a restart. A caller sends a service and an input; any other field is refused, so a caller can't set the payee, the amount, the network or the shop.
+- **Paying from your own account:** with `EMPORIUM_NEAR_ACCOUNT` and `EMPORIUM_NEAR_KEY` set, the server pays any Emporium shop itself, signed with the official `@x402/near` 2.30.0 client.
+- **Measured on NEAR testnet** against a local copy of the shop ([bench/results/mcp-demo-testnet.json](bench/results/mcp-demo-testnet.json)): 3 keyless hires and 1 hire paid from the agent's own account. All 4 receipts were confirmed on chain by the server and by `scripts/verify_shop.py`. A fourth keyless call from the same address got `429`.
+
 ## Try it from a fresh clone
 
 These steps need no keys and no NEAR account. Python 3.11+ and [uv](https://docs.astral.sh/uv/) are assumed, plus Node.js 22+ for the Borsh check (near-api-js 7.4.0 requires it). The plugin runs inside Hermes, so its tests run on Hermes's Python:
@@ -112,12 +126,13 @@ PY=../hermes-agent/.venv/bin/python
 
 | Do | See |
 |---|---|
-| `$PY -m pytest tests -q` | `263 passed, 2 skipped` (the 2 run once `interop/` has its Node packages: `265 passed`). The NEAR tests run real HTTP shops and buyers against `tests/fake_near.py`, an in-memory NEAR chain behind NEAR's JSON-RPC (accounts, access-key nonces, USDC, delegate actions); the NEAR Intents tests run against `tests/fake_oneclick.py` with real signed 1Click quotes. |
+| `$PY -m pytest tests -q` | `277 passed, 4 skipped` (the 4 run once `interop/` and `mcp/` have their Node packages: `281 passed`). The NEAR tests run real HTTP shops and buyers against `tests/fake_near.py`, an in-memory NEAR chain behind NEAR's JSON-RPC (accounts, access-key nonces, USDC, delegate actions); the NEAR Intents tests run against `tests/fake_oneclick.py` with real signed 1Click quotes. |
 | `npm i --prefix /tmp/nearjs near-api-js@7.4.0`<br>`$PY scripts/check_borsh.py /tmp/nearjs` | `7 of 7 identical`: the buyer's public key, the delegate, its NEP-461 hash, the signed delegate and the relayer's transaction (unsigned, hash, signed), byte for byte against NEAR's own JS library. Add `--fuzz 10000 --seed 1`: `10000 of 10000 identical` on random delegates and relayer transactions. |
 | `cd interop && npm ci`<br>`PY=$PWD/../$PY node run.mjs --offline --n 40 --m 40 --settle` | Emporium against the x402 Foundation's reference, `@x402/near` 2.30.0, on the in-memory chain: `40/40` accepted each way, `both reject 69/69` tampered payloads and `agreement 76/76` with the controls, `real settles: 2/2` (two tamper cases need real chain state and run only on testnet, where it is 71/71 and 78/78). Without `--offline` it runs on NEAR testnet (needs funded testnet accounts; [interop/README.md](interop/README.md)). |
 | `$PY scripts/verify_mainnet.py` | The mainnet run, from public NEAR RPC, public Base RPC and 1Click's status API: `68/68 paid jobs and 12/12 shop-to-shop payments confirmed on NEAR mainnet`, the top-up and three cash-outs ✓, `All confirmed on NEAR mainnet and Base.` (about a minute). |
 | `$PY scripts/intents.py quote 5 from base:usdc` | A real NEAR Intents quote (dry: nothing to pay): what topping up with 5 USDC from Base costs, and `✓ signed by 1Click, and it is the quote that was asked for`. |
 | `$PY scripts/verify_shop.py https://shop-production-8cc3cf57.up.railway.app` | Each recent receipt of the live shop, looked up on NEAR testnet: `N of N receipts confirmed on NEAR`. |
+| `cd mcp && npm ci`<br>`node scripts/try.mjs hire code-review "def is_even(n): return n % 2 == 1"` | The MCP server, with no keys, hiring the live shop through a real stdio handshake. It prints the code review, then `Receipt: paid $0.25 in USDC on NEAR testnet, from demo-buyer.emporium.testnet (the shop's keyless demo account) to ada.emporium.testnet, settled after delivery by the shop's relayer ada-relay.emporium.testnet`, the transaction with its nearblocks link, and `On chain: confirmed.` (20 to 90 s). `npm test` runs the server's 9 tests with no network. |
 | `$PY -m hermes_cli.main plugins validate .` | `Validation passed.` (Hermes's own plugin checks: manifest, isolated load, declared tools and hooks, security scan). |
 
 ### Hire the live shop yourself
@@ -168,6 +183,7 @@ To let your Hermes hire shops, put a dedicated low-balance NEAR account in the p
 | **Sealed jobs** | A job's session loads only the toolsets its service sells. A `pre_tool_call` lock refuses anything else, and a per-job cap bounds tool calls. |
 | **`emporium_browse` / `emporium_hire`** | Your Hermes can hire other shops, within a per-job ceiling, a daily budget and allowed networks. |
 | **`hermes emporium`** | `init`, `status`, `jobs`, `buys`, `open`, `close`. |
+| **Keyless demo and `emporium-mcp`** | `POST /demo/hire` lets anyone hire the shop's own services with no wallet, paid from an owner-funded testnet account (see "Hire it from your agent"). The MCP server in `mcp/` gives any coding agent that and on-chain receipt checks. |
 | **`bench/`** | A stress bench that reconciles every cent on NEAR, and a robbery bench that pays your own shop to attack itself, then reads Hermes's transcripts to see what got out. |
 
 ## Why a paying stranger can't rob you
@@ -186,14 +202,16 @@ To let your Hermes hire shops, put a dedicated low-balance NEAR account in the p
   - The shop listens on `host:port` (localhost by default).
   - It calls NEAR JSON-RPC (default FastNEAR, then dRPC; `rpc_url` overrides) to check payments and submit them.
   - The buyer tools call the shop URLs the agent is given, and NEAR RPC to check receipts. A model-supplied shop URL must resolve to a public address unless the owner lists it in `buyer_allow_hosts`.
+  - With the keyless demo on, the shop hires itself on its own loopback address for each `/demo/hire` call.
   - Only when the owner runs `/shop quote`, `fund` or `cashout`: 1Click's API (`1click.chaindefuser.com`), and for a top-up paid with `send`, public Base RPC.
 - **Credentials:**
   - `EMPORIUM_NEAR_RELAYER_KEY` (the shop) signs the transactions that submit buyers' delegates. Use an account that holds only gas money.
   - `EMPORIUM_NEAR_BUYER_KEY` (optional, for hiring and subcontracts) signs USDC delegates in-process. Use a dedicated low-balance account.
   - `EMPORIUM_NEAR_PAYOUT_KEY` (optional, only to cash out) is the shop account's own key. Running `scripts/intents.py cashout` from your own computer keeps it off the server.
   - `EMPORIUM_ONECLICK_JWT` (optional) is a 1Click partner key; without it 1Click's app fee applies (1 bps between stablecoins), already included in every quote shown.
+  - `EMPORIUM_DEMO_BUYER_KEY` (optional, NEAR testnet only) signs the keyless demo's payments. They can only go to this shop, at its listed price. Use a dedicated account holding a few testnet USDC.
   - All are read through Hermes's secret scope and never logged.
-- **Data:** A SQLite ledger in `plugin-data/emporium/` holds job metadata: service, price, status, payer account, tx hash, sizes, token counts, cost, and the output's SHA-256. It never stores inputs or outputs. Top-ups and cash-outs are kept there too, with each 1Click quote and its signature. Each job is also a session in the shop profile's own Hermes history, like any conversation.
+- **Data:** A SQLite ledger in `plugin-data/emporium/` holds job metadata: service, price, status, payer account, tx hash, sizes, token counts, cost, and the output's SHA-256. It never stores inputs or outputs. Top-ups and cash-outs are kept there too, with each 1Click quote and its signature. Keyless demo hires are kept for their caps, and each caller appears only as a salted hash of its address. Each job is also a session in the shop profile's own Hermes history, like any conversation.
 - **Config writes:** `hermes emporium init` writes the plugin's own settings, and on the shop's profile only (never the main one) turns off its memory.
 - **Background:** one HTTP server thread while the gateway runs, and a short timer after each job to read its cost. No shell commands, no telemetry, no self-updates.
 
@@ -221,7 +239,7 @@ Reports are in `bench/results/`.
 
 ## Tests
 
-`$PY -m pytest tests` runs 265 tests over real HTTP (2 of them need `interop/`'s Node packages and are skipped without them): the official x402 SDK on both sides, the plugin's buyer code, and stand-ins for the chain (`tests/fake_near.py`) and for Base's facilitator. On NEAR they cover:
+`$PY -m pytest tests` runs 281 tests over real HTTP (4 of them need the Node packages of `interop/` or `mcp/` and are skipped without them): the official x402 SDK on both sides, the plugin's buyer code, and stand-ins for the chain (`tests/fake_near.py`) and for Base's facilitator. On NEAR they cover:
 
 - the encoding, pinned to near-api-js's bytes;
 - every verify refusal above;
@@ -230,7 +248,8 @@ Reports are in `bench/results/`.
 - a failed job never charged, and the same buyer paying again after it;
 - the RPC client under rate limits and dead endpoints;
 - the NEAR Intents client against a fake 1Click with real signed quotes: forged and mismatched quotes refused with nothing paid, every status ending, and cash-outs that crash or retry without paying twice;
-- the reference check, offline: Emporium and `@x402/near` on the same payloads, plus a 300-case Borsh fuzz.
+- the reference check, offline: Emporium and `@x402/near` on the same payloads, plus a 300-case Borsh fuzz;
+- the keyless demo: off by default and on mainnet, only the shop's own services, the price, input, per-address and daily caps (kept through a restart), and no field a caller adds can change the payee, the amount or the network; and `emporium-mcp` over stdio, hiring through the demo and paying from its own account with `@x402/near`'s client.
 
 The rest cover the shop itself: the books, the tool lock, sealed profiles, subcontract budgets, the fence and the secret sweep.
 
