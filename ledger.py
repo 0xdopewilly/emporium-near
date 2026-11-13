@@ -79,6 +79,20 @@ CREATE TABLE IF NOT EXISTS transfers (
     updated REAL NOT NULL
 );
 CREATE INDEX IF NOT EXISTS transfers_created ON transfers(created);
+-- Keyless demo hires (demo.py): this shop's own services, paid from the owner's demo account. The caller is
+-- kept only as a salted hash of its address, enough to rate-limit it; the rows survive a restart, so the caps do.
+CREATE TABLE IF NOT EXISTS demo_hires (
+    id TEXT PRIMARY KEY,
+    caller TEXT NOT NULL,
+    service TEXT NOT NULL,
+    status TEXT NOT NULL,               -- running, delivered, not_delivered, unknown
+    tx TEXT NOT NULL DEFAULT '',
+    error TEXT NOT NULL DEFAULT '',
+    created REAL NOT NULL,
+    finished REAL
+);
+CREATE INDEX IF NOT EXISTS demo_hires_created ON demo_hires(created);
+CREATE INDEX IF NOT EXISTS demo_hires_caller ON demo_hires(caller, created);
 """
 
 # Columns added after 0.1.0, applied to existing ledgers with ALTER TABLE (SQLite has no ADD COLUMN IF NOT EXISTS).
@@ -121,6 +135,14 @@ class BudgetError(Exception):
     """A purchase that would break a budget (nothing was signed)."""
 
 
+class DemoLimit(Exception):
+    """A keyless demo hire over one of its caps. ``kind`` is "caller" or "daily"; ``retry_after`` is in seconds."""
+
+    def __init__(self, kind: str, retry_after: int):
+        super().__init__(kind)
+        self.kind, self.retry_after = kind, max(1, int(retry_after))
+
+
 def new_id(prefix: str) -> str:
     return f"{prefix}_{secrets.token_hex(6)}"
 
@@ -128,6 +150,12 @@ def new_id(prefix: str) -> str:
 def _start_of_day(now: Optional[float] = None) -> float:
     t = time.localtime(now if now is not None else time.time())
     return time.mktime((t.tm_year, t.tm_mon, t.tm_mday, 0, 0, 0, 0, 0, -1))
+
+
+def utc_day_start(now: Optional[float] = None) -> float:
+    """00:00 UTC of the day ``now`` falls in: the demo's daily cap resets then, wherever the shop runs."""
+    now = time.time() if now is None else now
+    return now - (now % 86400)
 
 
 def _nonce_key(nonce: str) -> str:
@@ -409,6 +437,51 @@ class Ledger:
 
     def recent_transfers(self, limit: int = 20) -> list[dict[str, Any]]:
         return self._rows("SELECT * FROM transfers ORDER BY created DESC LIMIT ?", (int(limit),))
+
+    # ---- keyless demo hires (demo.py) --------------------------------------------------------
+    def demo_salt(self) -> str:
+        """A random salt for hashing demo callers' addresses, made once per ledger and kept in it."""
+        with self._lock:
+            row = self._conn.execute("SELECT v FROM meta WHERE k = 'demo_salt'").fetchone()
+            if row:
+                return row[0]
+            salt = secrets.token_hex(16)
+            self._conn.execute("INSERT OR IGNORE INTO meta(k, v) VALUES('demo_salt', ?)", (salt,))
+            self._conn.commit()
+            return self._conn.execute("SELECT v FROM meta WHERE k = 'demo_salt'").fetchone()[0]
+
+    def reserve_demo(self, caller: str, service: str, per_caller: int, window: float, daily: int,
+                     now: Optional[float] = None) -> str:
+        """Check both demo caps and record the hire in one step, so parallel calls can't both slip under a
+        cap. Raises DemoLimit. Every hire that starts counts, delivered or not (each one runs a job)."""
+        now = time.time() if now is None else now
+        day = utc_day_start(now)
+        with self._lock:
+            used = self._conn.execute("SELECT COUNT(*) FROM demo_hires WHERE created >= ?", (day,)).fetchone()[0]
+            if used >= daily:
+                raise DemoLimit("daily", day + 86400 - now)
+            recent = [r[0] for r in self._conn.execute(
+                "SELECT created FROM demo_hires WHERE caller = ? AND created >= ? ORDER BY created",
+                (caller, now - window)).fetchall()]
+            if len(recent) >= per_caller:
+                raise DemoLimit("caller", recent[len(recent) - per_caller] + window - now)
+            did = new_id("demo")
+            self._conn.execute("INSERT INTO demo_hires(id, caller, service, status, created) VALUES(?,?,?,?,?)",
+                               (did, caller, service, "running", now))
+            self._conn.commit()
+            return did
+
+    def release_demo(self, did: str) -> None:
+        """Forget a reserved demo hire that never started (the demo was busy or its wallet empty)."""
+        self._exec("DELETE FROM demo_hires WHERE id = ? AND status = 'running'", (did,))
+
+    def finish_demo(self, did: str, status: str, tx: str = "", error: str = "") -> None:
+        self._exec("UPDATE demo_hires SET status = ?, tx = ?, error = ?, finished = ? WHERE id = ?",
+                   (status, tx, error[:300], time.time(), did))
+
+    def demo_used_today(self, now: Optional[float] = None) -> int:
+        rows = self._rows("SELECT COUNT(*) AS n FROM demo_hires WHERE created >= ?", (utc_day_start(now),))
+        return int(rows[0]["n"]) if rows else 0
 
     def purchase_summary(self) -> dict[str, Any]:
         rows = self._rows("SELECT price_usd, created FROM purchases WHERE status = ?", (BOUGHT,))

@@ -38,7 +38,7 @@ from gateway.config import Platform
 from gateway.platforms.base import BasePlatformAdapter, SendResult
 from gateway.platforms.event import MessageEvent, MessageType, ProcessingOutcome
 
-from . import guard, ledger as books, meter, storefront
+from . import demo as demo_mod, guard, ledger as books, meter, storefront
 from .shop import RPC_URLS, USDC, Shop, load_shop
 
 logger = logging.getLogger(__name__)
@@ -59,6 +59,15 @@ MAX_CONNECTIONS = 64
 
 def _short(addr: str) -> str:
     return f"{addr[:6]}…{addr[-4:]}" if addr and len(addr) > 12 else (addr or "anonymous")
+
+
+def _secret(name: str) -> Optional[str]:
+    """A secret from the profile's secret scope (its .env), or None."""
+    try:
+        from agent.secret_scope import get_secret
+    except ImportError:
+        return None
+    return get_secret(name)
 
 
 def _near_payload(payload: Any) -> bool:
@@ -215,6 +224,8 @@ class _Handler(BaseHTTPRequestHandler):
             elif path in ("/.well-known/emporium.json", "/catalog"):
                 cat = a.shop.catalog()
                 cat["open"] = cat["open"] and a.books.is_open()
+                if a.demo.demo.enabled:
+                    cat["demo"] = demo_mod.advert(a.demo.demo, a.shop, a.books)
                 self.json(200, cat)
             elif path == "/feed":
                 meter.fill_costs(a.books)
@@ -231,6 +242,14 @@ class _Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split("?", 1)[0].rstrip("/")
+        if path == demo_mod.PATH:
+            try:
+                return self.shop_adapter.handle_demo(self)
+            except Exception:
+                logger.exception("emporium: demo request failed")
+                with contextlib.suppress(Exception):
+                    self.json(500, {"error": "internal error"})
+                return None
         if not path.startswith("/jobs/"):
             return self.json(404, {"error": "not found"})
         try:
@@ -282,6 +301,7 @@ class EmporiumAdapter(BasePlatformAdapter):
         self._pending: dict[str, tuple[str, Future]] = {}  # chat_id -> (job_id, future)
         self._services: dict[str, Any] = {}                # job_id -> the service it bought (for toolsets)
         self._lock = threading.Lock()
+        self.demo = demo_mod.Runner(demo_mod.Demo(off="not loaded"))  # the keyless demo; loaded in connect()
 
     @property
     def name(self) -> str:
@@ -368,6 +388,7 @@ class EmporiumAdapter(BasePlatformAdapter):
             self._set_fatal_error("x402_setup", f"x402 setup failed: {e}", retryable=True)
             return False
         self._slots = threading.BoundedSemaphore(self.shop.max_concurrent_jobs)
+        self.demo = demo_mod.Runner(demo_mod.load(self._settings, self.shop, _secret))
         try:
             self._httpd = _Server((self.shop.host, self.shop.port), _Handler)
         except OSError as e:
@@ -384,6 +405,13 @@ class EmporiumAdapter(BasePlatformAdapter):
                            UNSEALED_SETTING, risk, SEAL_HINT)
         logger.info("Emporium: %r open at %s · %d service(s) · paid to %s on %s",
                     self.shop.name, self.shop.base_url(), len(self.shop.services), self.shop.pay_to, self.shop.network_label)
+        d = self.demo.demo
+        if d.enabled:
+            logger.info("Emporium: keyless demo on at %s%s, paid from %s (up to $%s a job, %d a day, %d per address "
+                        "every %d min)", self.shop.base_url(), demo_mod.PATH, d.account, d.max_price, d.daily,
+                        d.per_address, demo_mod.WINDOW // 60)
+        elif d.account:
+            logger.warning("Emporium: keyless demo stays off: %s", d.off)
         return True
 
     async def disconnect(self) -> None:
@@ -398,6 +426,28 @@ class EmporiumAdapter(BasePlatformAdapter):
                 if not fut.done():
                     fut.set_result((False, "shop shutting down"))
             self._pending.clear()
+
+    def self_url(self) -> str:
+        """This shop as it can reach itself (the keyless demo hires it here, over the same x402 path)."""
+        host = self.shop.host if self.shop.host not in ("0.0.0.0", "::", "", "localhost") else "127.0.0.1"
+        return f"http://{host}:{self.shop.port}"
+
+    # ---- the keyless demo ------------------------------------------------------------------
+    def handle_demo(self, h: _Handler) -> None:
+        try:
+            length = int(h.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = 0
+        if not self.demo.demo.enabled:
+            return h.json(403, {"error": demo_mod.OFF, "demo": False})
+        if length <= 0 or length > _MAX_BODY:
+            return h.json(400, {"error": "send a JSON body like {\"service\": \"code-review\", \"input\": \"...\"}"})
+        try:
+            body = json.loads(h.rfile.read(length) or b"{}")
+        except ValueError:
+            return h.json(400, {"error": "body is not valid JSON"})
+        status, payload, headers = self.demo.handle(self, h, body)
+        return h.json(status, payload, headers)
 
     # ---- the paid job ----------------------------------------------------------------------
     def handle_job(self, h: _Handler, service_id: str) -> None:

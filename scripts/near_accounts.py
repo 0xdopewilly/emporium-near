@@ -6,9 +6,10 @@ public faucet funds. Uses only this plugin's own near.py.
     python scripts/near_accounts.py fund <account> <usd>                             # send test USDC from the parent
     python scripts/near_accounts.py env <account>                                    # print KEY=… lines for a .env
     python scripts/near_accounts.py fleet .dev/fleet-near.json                       # the buyers, as a bench wallet file
+    python scripts/near_accounts.py create demo-buyer [--near 0.03]                  # one more account: <name>.<parent>
 
-Keys are written to .dev/near-wallets.json (git-ignored, mode 600) and are never printed except by
-``env``, which you redirect into a profile's .env yourself. The layout:
+Keys are written to .dev/near-wallets.json (git-ignored, mode 600; ``--wallets`` names another file) and are
+never printed except by ``env``, which you redirect into a profile's .env yourself. The layout:
 
     <parent>                  the faucet's NEAR, and the test USDC float (from https://faucet.circle.com, NEAR Testnet)
     ada.<parent>              Ada's earnings (pay_to). Its key never needs to be on a server.
@@ -16,6 +17,7 @@ Keys are written to .dev/near-wallets.json (git-ignored, mode 600) and are never
     ada-wallet.<parent>       what Ada's shop pays Tunde from when a job subcontracts (key on Ada's server)
     tunde.<parent>, tunde-relay.<parent>
     buyer-1 … buyer-N.<parent>   demo buyers: they hold USDC and no NEAR beyond the account minimum
+    demo-buyer.<parent>          (create demo-buyer) pays for a shop's keyless demo: demo_buyer_account
 """
 
 from __future__ import annotations
@@ -174,6 +176,22 @@ def cmd_env(a) -> None:
     print(f"{a.var}={w[a.account]['secret']}")
 
 
+def cmd_create(a) -> None:
+    """One more account under the parent, registered with USDC (e.g. the keyless demo's paying account)."""
+    w = load()
+    parent = a.parent or w.get("_meta", {}).get("parent") or "emporium.testnet"
+    if parent not in w:
+        sys.exit(f"no key for the parent {parent} in {WALLETS}")
+    account = a.name if a.name.endswith("." + parent) else f"{a.name}.{parent}"
+    if not near.is_account_id(account):
+        sys.exit(f"{account} is not a NEAR account id")
+    ensure_sub(w, parent, account, a.near, a.role)
+    ensure_registered(w, parent, account)
+    info = rpc.account(account) or {}
+    print(f"{account}: {Decimal(int(info.get('amount', 0))) / near.NEAR:.4f} NEAR, {usdc(account):.2f} USDC, registered with USDC "
+          f"(key in {WALLETS})")
+
+
 def cmd_fleet(a) -> None:
     """Write the buyer accounts and keys as a wallet file for bench/stress.py and bench/redteam.py."""
     w = load()
@@ -187,7 +205,9 @@ def cmd_fleet(a) -> None:
 
 
 def main() -> None:
+    global WALLETS
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--wallets", default=str(WALLETS), help="the wallet file (default .dev/near-wallets.json)")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("setup")
     s.add_argument("--parent", default="emporium.testnet")
@@ -209,7 +229,14 @@ def main() -> None:
     s = sub.add_parser("fleet")
     s.add_argument("out")
     s.set_defaults(fn=cmd_fleet)
+    s = sub.add_parser("create")
+    s.add_argument("name", help="e.g. demo-buyer, for demo-buyer.<parent>")
+    s.add_argument("--parent", default="")
+    s.add_argument("--near", default="0.03", help="NEAR to create it with (it needs none for USDC payments)")
+    s.add_argument("--role", default="demo-buyer")
+    s.set_defaults(fn=cmd_create)
     a = ap.parse_args()
+    WALLETS = Path(a.wallets).expanduser().resolve()
     a.fn(a)
 
 

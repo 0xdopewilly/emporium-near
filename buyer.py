@@ -204,12 +204,14 @@ def _near_signer(account: str, key: str):
 
 def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, key: Optional[str],
          ledger: Optional[books.Ledger], max_price: Any = None, for_job: str = "",
-         job_budget: Optional[Decimal] = None, near_account: str = "", near_key: Optional[str] = None) -> dict:
+         job_budget: Optional[Decimal] = None, near_account: str = "", near_key: Optional[str] = None,
+         near_rpc_urls: Optional[dict] = None) -> dict:
     """Run one paid job end to end. Returns {output, receipt, ...}; raises HireError (never charged).
 
     ``for_job``/``job_budget`` are set when one of this Hermes's own shop jobs subcontracts: the
     purchase is tied to that job and all of its subcontracts together stay within ``job_budget``.
-    ``key`` pays on Base; ``near_account``/``near_key`` pay on NEAR."""
+    ``key`` pays on Base; ``near_account``/``near_key`` pay on NEAR (``near_rpc_urls`` overrides the
+    network's public RPC for signing)."""
     from x402 import x402ClientSync
     from x402.http.x402_http_client import x402HTTPClientSync
 
@@ -256,7 +258,8 @@ def hire(shop_url: str, service_id: str, buyer_input: str, *, policy: Policy, ke
         client = x402ClientSync()
         if on_near:
             from .near_x402 import register_exact_near_client
-            register_exact_near_client(client, near_account, signer, [n for n in policy.networks if is_near(n)])
+            register_exact_near_client(client, near_account, signer, [n for n in policy.networks if is_near(n)],
+                                       near_rpc_urls)
         else:
             from x402.mechanisms.evm.exact import register_exact_evm_client
             register_exact_evm_client(client, signer, [n for n in policy.networks if not is_near(n)])
