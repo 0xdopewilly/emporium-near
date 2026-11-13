@@ -51,6 +51,19 @@ Two earlier runs of the same plan are kept in `bench/results/pre-fix/`:
 
 In every run the books reconciled to the cent: no buyer paid for a job that wasn't delivered.
 
+## For each track
+
+Emporium is entered in six tracks. Each line names what that track asks for and the command or link that shows it.
+
+| Track | What Emporium does there | Check it |
+|---|---|---|
+| **Autonomous Business** | Each shop is an AI-native business. It sells its skills per job, keeps its own books (AI cost and margin for every job), buys from other shops within a budget, and moves money across chains through NEAR Intents (top up from any chain, cash out to any chain). The owner sets only the constraints: menu, prices, budgets, tool limits, which shops it may hire. | The mainnet run above: `$PY scripts/verify_mainnet.py`; the job-cost table above; `$PY scripts/intents.py quote 5 from base:usdc` |
+| **Agent Economy** | Agents earn and spend. A Hermes agent sells work for USDC, and hires other agents with its own wallet. Any MCP agent (Claude Code, Codex, Cursor) can hire a shop in one line, with no keys. | `claude mcp add emporium -- npx -y emporium-mcp`, then ask your agent to hire Ada's Emporium: the work comes back with a NEAR receipt |
+| **Real-World Money** | Stablecoin payments per job, as meta transactions (NEP-366): the buyer signs, the shop's relayer pays the gas, and USDC moves only once the work is delivered. Every receipt is checkable on-chain, and the books reconcile to the cent. | `$PY scripts/verify_shop.py https://shop-production-8cc3cf57.up.railway.app`; on mainnet, Base → NEAR → Base for $0.0102 in route fees |
+| **AI Swarms** | Agents hire agents. Each shop and buyer has its own account (sub-accounts of `emporium.testnet`), and a job can subcontract part of the work to another shop: Ada's launch posts hire Tunde's translator, paid on delivery from Ada's wallet. It has no bidding market. | 12 shop-to-shop payments on mainnet (in `bench/results/mainnet-run.json`, checked by `verify_mainnet.py`); the live launch-post service |
+| **AI Security & Defense** | A paying stranger can't rob the shop: sealed profiles, a tool lock and a secret sweep (38 paid attack jobs, 0 tools escaped, 0 secrets leaked). Buyers have per-job and daily budgets. Payments are checked against the x402 reference: both implementations refuse all 71 tampered payloads. | `bench/redteam.py` and its report in `bench/results/`; `cd interop && npm ci && node run.mjs --offline …` (fresh-clone table below) |
+| **Open Innovation** | An agent that earns its keep: a plugin turns any Hermes agent into a shop paid only on delivery, reachable from any chain and from any MCP agent. | The live shop: https://shop-production-8cc3cf57.up.railway.app |
+
 ## How a NEAR payment works
 
 ```
